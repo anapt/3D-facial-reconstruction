@@ -15,8 +15,5 @@ shape = h5read("data-raw/model2017-1_bfm_nomouth.h5", "/shape/representer")
 color = h5read("data-raw/model2017-1_bfm_nomouth.h5", "/color/representer")
 
 # plot
-plot3d(shape$points, col = rgb(t(color$points)))
-plot3d(shape$points, col = rgb(t(pca_color$mean)))
-
-plot3d(color[["points"]], col = rgb(pca_color$mean))
+pca_color$mean = array(pca_color$mean, dim = c(3, length(pca_color$mean)/3))
 plot3d(color[["points"]], col = rgb(t(pca_color$mean)))
