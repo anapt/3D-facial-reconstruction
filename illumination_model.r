@@ -37,11 +37,11 @@ normals <- function(cells, vertices){
     C = vertices[,cells[,i]+1][,3]
     p = cross(B-A, C-A)
     
-    normals[,cells[,i]+1][,1] =  p
-    normals[,cells[,i]+1][,2] = p
-    normals[,cells[,i]+1][,3] = p
+    normals[,cells[,i]+1][,1] = normals[,cells[,i]+1][,1]+ p
+    normals[,cells[,i]+1][,2] = normals[,cells[,i]+1][,2]+p
+    normals[,cells[,i]+1][,3] = normals[,cells[,i]+1][,3]+p
     
   }
-  normals = normalize(normals, method = "standardize", range = c(0,1))
+  normals = normalize(normals, method = "range", range = c(-1,1))
 
 }
