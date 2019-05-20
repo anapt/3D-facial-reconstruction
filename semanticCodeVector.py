@@ -1,5 +1,7 @@
 import h5py
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 
 class SemanticCodeVector:
@@ -60,14 +62,36 @@ class SemanticCodeVector:
 
         return x
 
+    def plot_face3d(self):
+
+        scv_pca_bases = self.read_pca_bases()
+        plot_color = np.asarray(scv_pca_bases["average_reflectance"])
+        plot_color = np.reshape(plot_color, (3, int(plot_color.size / 3)), order='F')
+
+        plot_points = np.asarray(scv_pca_bases["average_shape"])
+        plot_points = np.reshape(plot_points, (3, int(plot_points.size / 3)), order='F')
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+
+        ax.scatter3D(plot_points[0, ], plot_points[1, ], plot_points[2, ], s=1, c=np.transpose(plot_color))
+
+        plt.show()
+
 
 def main():
 
+    # MODIFY TO path containing Basel Face model
     path = '/home/anapt/Documents/Thesis - data/data-raw/model2017-1_bfm_nomouth.h5'
     scv = SemanticCodeVector(path)
-    x = scv.sample_vector()
+    # x = scv.sample_vector()
 
-    print(x["scene_illumination"])
+    # print(x["scene_illumination"])
+
+    scv.plot_face3d()
 
 
 main()
