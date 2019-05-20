@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
 class SemanticCodeVector:
 
     def __init__(self, path):
@@ -11,15 +10,16 @@ class SemanticCodeVector:
 
     def read_pca_bases(self):
         shape_pca = self.model['shape']['model']['pcaBasis'][()]
-        shape_pca = shape_pca[1:len(shape_pca), 0:80]
+        shape_pca = shape_pca[0:len(shape_pca), 0:80]
         # print(shape_pca.shape)
 
         reflectance_pca = self.model['color']['model']['pcaBasis'][()]
-        reflectance_pca = reflectance_pca[1:len(reflectance_pca), 0:80]
-        # print(reflectance_pca.shape)
+        reflectance_pca = reflectance_pca[0:len(reflectance_pca), 0:80]
+        print("here")
+        print(reflectance_pca.shape)
 
         expression_pca = self.model['expression']['model']['pcaBasis'][()]
-        expression_pca = expression_pca[1:len(expression_pca), 0:64]
+        expression_pca = expression_pca[0:len(expression_pca), 0:64]
         # print(expression_pca.shape)
 
         average_shape = self.model['shape']['model']['mean'][()]
@@ -81,17 +81,44 @@ class SemanticCodeVector:
 
         plt.show()
 
+    def calculate_coords(self, vector):
+        scv_pca_bases = self.read_pca_bases()
+
+        # print(svc_pca_bases["average_shape"].shape)
+        # print(svc_pca_bases["shape_pca"].shape)
+        # print(vector["shape"].shape)
+        # print(svc_pca_bases["expression_pca"].shape)
+        # print(vector["expression"].shape)
+
+        vertices = scv_pca_bases["average_shape"] + \
+            np.dot(scv_pca_bases["shape_pca"], vector["shape"]) + \
+            np.dot(scv_pca_bases["expression_pca"], vector["expression"])
+
+        return vertices
+
+    def calculate_skin_reflectance(self, vector):
+        scv_pca_bases = self.read_pca_bases()
+
+        skin_reflectance = scv_pca_bases["average_reflectance"] + \
+            np.dot(scv_pca_bases["reflectance_pca"], vector["skin_reflectance"])
+
+        return skin_reflectance
+
+
+
+
 
 def main():
 
     # MODIFY TO path containing Basel Face model
     path = '/home/anapt/Documents/Thesis - data/data-raw/model2017-1_bfm_nomouth.h5'
     scv = SemanticCodeVector(path)
-    # x = scv.sample_vector()
+    x = scv.sample_vector()
 
     # print(x["scene_illumination"])
 
-    scv.plot_face3d()
-
+    # scv.plot_face3d()
+    vertices = scv.calculate_coords(x)
+    print(vertices.shape)
 
 main()
