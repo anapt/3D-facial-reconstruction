@@ -45,7 +45,7 @@ class SemanticCodeVector:
         d = np.random.uniform(-24, 24, 64)
         d[0] = np.random.uniform(-4.8, 4.8, 1)
 
-        rotmat = np.random.uniform(-40, 40, 3)
+        rotmat = np.random.uniform(-20, 20, 3)
         rotmat[2] = np.random.uniform(-15, 15, 1)
 
         g = np.random.uniform(-0.2, 0.2, 27)
