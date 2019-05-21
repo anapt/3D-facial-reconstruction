@@ -54,10 +54,10 @@ class SemanticCodeVector:
         x = {
             "shape": a,
             "expression": d,
-            "skin_reflectance": b,
+            "reflectance": b,
             "rotation": rotmat,
             # "translation": t,
-            "scene_illumination": g
+            "illumination": g
         }
 
         return x
@@ -96,29 +96,29 @@ class SemanticCodeVector:
 
         return vertices
 
-    def calculate_skin_reflectance(self, vector):
+    def calculate_reflectance(self, vector):
         scv_pca_bases = self.read_pca_bases()
 
         skin_reflectance = scv_pca_bases["average_reflectance"] + \
-            np.dot(scv_pca_bases["reflectance_pca"], vector["skin_reflectance"])
+            np.dot(scv_pca_bases["reflectance_pca"], vector["reflectance"])
 
         return skin_reflectance
 
 
-
-
-
-def main():
-
-    # MODIFY TO path containing Basel Face model
-    path = '/home/anapt/Documents/Thesis - data/data-raw/model2017-1_bfm_nomouth.h5'
-    scv = SemanticCodeVector(path)
-    x = scv.sample_vector()
-
-    # print(x["scene_illumination"])
-
-    # scv.plot_face3d()
-    vertices = scv.calculate_coords(x)
-    print(vertices.shape)
-
-main()
+# def main():
+#
+#     # MODIFY TO path containing Basel Face model
+#     path = '/home/anapt/Documents/Thesis - data/data-raw/model2017-1_bfm_nomouth.h5'
+#     scv = SemanticCodeVector(path)
+#     x = scv.sample_vector()
+#
+#     # print(x["illumination"])
+#
+#     # scv.plot_face3d()
+#     vertices = scv.calculate_coords(x)
+#     reflectance = scv.calculate_reflectance(x)
+#     print(reflectance.shape)
+#     print(vertices.shape)
+#
+#
+# main()
