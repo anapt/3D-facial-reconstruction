@@ -106,21 +106,3 @@ class SemanticCodeVector:
 
         return skin_reflectance
 
-
-# def main():
-#
-#     # MODIFY TO path containing Basel Face model
-#     path = '/home/anapt/Documents/Thesis - data/data-raw/model2017-1_bfm_nomouth.h5'
-#     scv = SemanticCodeVector(path)
-#     x = scv.sample_vector()
-#
-#     # print(x["illumination"])
-#
-#     # scv.plot_face3d()
-#     vertices = scv.calculate_coords(x)
-#     reflectance = scv.calculate_reflectance(x)
-#     print(reflectance.shape)
-#     print(vertices.shape)
-#
-#
-# main()
