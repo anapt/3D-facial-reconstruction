@@ -91,7 +91,6 @@ class ParametricMoDecoder:
         return np.transpose(color)
 
 
-
 def main():
     # MODIFY TO path containing Basel Face model
     path = '/home/anapt/Documents/Thesis - data/data-raw/model2017-1_bfm_nomouth.h5'
