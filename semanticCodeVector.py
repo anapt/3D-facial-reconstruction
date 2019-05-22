@@ -15,8 +15,7 @@ class SemanticCodeVector:
 
         reflectance_pca = self.model['color']['model']['pcaBasis'][()]
         reflectance_pca = reflectance_pca[0:len(reflectance_pca), 0:80]
-        print("here")
-        print(reflectance_pca.shape)
+        # print(reflectance_pca.shape)
 
         expression_pca = self.model['expression']['model']['pcaBasis'][()]
         expression_pca = expression_pca[0:len(expression_pca), 0:64]
@@ -39,7 +38,8 @@ class SemanticCodeVector:
         }
         return scv_pca_bases
 
-    def sample_vector(self):
+    @staticmethod
+    def sample_vector():
         a = np.random.normal(0, 1, 80)
         b = np.random.normal(0, 1, 80)
         d = np.random.uniform(-24, 24, 64)
@@ -51,12 +51,14 @@ class SemanticCodeVector:
         g = np.random.uniform(-0.2, 0.2, 27)
         g[0] = np.random.uniform(0.6, 1.2, 1)
 
+        t = np.zeros(3)
+
         x = {
             "shape": a,
             "expression": d,
             "reflectance": b,
             "rotation": rotmat,
-            # "translation": t,
+            "translation": t,
             "illumination": g
         }
 
