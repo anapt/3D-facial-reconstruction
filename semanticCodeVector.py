@@ -38,6 +38,10 @@ class SemanticCodeVector:
         }
         return scv_pca_bases
 
+    def read_cells(self):
+        cells = self.model['shape']['representer']['cells'][()]
+        return cells
+
     @staticmethod
     def sample_vector():
         a = np.random.normal(0, 1, 80)
