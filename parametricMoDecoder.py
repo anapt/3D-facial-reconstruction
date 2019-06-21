@@ -14,19 +14,19 @@ class ParametricMoDecoder:
     @staticmethod
     def projection(coords_3d):
         # print(coords_3d.shape)
-        if abs(coords_3d[2]) > 70:
-            inv_z = abs(1/coords_3d[2])
-            # m = np.matrix([[inv_z, 0, 0], [0, inv_z, 0]])
-            # coords_2d = np.dot(m, coords_3d)
-            coords_2d = np.asarray([coords_3d[0]*inv_z, coords_3d[1]*inv_z])
-            # print(coords_2d.shape)
-            return np.transpose(coords_2d)
+        coords_2d = np.zeros((2, coords_3d.shape[1]), dtype=coords_3d.dtype)
 
-        else:
-            coords_2d = [0, 0]
-            coords_2d = np.asarray(coords_2d)
-            # print(coords_2d.shape)
-            return np.transpose(coords_2d)
+        for i in range(0, coords_3d.shape[1]):
+            if abs(coords_3d[2, i]) > 70:
+                inv_z = abs(1/coords_3d[2, i])
+                # m = np.matrix([[inv_z, 0, 0], [0, inv_z, 0]])
+                # coords_2d = np.dot(m, coords_3d)
+                coords_2d[:, i] = ([coords_3d[0, i]*inv_z, coords_3d[1, i]*inv_z])
+
+            else:
+                coords_2d[:, i] = [0, 0]
+
+        return np.transpose(coords_2d)
 
     @staticmethod
     def create_rot_mat(a, b, c):
@@ -47,14 +47,12 @@ class ParametricMoDecoder:
 
     @staticmethod
     def transform_wcs2ccs(coords_ws, inv_rotmat, translation):
-        coords_cs = np.dot(inv_rotmat, (coords_ws - translation))
+        print(np.shape(coords_ws))
 
-        coords_cs = np.transpose(coords_cs)
-        # (3, 1)
-        # <class 'numpy.matrix'>
-        coords_cs = np.squeeze(np.asarray(coords_cs))
-        # (3,)
-        # <class 'numpy.ndarray'>
+        coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
+        for i in range(0, coords_ws.shape[1]):
+            coords_cs[::, i] = np.dot(inv_rotmat, (coords_ws[::, i] - translation))
+
         return coords_cs
 
     @staticmethod
@@ -178,4 +176,4 @@ def main():
     # pmod.projection(v0)
 
 
-main()
+# main()
