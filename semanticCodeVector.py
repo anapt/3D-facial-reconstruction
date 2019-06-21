@@ -26,7 +26,7 @@ class SemanticCodeVector:
         # print(type(average_shape))
 
         average_reflectance = self.model['color']['model']['mean'][()]
-        # print(average_color.shape)                        # (159447,)
+        # print(average_reflectance.shape)                        # (159447,)
         # print(type(average_color))                        # <class 'numpy.ndarray'>
 
         scv_pca_bases = {
@@ -85,12 +85,6 @@ class SemanticCodeVector:
 
     def calculate_coords(self, vector):
         scv_pca_bases = self.read_pca_bases()
-
-        # print(svc_pca_bases["average_shape"].shape)
-        # print(svc_pca_bases["shape_pca"].shape)
-        # print(vector["shape"].shape)
-        # print(svc_pca_bases["expression_pca"].shape)
-        # print(vector["expression"].shape)
 
         vertices = scv_pca_bases["average_shape"] + \
             np.dot(scv_pca_bases["shape_pca"], vector["shape"]) + \

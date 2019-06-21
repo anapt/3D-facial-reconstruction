@@ -13,16 +13,19 @@ class ParametricMoDecoder:
 
     @staticmethod
     def projection(coords_3d):
-
+        # print(coords_3d.shape)
         if abs(coords_3d[2]) > 70:
             inv_z = abs(1/coords_3d[2])
             # m = np.matrix([[inv_z, 0, 0], [0, inv_z, 0]])
             # coords_2d = np.dot(m, coords_3d)
-            coords_2d = [coords_3d[0]*inv_z, coords_3d[1]*inv_z]
-
+            coords_2d = np.asarray([coords_3d[0]*inv_z, coords_3d[1]*inv_z])
+            # print(coords_2d.shape)
             return np.transpose(coords_2d)
+
         else:
             coords_2d = [0, 0]
+            coords_2d = np.asarray(coords_2d)
+            # print(coords_2d.shape)
             return np.transpose(coords_2d)
 
     @staticmethod
@@ -38,14 +41,21 @@ class ParametricMoDecoder:
         rot_mat_so3 = np.matrix([[c1*c2, c1*s2*s3 - c3*s1, s1*s3 - c1*c3*s2],
                                  [c2*s1, c1*c3 + s1*s2*s3, c3*s1*s2 - c1*c3],
                                  [-s2, c2*s3, c2*c3]])
-
+        # print(type(rot_mat_so3))
+        # print(rot_mat_so3.shape)
         return rot_mat_so3
 
     @staticmethod
     def transform_wcs2ccs(coords_ws, inv_rotmat, translation):
         coords_cs = np.dot(inv_rotmat, (coords_ws - translation))
 
-        return np.transpose(coords_cs)
+        coords_cs = np.transpose(coords_cs)
+        # (3, 1)
+        # <class 'numpy.matrix'>
+        coords_cs = np.squeeze(np.asarray(coords_cs))
+        # (3,)
+        # <class 'numpy.ndarray'>
+        return coords_cs
 
     @staticmethod
     def get_sh_basis_function(x_coord, y_coord, z_coord, b):
@@ -88,7 +98,8 @@ class ParametricMoDecoder:
             summ = summ + illumination[:, i] * self.get_sh_basis_function(normal[0], normal[1], normal[2], i+1)
         # point wise multiplication
         color = np.multiply(reflectance, summ)
-        return np.transpose(color)
+        color = np.transpose(color)
+        return color
 
 
 def main():
@@ -110,7 +121,7 @@ def main():
 
     rotmatSO3 = pmod.create_rot_mat(x['rotation'][0], x['rotation'][1], x['rotation'][2])
     inv_rotmat = np.linalg.inv(rotmatSO3)
-
+    pmod.transform_wcs2ccs(ver[:, 2], inv_rotmat, x['translation'])
     projected = np.zeros([2, 53149])
 
     pmod.get_color(ref[:, 0], ver[:, 0], x['illumination'])
