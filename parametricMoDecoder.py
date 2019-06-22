@@ -30,6 +30,11 @@ class ParametricMoDecoder:
 
     @staticmethod
     def create_rot_mat(a, b, c):
+        # a = b = c = 0
+        # no rotation for testing
+        a = 0
+        b = 0
+        c = 0
         c1 = math.cos(math.radians(c))
         c2 = math.cos(math.radians(b))
         c3 = math.cos(math.radians(a))
