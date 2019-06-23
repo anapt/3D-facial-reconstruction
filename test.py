@@ -16,7 +16,7 @@ x = data.sample_vector()
 cells = data.read_cells()
 
 vertices = data.read_pca_bases()['average_shape']
-# reflectance = data.read_pca_bases()['average_reflectance']
+reflectance = data.read_pca_bases()['average_reflectance']
 
 reflectance = data.calculate_reflectance(x)
 
