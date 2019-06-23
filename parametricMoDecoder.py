@@ -7,9 +7,11 @@ import math as math
 
 class ParametricMoDecoder:
 
-    def __init__(self, vertices, reflectance):
+    def __init__(self, vertices, reflectance, x, cells):
         self.vertices = vertices
-        self.illumination = reflectance
+        self.reflectance = reflectance
+        self.x = x
+        self.cells = cells
 
     @staticmethod
     def projection(coords_3d):
@@ -25,11 +27,12 @@ class ParametricMoDecoder:
 
             else:
                 coords_2d[:, i] = [0, 0]
-
-        return np.transpose(coords_2d)
+        # shape 2,N
+        return coords_2d
 
     @staticmethod
     def create_rot_mat(a, b, c):
+        #  TODO add rotation
         # a = b = c = 0
         # no rotation for testing
         a = 0
@@ -57,6 +60,14 @@ class ParametricMoDecoder:
         coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
         for i in range(0, coords_ws.shape[1]):
             coords_cs[::, i] = np.dot(inv_rotmat, (coords_ws[::, i] - translation))
+
+        return coords_cs
+
+    @staticmethod
+    def transform_wc2cs_vectors(coords_ws, rotmat):
+        coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
+        for i in range(0, coords_ws.shape[1]):
+            coords_cs[::, i] = np.dot(rotmat, coords_ws[::, i])
 
         return coords_cs
 
@@ -140,7 +151,8 @@ class ParametricMoDecoder:
         vertices = np.transpose(vertices)
 
         cells = np.transpose(cells)
-
+        print(cells.shape)
+        print(type(cells))
         # Create a zeroed array with the same type and shape as our vertices i.e., per vertex normal
         norm = np.zeros(vertices.shape, dtype=vertices.dtype)
         # Create an indexed view into the vertex array using the array of three indices for triangles
@@ -153,6 +165,8 @@ class ParametricMoDecoder:
         # n is now an array of normals per triangle
         # we need to normalize these, so that our next step weights each normal equally.
         n = self.normalize_v3(n)
+        print(n.shape)
+        print(type(n))
         # now we have a normalized array of normals, one per triangle, i.e., per triangle normals.
         # But instead of one per triangle (i.e., flat shading), we add to each vertex in that triangle,
         # the triangles' normal. Multiple triangles would then contribute to every vertex,
@@ -165,41 +179,73 @@ class ParametricMoDecoder:
         norm = np.transpose(norm)  # return 3, 53149 ndarray
         return norm
 
+    def get_image_formation(self):
+        ws_vertices = np.reshape(self.vertices, (3, int(self.vertices.size / 3)), order='F')
+        reflectance = np.reshape(self.reflectance, (3, int(self.reflectance.size / 3)), order='F')
 
-def main():
-    # MODIFY TO path containing Basel Face model
-    path = '/home/anapt/Documents/Thesis - data/data-raw/model2017-1_bfm_nomouth.h5'
-    data = scv.SemanticCodeVector(path)
-    x = data.sample_vector()
-    cells = data.read_cells()
+        rotmatSO3 = self.create_rot_mat(self.x['rotation'][0], self.x['rotation'][1], self.x['rotation'][2])
+        inv_rotmat = np.linalg.inv(rotmatSO3)
 
-    # vertices = scv1.calculate_coords(x)
-    reflectance = data.calculate_reflectance(x)
+        ''' Calculate color '''
+        # world space normals
+        ws_normals = self.calculate_normals(self.cells)
 
-    scv_pca_bases = data.read_pca_bases()
+        # transform world space normals to camera space normals
+        cs_normals = self.transform_wc2cs_vectors(ws_normals, rotmatSO3)
 
-    vertices = np.asarray(scv_pca_bases["average_shape"])
-    ver = np.reshape(vertices, (3, int(vertices.size / 3)), order='F')
-    ref = np.reshape(reflectance, (3, int(reflectance.size / 3)), order='F')
+        # calculate color
+        color = np.zeros(reflectance.shape, dtype=reflectance.dtype)
+        for i in range(0, reflectance.shape[1]):
+            color[:, i] = self.get_color(reflectance[:, i], cs_normals[:, i], self.x['illumination'])
 
-    pmod = ParametricMoDecoder(vertices, reflectance)
+        ''' Calculate projected coordinates '''
+        cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
+        projected = self.projection(cs_vertices)
 
-    rotmatSO3 = pmod.create_rot_mat(x['rotation'][0], x['rotation'][1], x['rotation'][2])
-    inv_rotmat = np.linalg.inv(rotmatSO3)
-    pmod.transform_wcs2ccs(ver[:, 2], inv_rotmat, x['translation'])
-    projected = np.zeros([2, 53149])
+        formation = {
+            "position": projected,
+            "color": color
+        }
 
-    pmod.get_color(ref[:, 0], ver[:, 0], x['illumination'])
-    # for i in range(0, 53149):
-    #     coords_ccs = pmod.transform_wcs2ccs(ver[:, i], inv_rotmat, x["translation"])
-    #     projected[:, i] = pmod.projection(coords_ccs)
-    #
-    # print(projected.max())
-    # plt.scatter(projected[0, ], projected[1, ], s=1)
-    # plt.show()
-    # plt.plot(vertices[2,: ])
-    # plt.show()
-    # pmod.projection(v0)
+        return formation
+
+
+
+
+# def main():
+#     # MODIFY TO path containing Basel Face model
+#     path = '/home/anapt/Documents/Thesis - data/data-raw/model2017-1_bfm_nomouth.h5'
+#     data = scv.SemanticCodeVector(path)
+#     x = data.sample_vector()
+#     cells = data.read_cells()
+#
+#     # vertices = scv1.calculate_coords(x)
+#     reflectance = data.calculate_reflectance(x)
+#
+#     scv_pca_bases = data.read_pca_bases()
+#
+#     vertices = np.asarray(scv_pca_bases["average_shape"])
+#     ver = np.reshape(vertices, (3, int(vertices.size / 3)), order='F')
+#     ref = np.reshape(reflectance, (3, int(reflectance.size / 3)), order='F')
+#
+#     pmod = ParametricMoDecoder(vertices, reflectance)
+#
+#     rotmatSO3 = pmod.create_rot_mat(x['rotation'][0], x['rotation'][1], x['rotation'][2])
+#     inv_rotmat = np.linalg.inv(rotmatSO3)
+#     pmod.transform_wcs2ccs(ver[:, 2], inv_rotmat, x['translation'])
+#     projected = np.zeros([2, 53149])
+#
+#     pmod.get_color(ref[:, 0], ver[:, 0], x['illumination'])
+#     # for i in range(0, 53149):
+#     #     coords_ccs = pmod.transform_wcs2ccs(ver[:, i], inv_rotmat, x["translation"])
+#     #     projected[:, i] = pmod.projection(coords_ccs)
+#     #
+#     # print(projected.max())
+#     # plt.scatter(projected[0, ], projected[1, ], s=1)
+#     # plt.show()
+#     # plt.plot(vertices[2,: ])
+#     # plt.show()
+#     # pmod.projection(v0)
 
 
 # main()
