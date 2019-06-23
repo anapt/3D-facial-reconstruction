@@ -93,12 +93,32 @@ class ParametricMoDecoder:
                      (3 * pow(x_coord, 2) - pow(y_coord, 2))) / (pow(r, 4))
         return basis
 
-#    illumination model
+    @staticmethod
+    def spherical_harmonics(x, y, z, b):
+        # second order spherical harmonics
+        r = pow(x, 2) + pow(y, 2) + pow(z, 2)
+        if b == 0:
+            n = 0.25 * pow(5 / math.pi, 0.5) * (2 * pow(z, 2) - pow(x, 2) - pow(y, 2)) / r
+        elif b == 1:
+            n = 0.5 * pow(15 / math.pi, 0.5) * (z*x) / pow(r, 2)
+        elif b == 3:
+            n = 0.5 * pow(15 / math.pi, 0.5) * (pow(x, 2) - pow(y, 2)) / pow(r, 2)
+        elif b == 2:
+            n = 0.5 * pow(15 / math.pi, 0.5) * (y*z) / pow(r, 2)
+        elif b == 4:
+            n = 0.5 * pow(15 / math.pi, 0.5) * (x*y) / pow(r, 2)
+        else:
+            n = 1
+        # print(n)
+        return n
+
+    # illumination model
     def get_color(self, reflectance, normal, illumination):
         illumination = np.reshape(illumination, (3, 9), order='F')
         summ = 0
         for i in range(0, 9):
-            summ = summ + illumination[:, i] * self.get_sh_basis_function(normal[0], normal[1], normal[2], i+1)
+            summ = summ + illumination[:, i] * self.spherical_harmonics(normal[0], normal[1], normal[2], i)
+            # summ = summ + illumination[:, i]
         # point wise multiplication
         color = np.multiply(reflectance, summ)
         color = np.transpose(color)
