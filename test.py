@@ -21,7 +21,7 @@ reflectance = data.read_pca_bases()['average_reflectance']
 reflectance = data.calculate_reflectance(x)
 
 ''' PARAMETRIC MODEL BASED DECODER '''
-decoder = pmd.ParametricMoDecoder(vertices, reflectance)
+decoder = pmd.ParametricMoDecoder(vertices, reflectance, x, cells)
 # vertices and reflectance reshape in [3, 3N]
 vertices = np.reshape(vertices, (3, int(vertices.size / 3)), order='F')
 reflectance = np.reshape(reflectance, (3, int(reflectance.size / 3)), order='F')
@@ -30,6 +30,8 @@ np.savetxt('reflectance.txt', reflectance)
 rotmatSO3 = decoder.create_rot_mat(x['rotation'][0], x['rotation'][1], x['rotation'][2])
 inv_rotmat = np.linalg.inv(rotmatSO3)
 
+
+decoder.get_image_formation()
 # from WCS to CCS
 ccs = decoder.transform_wcs2ccs(vertices, inv_rotmat, x['translation'])
 # from CCS to SCREEN SPACE
