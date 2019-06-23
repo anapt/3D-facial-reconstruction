@@ -63,33 +63,33 @@ class ParametricMoDecoder:
     @staticmethod
     def get_sh_basis_function(x_coord, y_coord, z_coord, b):
         r = pow(x_coord, 2) + pow(y_coord, 2) + pow(z_coord, 2)
-        if b == 1:
+        if b == 9:
             basis = 0.75 * math.pow(35 / math.pi, 0.5) * (x_coord * y_coord *
                                                           (pow(x_coord, 2) - pow(y_coord, 2))) / (pow(r, 4))
-        elif b == 2:
+        elif b == 7:
             basis = 0.75 * math.pow(35 / (2 * math.pi), 0.5) * \
                  (z_coord * y_coord * (3 * pow(x_coord, 2) - pow(y_coord, 2))) / (pow(r, 4))
-        elif b == 3:
+        elif b == 5:
             basis = 0.75 * math.pow(5 / math.pi, 0.5) * (x_coord * y_coord *
                                                          (7 * pow(z_coord, 2) - pow(r, 2))) / (pow(r, 4))
-        elif b == 4:
+        elif b == 3:
             basis = 0.75 * math.pow(5 / (2 * math.pi), 0.5) * \
                  (y_coord * z_coord * (7 * pow(z_coord, 2) - 3 * pow(r, 2))) / (pow(r, 4))
-        elif b == 5:
+        elif b == 1:
             basis = (3 / 16) * math.pow(1 / math.pi, 0.5) * \
                  (35 * pow(z_coord, 2) - 30 * pow(z_coord, 2) * pow(r, 2) + 3 * pow(r, 4)) / (pow(r, 4))
-        elif b == 6:
+        elif b == 2:
             basis = 0.75 * math.pow(5 / (2 * math.pi), 0.5) * \
                  (x_coord * z_coord * (7 * pow(z_coord, 2) - 3 * pow(r, 2))) / (pow(r, 4))
-        elif b == 7:
+        elif b == 4:
             basis = (3 / 8) * math.pow(5 / math.pi, 0.5) * ((pow(x_coord, 2) - pow(y_coord, 2)) *
                                                             (7 * pow(z_coord, 2) - pow(r, 2))) / (pow(r, 4))
-        elif b == 8:
+        elif b == 6:
             basis = (3 / 4) * math.pow(35 / (2 * math.pi), 0.5) * \
                     ((pow(x_coord, 2) - 3 * pow(y_coord, 2)) * x_coord * y_coord) / (pow(r, 4))
-        elif b == 9:
+        elif b == 8:
             basis = (3 / 16) * math.pow(35 / math.pi, 0.5) * \
-                    ((pow(x_coord, 2)) * (pow(x_coord, 2) - 3 * pow(y_coord, 2)) -(pow(y_coord, 2)) *
+                    ((pow(x_coord, 2)) * (pow(x_coord, 2) - 3 * pow(y_coord, 2)) - (pow(y_coord, 2)) *
                      (3 * pow(x_coord, 2) - pow(y_coord, 2))) / (pow(r, 4))
         return basis
 
@@ -142,6 +142,7 @@ class ParametricMoDecoder:
         norm[cells[:, 2]] += n
         norm = self.normalize_v3(norm)
 
+        norm = np.transpose(norm)  # return 3, 53149 ndarray
         return norm
 
 
