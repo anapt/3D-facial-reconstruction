@@ -56,7 +56,7 @@ class SemanticCodeVector:
         # TODO range is smaller than the one used in the paper
         g = np.random.uniform(0, 0.4, 27)
         g[0] = np.random.uniform(0.4, 1, 1)
-
+        # TODO add translation
         t = np.zeros(3)
 
         x = {
