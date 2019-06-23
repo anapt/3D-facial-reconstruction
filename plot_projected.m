@@ -9,7 +9,7 @@ colors(1,:) = A(1:53149);
 colors(2,:) = A(53150:53149+53149);
 colors(3,:) = A(53150+53149:159447);
 
-fileID = fopen('projected.txt','r');
+fileID = fopen('position.txt','r');
 A = fscanf(fileID, '%f');
 projected = zeros(2, 53149);
  
