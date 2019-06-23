@@ -16,8 +16,9 @@ x = data.sample_vector()
 cells = data.read_cells()
 
 vertices = data.read_pca_bases()['average_shape']
-reflectance = data.read_pca_bases()['average_reflectance']
+# reflectance = data.read_pca_bases()['average_reflectance']
 
+reflectance = data.calculate_reflectance(x)
 
 ''' PARAMETRIC MODEL BASED DECODER '''
 decoder = pmd.ParametricMoDecoder(vertices, reflectance)
@@ -44,7 +45,6 @@ print(projected.shape)
 
 # calculate normals
 normals = decoder.calculate_normals(cells)
-normals = np.transpose(normals)
 print(normals.shape)
 
 # calculate color
@@ -53,19 +53,22 @@ print(color.shape)
 
 np.savetxt('projected.txt', projected)
 
-# for i in range(0, reflectance.shape[1]):
-#     color[:, i] = decoder.get_color(reflectance[:, i], normals[:, i], x['illumination'])
+for i in range(0, reflectance.shape[1]):
+    color[:, i] = decoder.get_color(reflectance[:, i], normals[:, i], x['illumination'])
 
 print(color.shape)
-# np.savetxt('color.txt', color)
+np.savetxt('color.txt', color)
 # plt.scatter(projected[0, ], projected[1, ], c=color, alpha=0.01)
 # plt.show()
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-ax.scatter(normals[0, ], normals[1, ], normals[2, ], s=1)
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_zlabel('z')
+
+''' NORMALS PLOT '''
+# fig = plt.figure()
+# ax = fig.gca(projection='3d')
+# ax.scatter(normals[0, ], normals[1, ], normals[2, ], s=1)
+# ax.set_xlabel('x')
+# ax.set_ylabel('y')
+# ax.set_zlabel('z')
+# np.savetxt('normals.txt', normals)
 
 
 plt.show()
