@@ -209,7 +209,21 @@ class ParametricMoDecoder:
 
         return formation
 
+    def calculate_cell_depth(self, formation):
+        vertices = np.reshape(self.vertices, (3, int(self.vertices.size / 3)), order='F')
+        depth = np.zeros(self.cells.shape[1], dtype=self.cells.dtype)
+        for i in range(0, self.cells.shape[1]):
+            depth[i] = (vertices[2, self.cells[0, i]] + vertices[2, self.cells[1, i]] +
+                        vertices[2, self.cells[2, i]]) / 3
 
+        # arrange cells with deepest one first
+        order = np.argsort(depth)
+        cells_ordered = self.cells[:, order.astype(int)]
+        # color_ordered = formation['color'][:, order.astype(int)]
+
+        print(cells_ordered.shape)
+        # print(color_ordered)
+        return cells_ordered
 
 
 # def main():
