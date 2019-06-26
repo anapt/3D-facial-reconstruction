@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import semanticCodeVector as scv
 import math as math
+from sklearn.preprocessing import normalize
 
 
 class ParametricMoDecoder:
@@ -201,15 +202,19 @@ class ParametricMoDecoder:
         ''' Calculate projected coordinates '''
         cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
         projected = self.projection(cs_vertices)
-
+        print(color.shape)
+        # color = self.normalize_v3(np.transpose(color))
+        normalize(color, axis=0, copy=False)
         formation = {
             "position": projected,
-            "color": color
+            "color": abs(color)
         }
 
         return formation
 
-    def calculate_cell_depth(self, formation):
+    ''' returns cells ordered deepest at top '''
+    def calculate_cell_depth(self):
+
         vertices = np.reshape(self.vertices, (3, int(self.vertices.size / 3)), order='F')
         depth = np.zeros(self.cells.shape[1], dtype=self.cells.dtype)
         for i in range(0, self.cells.shape[1]):
@@ -219,10 +224,8 @@ class ParametricMoDecoder:
         # arrange cells with deepest one first
         order = np.argsort(depth)
         cells_ordered = self.cells[:, order.astype(int)]
-        # color_ordered = formation['color'][:, order.astype(int)]
 
         print(cells_ordered.shape)
-        # print(color_ordered)
         return cells_ordered
 
 

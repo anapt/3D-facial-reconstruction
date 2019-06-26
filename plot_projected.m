@@ -17,6 +17,7 @@ projected(1,:) = A(1:53149);
 projected(2,:) = A(53150:53149+53149);
 
 figure(1)
+axis('equal')
 scatter(projected(1,:),projected(2,:),5, colors.')
 
 fileID = fopen('reflectance.txt','r');
@@ -27,6 +28,7 @@ reflectance(2,:) = A(53150:53149+53149);
 reflectance(3,:) = A(53150+53149:159447);
 
 figure(2)
+axis('equal')
 scatter(projected(1,:),projected(2,:),5, reflectance.')
 
 norm(colors - reflectance)
@@ -53,4 +55,22 @@ for i=1:1:105693
     C(:, i, :) = colors(:, cells(:,i)+1).';
 end
 
-patch(X, Y, C, 'edgecolor','none')
+close all
+figure('Position', [-1 -1 240 240])
+bb = patch(X, Y, C, 'edgecolor','none')
+axis('tight', 'equal')
+
+axis off
+export_fig('yourfigure.png');
+
+
+
+
+
+% poly2mask(X,Y,C)
+% marg = 0;
+% rect = [-marg, -marg, 240, 240];
+F = getframe(gca);
+% figure(4)
+image = F.cdata;
+% imshow(image)

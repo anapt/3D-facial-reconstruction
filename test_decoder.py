@@ -29,11 +29,12 @@ formation = decoder.get_image_formation()
 
 print(cells.shape)
 print("ordered")
-cells_ordered = decoder.calculate_cell_depth(formation)
+cells_ordered = decoder.calculate_cell_depth()
 np.savetxt('cells.txt', cells_ordered)
 # np.savetxt('color.txt', color_ordered)
 
 plt.scatter(formation['position'][0, :], formation['position'][1, :], s=1)
 plt.show()
+
 
 
