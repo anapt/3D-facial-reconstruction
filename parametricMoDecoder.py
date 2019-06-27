@@ -56,7 +56,7 @@ class ParametricMoDecoder:
 
     @staticmethod
     def transform_wcs2ccs(coords_ws, inv_rotmat, translation):
-        print(np.shape(coords_ws))
+        # print(np.shape(coords_ws))
 
         coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
         for i in range(0, coords_ws.shape[1]):
@@ -152,8 +152,8 @@ class ParametricMoDecoder:
         vertices = np.transpose(vertices)
 
         cells = np.transpose(cells)
-        print(cells.shape)
-        print(type(cells))
+        # print(cells.shape)
+        # print(type(cells))
         # Create a zeroed array with the same type and shape as our vertices i.e., per vertex normal
         norm = np.zeros(vertices.shape, dtype=vertices.dtype)
         # Create an indexed view into the vertex array using the array of three indices for triangles
@@ -166,8 +166,8 @@ class ParametricMoDecoder:
         # n is now an array of normals per triangle
         # we need to normalize these, so that our next step weights each normal equally.
         n = self.normalize_v3(n)
-        print(n.shape)
-        print(type(n))
+        # print(n.shape)
+        # print(type(n))
         # now we have a normalized array of normals, one per triangle, i.e., per triangle normals.
         # But instead of one per triangle (i.e., flat shading), we add to each vertex in that triangle,
         # the triangles' normal. Multiple triangles would then contribute to every vertex,
@@ -225,7 +225,7 @@ class ParametricMoDecoder:
         order = np.argsort(depth)
         cells_ordered = self.cells[:, order.astype(int)]
 
-        print(cells_ordered.shape)
+        # print(cells_ordered.shape)
         return cells_ordered
 
 
