@@ -48,12 +48,4 @@ class FaceCropper(object):
                 cv2.imwrite(cropped_image_path, lastimg)
 
 
-if __name__ == '__main__':
-    args = sys.argv
-    argc = len(args)
-    n = 0
-    image_path = ("./DATASET/images/im_%d.png" % n)
-    cropped_image_path = ("./DATASET/images/cropped/image_%d.png" % n)
 
-    detector = FaceCropper()
-    detector.generate(image_path, cropped_image_path, False, True)
