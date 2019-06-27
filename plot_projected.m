@@ -56,7 +56,7 @@ for i=1:1:105693
 end
 
 close all
-figure('Position', [-1 -1 240 240])
+figure('Position', [-1 -1 350 350])
 bb = patch(X, Y, C, 'edgecolor','none')
 axis('tight', 'equal')
 
