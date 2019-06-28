@@ -33,12 +33,6 @@ class ParametricMoDecoder:
 
     @staticmethod
     def create_rot_mat(a, b, c):
-        #  TODO add rotation
-        # a = b = c = 0
-        # no rotation for testing
-        a = 0
-        b = 0
-        c = 0
         c1 = math.cos(math.radians(c))
         c2 = math.cos(math.radians(b))
         c3 = math.cos(math.radians(a))
@@ -202,9 +196,9 @@ class ParametricMoDecoder:
         ''' Calculate projected coordinates '''
         cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
         projected = self.projection(cs_vertices)
-        print(color.shape)
+        # print(color.shape)
         # color = self.normalize_v3(np.transpose(color))
-        normalize(color, axis=0, copy=False)
+
         formation = {
             "position": projected,
             "color": abs(color)

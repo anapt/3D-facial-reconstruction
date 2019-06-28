@@ -11,7 +11,10 @@ import json as json
 def get_vectors(path, n):
     data = scv.SemanticCodeVector(path)
     cells = data.read_cells()
+
     x = data.sample_vector()
+    # print(x)
+
     vector = np.zeros(257, dtype=cells.dtype)
     vector[0:80, ] = x['shape']
     vector[80:144, ] = x['expression']
@@ -51,14 +54,14 @@ def main():
     # part 1
     path = './DATASET/model2017-1_bfm_nomouth.h5'
 
-    for n in range(0, 100):
+    for n in range(0, 5):
         get_vectors(path, n)
 
     # part 2
     """ run matlab code to generate images """
 
-    # # part 3
-    # for n in range(0, 1, 100):
+    # part 3
+    # for n in range(0, 10):
     #     prepare_images(n)
 
 

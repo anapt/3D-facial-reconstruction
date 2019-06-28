@@ -1,4 +1,4 @@
-function patch_and_save( n , cells)
+function patch_and_save( n )
 % PATCH AND SAVE - Function that performs triangle filling and 
 %                  shading using patch and saves resulting plot
 %                  using export_fig
@@ -59,6 +59,18 @@ function patch_and_save( n , cells)
  
   position(1,:) = A(1:N);
   position(2,:) = A(N+1:2*N);
+  
+  % CELLS
+  filename = sprintf('cells_%d', n);
+  f = [basepath 'cells' filesep filename '.txt'];
+  fileID = fopen(f,'r');
+  A = fscanf(fileID, '%f');
+  
+  cells = zeros(3, n_cells);
+  
+  cells(1,:) = A(1:n_cells);
+  cells(2,:) = A(n_cells+1:(2*n_cells));
+  cells(3,:) = A((2*n_cells)+1:(3*n_cells));
   
   %% PATCH
   X = zeros(3, n_cells);
