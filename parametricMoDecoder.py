@@ -14,6 +14,7 @@ class ParametricMoDecoder:
         self.x = x
         self.cells = cells
 
+    ''' Project from camera space to screen space '''
     @staticmethod
     def projection(coords_3d):
         # print(coords_3d.shape)
@@ -22,8 +23,6 @@ class ParametricMoDecoder:
         for i in range(0, coords_3d.shape[1]):
             if abs(coords_3d[2, i]) > 70:
                 inv_z = abs(1/coords_3d[2, i])
-                # m = np.matrix([[inv_z, 0, 0], [0, inv_z, 0]])
-                # coords_2d = np.dot(m, coords_3d)
                 coords_2d[:, i] = ([coords_3d[0, i]*inv_z, coords_3d[1, i]*inv_z])
 
             else:
@@ -31,6 +30,7 @@ class ParametricMoDecoder:
         # shape 2,N
         return coords_2d
 
+    ''' Create rotation matrix from yaw-pitch-roll angles '''
     @staticmethod
     def create_rot_mat(a, b, c):
         c1 = math.cos(math.radians(c))
@@ -44,10 +44,10 @@ class ParametricMoDecoder:
         rot_mat_so3 = np.matrix([[c1*c2, c1*s2*s3 - c3*s1, s1*s3 - c1*c3*s2],
                                  [c2*s1, c1*c3 + s1*s2*s3, c3*s1*s2 - c1*c3],
                                  [-s2, c2*s3, c2*c3]])
-        # print(type(rot_mat_so3))
-        # print(rot_mat_so3.shape)
+
         return rot_mat_so3
 
+    ''' Affine transformation (points) from World Space Coordinates to Camera Space Coordinates '''
     @staticmethod
     def transform_wcs2ccs(coords_ws, inv_rotmat, translation):
         # print(np.shape(coords_ws))
@@ -58,6 +58,7 @@ class ParametricMoDecoder:
 
         return coords_cs
 
+    ''' Affine transformation (vectors) from world space to camera space '''
     @staticmethod
     def transform_wc2cs_vectors(coords_ws, rotmat):
         coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
@@ -66,6 +67,7 @@ class ParametricMoDecoder:
 
         return coords_cs
 
+    ''' Forth order spherical harmonics '''
     @staticmethod
     def get_sh_basis_function(x_coord, y_coord, z_coord, b):
         r = pow(x_coord, 2) + pow(y_coord, 2) + pow(z_coord, 2)
@@ -99,9 +101,9 @@ class ParametricMoDecoder:
                      (3 * pow(x_coord, 2) - pow(y_coord, 2))) / (pow(r, 4))
         return basis
 
+    ''' Second Order Spherical Harmonics '''
     @staticmethod
     def spherical_harmonics(x, y, z, b):
-        # second order spherical harmonics
         r = pow(x, 2) + pow(y, 2) + pow(z, 2)
         if b == 0:
             n = 0.25 * pow(5 / math.pi, 0.5) * (2 * pow(z, 2) - pow(x, 2) - pow(y, 2)) / r
@@ -115,30 +117,29 @@ class ParametricMoDecoder:
             n = 0.5 * pow(15 / math.pi, 0.5) * (x*y) / pow(r, 2)
         else:
             n = 1
-        # print(n)
         return n
 
-    # illumination model
+    ''' Illumination Model '''
     def get_color(self, reflectance, normal, illumination):
         illumination = np.reshape(illumination, (3, 9), order='F')
-        summ = 0
+        _sum = 0
         for i in range(0, 9):
-            summ = summ + illumination[:, i] * self.spherical_harmonics(normal[0], normal[1], normal[2], i)
-            # summ = summ + illumination[:, i]
-        # point wise multiplication
-        color = np.multiply(reflectance, summ)
+            _sum = _sum + illumination[:, i] * self.spherical_harmonics(normal[0], normal[1], normal[2], i)
+
+        color = np.multiply(reflectance, _sum)
         color = np.transpose(color)
         return color
 
+    ''' Normalize a numpy array of 3 component vectors shape=(n,3) '''
     @staticmethod
     def normalize_v3(arr):
-        # ''' Normalize a numpy array of 3 component vectors shape=(n,3) '''
         lens = np.sqrt(arr[:, 0] ** 2 + arr[:, 1] ** 2 + arr[:, 2] ** 2)
         arr[:, 0] /= lens
         arr[:, 1] /= lens
         arr[:, 2] /= lens
         return arr
 
+    ''' Calculate Normals for each vertex '''
     def calculate_normals(self, cells):
         # prepare data
         vertices = self.vertices
@@ -146,8 +147,6 @@ class ParametricMoDecoder:
         vertices = np.transpose(vertices)
 
         cells = np.transpose(cells)
-        # print(cells.shape)
-        # print(type(cells))
         # Create a zeroed array with the same type and shape as our vertices i.e., per vertex normal
         norm = np.zeros(vertices.shape, dtype=vertices.dtype)
         # Create an indexed view into the vertex array using the array of three indices for triangles
@@ -160,8 +159,6 @@ class ParametricMoDecoder:
         # n is now an array of normals per triangle
         # we need to normalize these, so that our next step weights each normal equally.
         n = self.normalize_v3(n)
-        # print(n.shape)
-        # print(type(n))
         # now we have a normalized array of normals, one per triangle, i.e., per triangle normals.
         # But instead of one per triangle (i.e., flat shading), we add to each vertex in that triangle,
         # the triangles' normal. Multiple triangles would then contribute to every vertex,
@@ -174,6 +171,7 @@ class ParametricMoDecoder:
         norm = np.transpose(norm)  # return 3, 53149 ndarray
         return norm
 
+    ''' Image Formation - projected coordinates and color of each vertex '''
     def get_image_formation(self):
         ws_vertices = np.reshape(self.vertices, (3, int(self.vertices.size / 3)), order='F')
         reflectance = np.reshape(self.reflectance, (3, int(self.reflectance.size / 3)), order='F')
@@ -181,7 +179,7 @@ class ParametricMoDecoder:
         rotmatSO3 = self.create_rot_mat(self.x['rotation'][0], self.x['rotation'][1], self.x['rotation'][2])
         inv_rotmat = np.linalg.inv(rotmatSO3)
 
-        ''' Calculate color '''
+        # Calculate color
         # world space normals
         ws_normals = self.calculate_normals(self.cells)
 
@@ -196,8 +194,6 @@ class ParametricMoDecoder:
         ''' Calculate projected coordinates '''
         cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
         projected = self.projection(cs_vertices)
-        # print(color.shape)
-        # color = self.normalize_v3(np.transpose(color))
 
         formation = {
             "position": projected,
@@ -221,42 +217,3 @@ class ParametricMoDecoder:
 
         # print(cells_ordered.shape)
         return cells_ordered
-
-
-# def main():
-#     # MODIFY TO path containing Basel Face model
-#     path = '/home/anapt/Documents/Thesis - data/data-raw/model2017-1_bfm_nomouth.h5'
-#     data = scv.SemanticCodeVector(path)
-#     x = data.sample_vector()
-#     cells = data.read_cells()
-#
-#     # vertices = scv1.calculate_coords(x)
-#     reflectance = data.calculate_reflectance(x)
-#
-#     scv_pca_bases = data.read_pca_bases()
-#
-#     vertices = np.asarray(scv_pca_bases["average_shape"])
-#     ver = np.reshape(vertices, (3, int(vertices.size / 3)), order='F')
-#     ref = np.reshape(reflectance, (3, int(reflectance.size / 3)), order='F')
-#
-#     pmod = ParametricMoDecoder(vertices, reflectance)
-#
-#     rotmatSO3 = pmod.create_rot_mat(x['rotation'][0], x['rotation'][1], x['rotation'][2])
-#     inv_rotmat = np.linalg.inv(rotmatSO3)
-#     pmod.transform_wcs2ccs(ver[:, 2], inv_rotmat, x['translation'])
-#     projected = np.zeros([2, 53149])
-#
-#     pmod.get_color(ref[:, 0], ver[:, 0], x['illumination'])
-#     # for i in range(0, 53149):
-#     #     coords_ccs = pmod.transform_wcs2ccs(ver[:, i], inv_rotmat, x["translation"])
-#     #     projected[:, i] = pmod.projection(coords_ccs)
-#     #
-#     # print(projected.max())
-#     # plt.scatter(projected[0, ], projected[1, ], s=1)
-#     # plt.show()
-#     # plt.plot(vertices[2,: ])
-#     # plt.show()
-#     # pmod.projection(v0)
-
-
-# main()
