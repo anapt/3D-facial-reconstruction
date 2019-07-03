@@ -1,9 +1,5 @@
-import h5py
 import numpy as np
-import matplotlib.pyplot as plt
-import semanticCodeVector as scv
 import math as math
-from sklearn.preprocessing import normalize
 
 
 class ParametricMoDecoder:
