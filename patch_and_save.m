@@ -10,7 +10,6 @@ function patch_and_save( n )
 % INPUT
 %
 %   n           sequence number                         [  1  ]
-%   cells       triangles                               []
 %
 % OUTPUT
 %
@@ -23,6 +22,7 @@ function patch_and_save( n )
 %   and color from txt files
 %       position_n.txt
 %       color_n.txt
+%       cells_n.txt
 %
 % DEPENDENCIES
 %
