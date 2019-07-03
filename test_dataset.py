@@ -13,9 +13,8 @@ def get_vectors(path, n):
     cells = data.read_cells()
 
     x = data.sample_vector()
-    # print(x)
 
-    vector = np.zeros(257, dtype=cells.dtype)
+    vector = np.zeros(257, dtype=float)
     vector[0:80, ] = x['shape']
     vector[80:144, ] = x['expression']
     vector[144:224, ] = x['reflectance']
@@ -56,12 +55,13 @@ def main():
 
     for n in range(0, 5):
         get_vectors(path, n)
+        print(n)
 
     # part 2
     """ run matlab code to generate images """
 
     # part 3
-    # for n in range(0, 10):
+    # for n in range(0, 20):
     #     prepare_images(n)
 
 
