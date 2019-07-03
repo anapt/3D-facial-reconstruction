@@ -59,11 +59,10 @@ class SemanticCodeVector:
         b = np.random.normal(0, 1, 80)
 
         # expression -> uniform -12, 12
-        d = np.random.uniform(-12, 12, 64)
+        d = np.random.uniform(-5, 5, 64)
         # bias of 4.8 to 1st parameter
-        # d = np.random.normal(0, 0.1, 64)
-        d[0] = np.random.uniform(-4.8, 4.8, 1)
-
+        # d = np.random.normal(0, 1, 64)
+        d[0] = np.random.uniform(-4, 4, 1)
         # yaw pitch - uniform -40 40
         # roll - uniform -15 15
         rotmat = np.random.uniform(-15, 15, 3)
@@ -73,8 +72,9 @@ class SemanticCodeVector:
         # TODO range is smaller than the one used in the paper
         # illumination parameters uniform -0,2 0,2
         # 1st coefficient uniform 0.6 1.2
-        g = np.random.uniform(-0.2, 0.2, 27)
-        g[0] = np.random.uniform(0.6, 1.2, 1)
+        g = np.random.uniform(0.2, 0.4, 27)
+        # g = np.random.normal(0, 1, 27)
+        g[0] = np.random.uniform(0.4, 1, 1)
         # print(g)
         # TODO add translation
         t = np.zeros(3)
@@ -112,14 +112,15 @@ class SemanticCodeVector:
     def calculate_coords(self, vector):
         scv_pca_bases = self.read_pca_bases()
         shape_std = np.std(scv_pca_bases["shape_pca"], 0)
+
         expression_std = np.std(scv_pca_bases["expression_pca"], 0)
 
         vertices = scv_pca_bases["average_shape"] + \
-            np.dot(np.divide(scv_pca_bases["shape_pca"], shape_std), vector["shape"]) + \
-            np.dot(np.divide(scv_pca_bases["expression_pca"], expression_std), vector["expression"])
+            np.dot(np.divide(scv_pca_bases["shape_pca"], pow(shape_std, 1/2)), vector["shape"]) + \
+            np.dot(np.divide(scv_pca_bases["expression_pca"], pow(expression_std, 1/2)), vector["expression"])
 
         # print("difference")
-        # print(scv_pca_bases["average_shape"] - vertices)
+        print(scv_pca_bases["average_shape"] - vertices)
         # print(np.divide(scv_pca_bases["shape_pca"], shape_std) - scv_pca_bases["shape_pca"])
         return vertices
 
@@ -129,7 +130,8 @@ class SemanticCodeVector:
         reflectance_std = np.std(scv_pca_bases["reflectance_pca"], 0)
 
         skin_reflectance = scv_pca_bases["average_reflectance"] +  \
-            np.dot(np.divide(scv_pca_bases["reflectance_pca"], reflectance_std), vector["reflectance"])
+            np.dot(np.multiply(scv_pca_bases["reflectance_pca"], reflectance_std), vector["reflectance"])
 
+        print(scv_pca_bases["average_reflectance"] - skin_reflectance)
         return skin_reflectance
 
