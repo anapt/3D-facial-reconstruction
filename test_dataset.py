@@ -5,8 +5,6 @@ import background_remover as br
 import parametricMoDecoder as pmd
 import semanticCodeVector as scv
 
-import json as json
-
 
 def get_vectors(path, n):
     data = scv.SemanticCodeVector(path)
@@ -53,7 +51,7 @@ def main():
     # part 1
     path = './DATASET/model2017-1_bfm_nomouth.h5'
 
-    for n in range(0, 5):
+    for n in range(0, 50):
         get_vectors(path, n)
         print(n)
 
@@ -61,7 +59,7 @@ def main():
     """ run matlab code to generate images """
 
     # part 3
-    # for n in range(0, 20):
+    # for n in range(0, 25):
     #     prepare_images(n)
 
 
