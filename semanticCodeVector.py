@@ -41,14 +41,14 @@ class SemanticCodeVector:
 
         b = np.random.normal(0, 1, 80)
 
-        d = np.random.uniform(-4.8, 4.8, 64)
-        d[0] = np.random.uniform(-4, 4, 1)
+        d = np.random.uniform(-6, 6, 64)
+        d[0] = np.random.uniform(-4.8, 4.8, 1)
 
         rotmat = np.random.uniform(-15, 15, 3)
         rotmat[2] = np.random.uniform(-10, 10, 1)
 
         # TODO range is smaller than the one used in the paper
-        g = np.random.uniform(0.2, 0.4, 27)
+        g = np.random.uniform(0.1, 0.4, 27)
         g[0] = np.random.uniform(0.4, 1, 1)
 
         t = np.random.uniform(-25, 25, 3)

@@ -17,7 +17,7 @@ class ParametricMoDecoder:
         coords_2d = np.zeros((2, coords_3d.shape[1]), dtype=coords_3d.dtype)
 
         for i in range(0, coords_3d.shape[1]):
-            if abs(coords_3d[2, i]) > 70:
+            if abs(coords_3d[2, i]) > 50:
                 inv_z = abs(1/coords_3d[2, i])
                 coords_2d[:, i] = ([coords_3d[0, i]*inv_z, coords_3d[1, i]*inv_z])
 
@@ -180,7 +180,7 @@ class ParametricMoDecoder:
         ws_normals = self.calculate_normals(self.cells)
 
         # transform world space normals to camera space normals
-        cs_normals = self.transform_wc2cs_vectors(ws_normals, rotmatSO3)
+        cs_normals = self.transform_wcs2ccs(ws_normals, inv_rotmat, self.x['translation'])
 
         # calculate color
         color = np.zeros(reflectance.shape, dtype=reflectance.dtype)
@@ -193,7 +193,7 @@ class ParametricMoDecoder:
 
         formation = {
             "position": projected,
-            "color": abs(color)
+            "color": color
         }
 
         return formation
