@@ -2,16 +2,19 @@ import cv2
 import numpy as np
 import dlib
 from imutils import face_utils
-import imutils
+import face_cropper as fc
+import background_remover as br
 
 
 def face_remap(shape):
     remapped_image = cv2.convexHull(shape)
     return remapped_image
 
-n = 13
+
+n = 23
 image_path = ("./DATASET/images/im_%d.png" % n)
 cutout_path = ("./DATASET/images/cutout/im_%d.png" % n)
+cropped_image_path = ("./DATASET/images/cropped/image_%d.png" % n)
 image = cv2.imread(image_path, 1)
 
 out_face = np.zeros_like(image)
@@ -39,12 +42,17 @@ for face in faces:
 
     # we extract the face
     remapped_shape = face_remap(shape)
-    # cv2.fillConvexPoly(feature_mask, remapped_shape[0:27], 1)
-    cv2.fillPoly(feature_mask, remapped_shape[60:68], 1)
+    cv2.fillConvexPoly(feature_mask, remapped_shape[0:27], 1)
+    # cv2.fillConvexPoly(feature_mask, remapped_shape[60:68], 1)
     feature_mask = feature_mask.astype(np.bool)
     out_face[feature_mask] = image[feature_mask]
     # cv2.imshow("mask_inv", out_face)
     cv2.imwrite(cutout_path, out_face)
+
+    detector = fc.FaceCropper()
+    detector.generate(cutout_path, cropped_image_path, False, True)
+
+
 
 # cv2.imshow("Frame", cap)
 
