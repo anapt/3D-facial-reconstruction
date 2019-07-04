@@ -22,8 +22,9 @@ out_face = np.zeros_like(image)
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor("./DATASET/shape_predictor_68_face_landmarks.dat")
 
+# convert to grayscale
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
+# detect faces in bw image
 faces = detector(gray)
 for face in faces:
 
@@ -37,20 +38,21 @@ for face in faces:
     #
     # cv2.imwrite('im.png', image)
 
+    # initialize mask array
     remapped_shape = np.zeros_like(shape)
     feature_mask = np.zeros((image.shape[0], image.shape[1]))
 
     # we extract the face
     remapped_shape = face_remap(shape)
+    # get the mask of the face
     cv2.fillConvexPoly(feature_mask, remapped_shape[0:27], 1)
-    # cv2.fillConvexPoly(feature_mask, remapped_shape[60:68], 1)
     feature_mask = feature_mask.astype(np.bool)
+
     out_face[feature_mask] = image[feature_mask]
-    # cv2.imshow("mask_inv", out_face)
     cv2.imwrite(cutout_path, out_face)
 
-    detector = fc.FaceCropper()
-    detector.generate(cutout_path, cropped_image_path, False, True)
+    # detector = fc.FaceCropper()
+    # detector.generate(cutout_path, cropped_image_path, False, True)
 
 
 
