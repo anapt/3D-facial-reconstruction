@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import normalize
 
 
 class SemanticCodeVector:
@@ -11,12 +12,23 @@ class SemanticCodeVector:
     def read_pca_bases(self):
         shape_pca = self.model['shape']['model']['pcaBasis'][()]
         shape_pca = shape_pca[0:len(shape_pca), 0:80]
+        sdev = np.std(shape_pca, 0)
+        # print("shape variance")
+        # print(np.var(shape_pca))
+        shape_pca = np.multiply(shape_pca, np.transpose(sdev))
+        normalize(shape_pca, copy=False)
 
         reflectance_pca = self.model['color']['model']['pcaBasis'][()]
         reflectance_pca = reflectance_pca[0:len(reflectance_pca), 0:80]
+        sdev = np.std(reflectance_pca, 0)
+        reflectance_pca = np.multiply(reflectance_pca, np.transpose(sdev))
+        # normalize(reflectance_pca, copy=False)
 
         expression_pca = self.model['expression']['model']['pcaBasis'][()]
         expression_pca = expression_pca[0:len(expression_pca), 0:64]
+        sdev = np.std(expression_pca, 0)
+        expression_pca = np.multiply(expression_pca, np.transpose(sdev))
+        normalize(expression_pca, copy=False)
 
         average_shape = self.model['shape']['model']['mean'][()]
 
@@ -38,11 +50,13 @@ class SemanticCodeVector:
     @staticmethod
     def sample_vector():
         a = np.random.normal(0, 1, 80)
+        # a = np.random.uniform(-1, 1, 80)
 
         b = np.random.normal(0, 1, 80)
 
-        d = np.random.uniform(-6, 6, 64)
-        d[0] = np.random.uniform(-4.8, 4.8, 1)
+        # d = np.random.normal(0, 1, 64)
+        d = np.random.uniform(-3.5, 3.5, 64)
+        d[0] = np.random.uniform(-2.5, 2.5, 1)
 
         rotmat = np.random.uniform(-15, 15, 3)
         rotmat[2] = np.random.uniform(-10, 10, 1)
@@ -85,13 +99,10 @@ class SemanticCodeVector:
 
     def calculate_coords(self, vector):
         scv_pca_bases = self.read_pca_bases()
-        shape_std = np.std(scv_pca_bases["shape_pca"], 0)
-
-        expression_std = np.std(scv_pca_bases["expression_pca"], 0)
-
+        # print(vector["shape"])
         vertices = scv_pca_bases["average_shape"] + \
-            np.dot(np.divide(scv_pca_bases["shape_pca"], pow(shape_std, 0.5)), vector["shape"]) + \
-            np.dot(np.divide(scv_pca_bases["expression_pca"], pow(expression_std, 0.5)), vector["expression"])
+            np.dot(scv_pca_bases["shape_pca"], vector["shape"]) + \
+            np.dot(scv_pca_bases["expression_pca"], vector["expression"])
 
         # print(scv_pca_bases["average_shape"] - vertices)
 
@@ -100,10 +111,8 @@ class SemanticCodeVector:
     def calculate_reflectance(self, vector):
         scv_pca_bases = self.read_pca_bases()
 
-        reflectance_std = np.std(scv_pca_bases["reflectance_pca"], 0)
-
         skin_reflectance = scv_pca_bases["average_reflectance"] +  \
-            np.dot(np.multiply(scv_pca_bases["reflectance_pca"], reflectance_std), vector["reflectance"])
+            np.dot(scv_pca_bases["reflectance_pca"], vector["reflectance"])
 
         # print(scv_pca_bases["average_reflectance"] - skin_reflectance)
 
