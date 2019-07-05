@@ -8,6 +8,6 @@ n_cells = 105694;
 
 %% call patch and save
 
-for i=0:1:4
+for i=0:1:49
     patch_and_save(i);
 end
