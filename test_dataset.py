@@ -1,7 +1,6 @@
 import numpy as np
 
-import FaceCropper as fc
-import BackgroundRemover as br
+import ImagePreProcessing as preprocess
 import parametricMoDecoder as pmd
 import semanticCodeVector as scv
 
@@ -40,18 +39,15 @@ def prepare_images(n):
     cutout_path = ("./DATASET/images/cutout/im_%d.png" % n)
     cropped_image_path = ("./DATASET/images/cropped/image_%d.png" % n)
 
-    remover = br.BackgroundRemover()
-    remover.remove_background(image_path, cutout_path)
-
-    detector = fc.FaceCropper()
-    detector.generate(cutout_path, cropped_image_path, False, True)
+    prep = preprocess.ImagePreProcessing(n)
+    prep.detect_crop_save()
 
 
 def main():
     # part 1
     path = './DATASET/model2017-1_bfm_nomouth.h5'
 
-    for n in range(0, 50):
+    for n in range(0, 100):
         get_vectors(path, n)
         print(n)
 
@@ -59,8 +55,8 @@ def main():
     """ run matlab code to generate images """
 
     # part 3
-    # for n in range(0, 25):
-    #     prepare_images(n)
+    # for n in range(0, 5):
+    #     preprocess.ImagePreProcessing(n).detect_crop_save()
 
 
 main()
