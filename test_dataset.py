@@ -1,7 +1,7 @@
 import numpy as np
 
-import face_cropper as fc
-import background_remover as br
+import FaceCropper as fc
+import BackgroundRemover as br
 import parametricMoDecoder as pmd
 import semanticCodeVector as scv
 
