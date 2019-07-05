@@ -1,6 +1,4 @@
 import cv2
-import sys
-import os
 
 
 class FaceCropper(object):
@@ -46,6 +44,3 @@ class FaceCropper(object):
                 lastimg = cv2.resize(faceimg, (240, 240))
                 # i += 1
                 cv2.imwrite(cropped_image_path, lastimg)
-
-
-

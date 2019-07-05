@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 import dlib
 from imutils import face_utils
-import face_cropper as fc
-import background_remover as br
+import FaceCropper as fc
+import BackgroundRemover as br
 
 
 def face_remap(shape):
