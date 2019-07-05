@@ -49,7 +49,7 @@ class LandmarkDetection:
 
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # threshold
-        gray[gray > 220] = 0
+        gray[gray > 245] = 0
 
         # flood fill background to find inner holes
         holes = gray.copy()
