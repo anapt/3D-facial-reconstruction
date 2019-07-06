@@ -55,11 +55,11 @@ class SemanticCodeVector:
         b = np.random.normal(0, 1, 80)
 
         # d = np.random.normal(0, 1, 64)
-        d = np.random.uniform(-3.5, 3.5, 64)
+        d = np.random.uniform(-3, 3, 64)
         d[0] = np.random.uniform(-2.5, 2.5, 1)
 
-        rotmat = np.random.uniform(-15, 15, 3)
-        rotmat[2] = np.random.uniform(-10, 10, 1)
+        rotmat = np.random.uniform(-10, 10, 3)
+        rotmat[2] = np.random.uniform(-7, 7, 1)
 
         # TODO range is smaller than the one used in the paper
         g = np.random.uniform(0.1, 0.4, 27)
