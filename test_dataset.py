@@ -47,7 +47,7 @@ def main():
     # part 1
     path = './DATASET/model2017-1_bfm_nomouth.h5'
 
-    # for n in range(0, 250):
+    # for n in range(0, 2500):
     #     get_vectors(path, n)
     #     print(n)
 
@@ -55,8 +55,9 @@ def main():
     """ run matlab code to generate images """
 
     # part 3
-    for n in range(0, 250):
+    for n in range(0, 5):
         preprocess.ImagePreProcessing(n).detect_crop_save()
+        print(n)
 
 
 main()
