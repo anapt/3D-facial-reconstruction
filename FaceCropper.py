@@ -18,29 +18,25 @@ class FaceCropper(object):
         if faces is None:
             print('Failed to detect face')
             return 0
+        elif len(faces) == 1:
 
-        if show_result:
-            for (x, y, w, h) in faces:
-                cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
-            cv2.imshow('img', img)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+            if show_result:
+                for (x, y, w, h) in faces:
+                    cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+                cv2.imshow('img', img)
+                cv2.waitKey(0)
+                cv2.destroyAllWindows()
 
-        facecnt = len(faces)
-        print("Detected faces: %d" % facecnt)
-        # i = 0
-        height, width = img.shape[:2]
+            if save_image:
+                for (x, y, w, h) in faces:
+                    r = max(w, h) / 2
+                    centerx = x + w / 2
+                    centery = y + h / 2
+                    nx = int(centerx - r)
+                    ny = int(centery - r)
+                    nr = int(r * 2)
 
-        if save_image:
-            for (x, y, w, h) in faces:
-                r = max(w, h) / 2
-                centerx = x + w / 2
-                centery = y + h / 2
-                nx = int(centerx - r)
-                ny = int(centery - r)
-                nr = int(r * 2)
-
-                faceimg = img[ny:ny+nr, nx:nx+nr]
-                lastimg = cv2.resize(faceimg, (240, 240))
-                # i += 1
-                cv2.imwrite(cropped_image_path, lastimg)
+                    faceimg = img[ny:ny+nr, nx:nx+nr]
+                    lastimg = cv2.resize(faceimg, (240, 240))
+                    # i += 1
+                    cv2.imwrite(cropped_image_path, lastimg)
