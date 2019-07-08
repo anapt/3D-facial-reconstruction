@@ -2,7 +2,6 @@ from pylab import *
 import caffe
 
 caffe_root = '/home/anapt/Documents/caffe/examples/'
-sys.path.insert(0, caffe_root + 'python')
 
 from caffe import layers as L, params as P
 
