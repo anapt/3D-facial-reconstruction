@@ -55,7 +55,7 @@ def main():
     """ run matlab code to generate images """
 
     # part 3
-    for n in range(0, 5):
+    for n in range(0, 2500):
         preprocess.ImagePreProcessing(n).detect_crop_save()
         print(n)
 
