@@ -3,6 +3,7 @@ import numpy as np
 import ImagePreProcessing as preprocess
 import parametricMoDecoder as pmd
 import semanticCodeVector as scv
+import matlab.engine
 
 
 def get_vectors(path, n):
@@ -46,16 +47,11 @@ def prepare_images(n):
 def main():
     # part 1
     path = './DATASET/model2017-1_bfm_nomouth.h5'
+    eng = matlab.engine.start_matlab()
 
-    # for n in range(0, 2500):
-    #     get_vectors(path, n)
-    #     print(n)
-
-    # part 2
-    """ run matlab code to generate images """
-
-    # part 3
-    for n in range(0, 2500):
+    for n in range(0, 1):
+        get_vectors(path, n)
+        eng.patch_and_save(n, nargout=0)
         preprocess.ImagePreProcessing(n).detect_crop_save()
         print(n)
 
