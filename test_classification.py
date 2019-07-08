@@ -17,8 +17,8 @@ plt.rcParams['image.cmap'] = 'gray'
 
 caffe.set_mode_cpu()
 
-model_def = caffe_root + 'models/bvlc_reference_caffenet/deploy.prototxt'
-model_weights = caffe_root + 'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel'
+model_def = caffe_root + 'models/bvlc_alexnet/deploy.prototxt'
+model_weights = caffe_root + 'models/bvlc_alexnet/bvlc_alexnet.caffemodel'
 
 net = caffe.Net(model_def,      # defines the structure of the model
                 model_weights,  # contains the trained weights
@@ -32,10 +32,10 @@ print('mean-subtracted values: BGR', mu)
 # create transformer for the input called 'data'
 transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
 
-transformer.set_transpose('data', (2,0,1))  # move image channels to outermost dimension
+transformer.set_transpose('data', (2, 0, 1))  # move image channels to outermost dimension
 transformer.set_mean('data', mu)            # subtract the dataset-mean value in each channel
 transformer.set_raw_scale('data', 255)      # rescale from [0, 1] to [0, 255]
-transformer.set_channel_swap('data', (2,1,0))  # swap channels from RGB to BGR
+transformer.set_channel_swap('data', (2, 1, 0))  # swap channels from RGB to BGR
 
 # set the size of the input (we can skip this if we're happy
 #  with the default; we can also change it later, e.g., for different batch sizes)
