@@ -40,3 +40,21 @@ class FaceCropper(object):
                     lastimg = cv2.resize(faceimg, (240, 240))
                     # i += 1
                     cv2.imwrite(cropped_image_path, lastimg)
+
+    def crop_face_array(self, img):
+        faces = self.face_cascade.detectMultiScale(img, 1.1, 3, minSize=(100, 100))
+        if faces is None:
+            return 0
+        elif len(faces) == 1:
+            for (x, y, w, h) in faces:
+                r = max(w, h) / 2
+                centerx = x + w / 2
+                centery = y + h / 2
+                nx = int(centerx - r)
+                ny = int(centery - r)
+                nr = int(r * 2)
+
+                faceimg = img[ny:ny+nr, nx:nx+nr]
+                lastimg = cv2.resize(faceimg, (240, 240))
+                # i += 1
+            return lastimg
