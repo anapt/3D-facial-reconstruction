@@ -58,6 +58,6 @@ def main():
     image = formation.get_reconstructed_image(True)
     # print(image['position'].shape)
     # TODO add preprocess
-
+    # TODO return image from patch and show
 
 main()
