@@ -42,12 +42,10 @@ class ImageFormationLayer(object):
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
         cutout_face = cut.cutout_mask_array(np.float32(image))
-        print("cutout face shape ", cutout_face.shape)
-        print("cutout type", type(cutout_face))
 
         # crop and resize face
         cropper = fc.FaceCropper()
-        cropped_face = cropper.crop_face_array(np.uint8(cutout_face))
+        cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
 
         return cropped_face
 
