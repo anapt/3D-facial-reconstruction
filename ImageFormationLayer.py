@@ -1,9 +1,11 @@
 import numpy as np
 import matlab.engine
+import matplotlib.pyplot as plt
 
 import semanticCodeVector as scv
-import ImagePreProcessing as preprocess
 import parametricMoDecoder as pmd
+import LandmarkDetection as ld
+import FaceCropper as fc
 
 
 class ImageFormationLayer(object):
@@ -21,25 +23,37 @@ class ImageFormationLayer(object):
 
         return vertices, reflectance, cells
 
-    def get_reconstructed_image(self, show_result):
+    def get_reconstructed_image(self):
         vertices, reflectance, cells = self.get_vertices_and_reflectance()
         decoder = pmd.ParametricMoDecoder(vertices, reflectance, self.vector, cells)
 
         image = decoder.get_image_formation()
 
-        if show_result:
-            cells = decoder.calculate_cell_depth()
-            eng = matlab.engine.start_matlab()
-            position = image['position'].tolist()
+        cells = decoder.calculate_cell_depth()
+        cells = cells.tolist()
+        eng = matlab.engine.start_matlab()
+        position = image['position'].tolist()
 
-            color = image['color'].tolist()
-            # print(color.shape)
-            eng.patch_and_show(position, color, cells.tolist(), nargout=0)
+        color = image['color'].tolist()
 
-        return image
+        # draw image
+        image = eng.patch_and_show(position, color, cells)
+
+        # get face mask without mouth interior
+        cut = ld.LandmarkDetection()
+        cutout_face = cut.cutout_mask_array(np.float32(image))
+        print("cutout face shape ", cutout_face.shape)
+        print("cutout type", type(cutout_face))
+
+        # crop and resize face
+        cropper = fc.FaceCropper()
+        cropped_face = cropper.crop_face_array(np.uint8(cutout_face))
+
+        return cropped_face
 
 
 def main():
+    show_result = True
     n = 5
     path = './DATASET/model2017-1_bfm_nomouth.h5'
     vector_path = ("./DATASET/semantic/x_%d.txt" % n)
@@ -55,9 +69,11 @@ def main():
     }
 
     formation = ImageFormationLayer(path, x)
-    image = formation.get_reconstructed_image(True)
-    # print(image['position'].shape)
-    # TODO add preprocess
-    # TODO return image from patch and show
+    image = formation.get_reconstructed_image()
+
+    if show_result:
+        plt.imshow(image)
+        plt.show()
+
 
 main()
