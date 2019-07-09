@@ -1,4 +1,4 @@
-  function patch_and_show( position, color, cells )
+  function image = patch_and_show( position, color, cells )
 % PATCH AND SAVE - Function that performs triangle filling and
 %                  shading using patch and saves resulting plot
 %                  using export_fig
@@ -66,9 +66,13 @@
   axis('tight', 'equal')
   axis off
 
-  filename = sprintf('image_%d', 5);
-  f = [basepath 'matlab' filesep filename '.png'];
-  export_fig(f);
+  F = getframe(gcf);
+  close all;
+  [image, Map] = frame2im(F);
+
+%  filename = sprintf('image_%d', 5);
+%  f = [basepath 'matlab' filesep filename '.png'];
+%  export_fig(f);
 end
 
 %%------------------------------------------------------------
