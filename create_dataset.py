@@ -1,9 +1,11 @@
 import numpy as np
+import matlab.engine
 
 import ImagePreProcessing as preprocess
 import parametricMoDecoder as pmd
 import semanticCodeVector as scv
-import matlab.engine
+import LandmarkDetection as ld
+import FaceCropper as fc
 
 
 def get_vectors(path, n):
@@ -28,11 +30,13 @@ def get_vectors(path, n):
     decoder = pmd.ParametricMoDecoder(vertices, reflectance, x, cells)
 
     formation = decoder.get_image_formation()
-    np.savetxt("./DATASET/color/color_%d.txt" % n, formation['color'])
-    np.savetxt("./DATASET/position/position_%d.txt" % n, formation['position'])
+    # np.savetxt("./DATASET/color/color_%d.txt" % n, formation['color'])
+    # np.savetxt("./DATASET/position/position_%d.txt" % n, formation['position'])
 
     cells_ordered = decoder.calculate_cell_depth()
-    np.savetxt("DATASET/cells/cells_%d.txt" % n, cells_ordered)
+    # np.savetxt("DATASET/cells/cells_%d.txt" % n, cells_ordered)
+
+    return formation, cells_ordered
 
 
 def prepare_images(n):
@@ -45,14 +49,25 @@ def prepare_images(n):
 
 
 def main():
-    # part 1
     path = './DATASET/model2017-1_bfm_nomouth.h5'
     eng = matlab.engine.start_matlab()
 
-    for n in range(0, 1):
-        get_vectors(path, n)
-        eng.patch_and_save(n, nargout=0)
-        preprocess.ImagePreProcessing(n).detect_crop_save()
+    for n in range(0, 5):
+        formation, cells = get_vectors(path, n)
+        position = formation['position'].tolist()
+        color = formation['color'].tolist()
+        cells = cells.tolist()
+
+        # create image
+        image = eng.patch_and_show(position, color, cells)
+
+        # get face mask without mouth interior
+        cut = ld.LandmarkDetection()
+        cutout_face = cut.cutout_mask_array(np.float32(image))
+
+        # crop and resize face
+        cropper = fc.FaceCropper()
+        cropper.generate(np.uint8(cutout_face), True, n)
         print(n)
 
 

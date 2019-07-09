@@ -55,8 +55,7 @@ class LandmarkDetection:
 
         # convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        print(gray.shape)
-        print(type(gray))
+
         # detect faces in bw image
         faces = self.detector(np.uint8(gray))
         for face in faces:
