@@ -39,6 +39,7 @@ else:
 
 
 weights = os.path.join(caffe_root, 'models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel')
+weights = "home/anapt/Downloads/3DMM_CNN/3dmm_cnn_resnet_101.caffemodel"
 assert os.path.exists(weights)
 
 # Load ImageNet labels to imagenet_labels
