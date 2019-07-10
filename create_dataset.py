@@ -31,7 +31,7 @@ def get_vectors(path, n):
 
     formation = decoder.get_image_formation()
     # np.savetxt("./DATASET/color/color_%d.txt" % n, formation['color'])
-    # np.savetxt("./DATASET/position/position_%d.txt" % n, formation['position'])
+    # np.savetxt("./DATASET/position/position_%d.tgxt" % n, formation['position'])
 
     cells_ordered = decoder.calculate_cell_depth()
     # np.savetxt("DATASET/cells/cells_%d.txt" % n, cells_ordered)
