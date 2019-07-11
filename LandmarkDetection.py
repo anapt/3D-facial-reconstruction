@@ -51,15 +51,16 @@ class LandmarkDetection:
             return out_face
 
     def cutout_mask_array(self, image):
+        # cv2.imwrite('./imAGE1.png', image)
         out_face = np.zeros_like(image)
 
         # convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # detect faces in bw image
-        faces = self.detector(np.uint8(gray))
+        faces = self.detector(gray)
         for face in faces:
-            landmarks = self.predictor(np.uint8(gray), face)
+            landmarks = self.predictor(gray, face)
             # print(landmarks)
             shape = face_utils.shape_to_np(landmarks)
             # initialize mask array
@@ -79,6 +80,8 @@ class LandmarkDetection:
             feature_mask = feature_mask.astype(np.bool)
 
             out_face[feature_mask] = image[feature_mask]
+            out_face = cv2.cvtColor(out_face, cv2.COLOR_BGR2RGB)
+            # cv2.imwrite('./im1.png', out_face)
 
             return out_face
 
