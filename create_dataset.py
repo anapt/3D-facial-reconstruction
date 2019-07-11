@@ -49,10 +49,12 @@ def prepare_images(n):
 
 
 def main():
+    # Number of images to create
+    N = 100
     path = './DATASET/model2017-1_bfm_nomouth.h5'
     eng = matlab.engine.start_matlab()
 
-    for n in range(0, 5):
+    for n in range(0, N):
         formation, cells = get_vectors(path, n)
         position = formation['position'].tolist()
         color = formation['color'].tolist()
@@ -63,7 +65,7 @@ def main():
 
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
-        cutout_face = cut.cutout_mask_array(np.float32(image))
+        cutout_face = cut.cutout_mask_array(np.uint8(image))
 
         # crop and resize face
         cropper = fc.FaceCropper()

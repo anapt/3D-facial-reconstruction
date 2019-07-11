@@ -67,7 +67,7 @@
   axis off
 
   F = getframe(gcf);
-  close all;
+%  close all;
   [image, Map] = frame2im(F);
 
 %  filename = sprintf('image_%d', 5);
