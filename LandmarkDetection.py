@@ -50,7 +50,7 @@ class LandmarkDetection:
 
             return out_face
 
-    def cutout_mask_array(self, image):
+    def cutout_mask_array(self, image, flip_rgb):
         # cv2.imwrite('./imAGE1.png', image)
         out_face = np.zeros_like(image)
 
@@ -80,7 +80,8 @@ class LandmarkDetection:
             feature_mask = feature_mask.astype(np.bool)
 
             out_face[feature_mask] = image[feature_mask]
-            out_face = cv2.cvtColor(out_face, cv2.COLOR_BGR2RGB)
+            if flip_rgb:
+                out_face = cv2.cvtColor(out_face, cv2.COLOR_BGR2RGB)
             # cv2.imwrite('./im1.png', out_face)
 
             return out_face
