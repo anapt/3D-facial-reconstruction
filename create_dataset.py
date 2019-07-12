@@ -54,7 +54,7 @@ def main():
     path = './DATASET/model2017-1_bfm_nomouth.h5'
     eng = matlab.engine.start_matlab()
 
-    for n in range(0, N):
+    for n in range(0, 1):
         formation, cells = get_vectors(path, n)
         position = formation['position'].tolist()
         color = formation['color'].tolist()
@@ -65,7 +65,7 @@ def main():
 
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
-        cutout_face = cut.cutout_mask_array(np.uint8(image))
+        cutout_face = cut.cutout_mask_array(np.uint8(image), True)
 
         # crop and resize face
         cropper = fc.FaceCropper()
