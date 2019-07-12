@@ -32,7 +32,7 @@ class ImageFormationLayer(object):
         cells = decoder.calculate_cell_depth()
         cells = cells.tolist()
         eng = matlab.engine.start_matlab()
-        coords = image['position']
+        # coords = image['position']
         position = image['position'].tolist()
 
         color = image['color'].tolist()
@@ -48,7 +48,7 @@ class ImageFormationLayer(object):
         cropper = fc.FaceCropper()
         cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
 
-        return cropped_face, coords
+        return cropped_face
 
 
 def main():
