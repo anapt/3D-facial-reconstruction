@@ -4,6 +4,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from testImport2 import load_dataset
 
 
 keras = tf.keras
@@ -15,10 +16,10 @@ IMG_SHAPE = (IMG_SIZE, IMG_SIZE, 3)
 WEIGHT_DECAY = 0.001
 BASE_LEARNING_RATE = 0.01
 
-BATCH_SIZE = 32
+BATCH_SIZE = 3
 BATCH_ITERATIONS = 75000
 
-SHUFFLE_BUFFER_SIZE = 1000
+SHUFFLE_BUFFER_SIZE = 100
 
 # Create the base model from the pre-trained model XCEPTION
 base_model = tf.keras.applications.xception.Xception(include_top=False,
@@ -33,6 +34,22 @@ prediction_layer = tf.keras.layers.Dense(257, activation=None, use_bias=True,
                                          kernel_initializer=weights_init, bias_initializer='zeros',
                                          kernel_regularizer=tf.keras.regularizers.l2(WEIGHT_DECAY))
 
+global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
+
+keras_ds = load_dataset()
+keras_ds = keras_ds.shuffle(SHUFFLE_BUFFER_SIZE).batch(BATCH_SIZE)
+
+for image_batch, label_batch in keras_ds.take(1):
+  pass
+
+print('image bach shape ', image_batch.shape)
+
+feature_batch = base_model(image_batch)
+print(feature_batch.shape)
+
+feature_batch_average = global_average_layer(feature_batch)
+print(feature_batch_average.shape)
+
 print("Number of layers in the base model: ", len(base_model.layers))
 model = tf.keras.Sequential([
   base_model,
@@ -46,3 +63,11 @@ model.compile(optimizer=keras.optimizers.Adadelta(lr=BASE_LEARNING_RATE,
               loss='mean_squared_error',
               metrics=['accuracy'])
 
+
+# The dataset may take a few seconds to start, as it fills its shuffle buffer.
+
+
+steps_per_epoch = tf.math.ceil(SHUFFLE_BUFFER_SIZE/BATCH_SIZE).numpy()
+print(steps_per_epoch)
+
+model.fit(keras_ds, epochs=1, steps_per_epoch=3)

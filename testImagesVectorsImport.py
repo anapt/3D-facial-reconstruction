@@ -46,10 +46,10 @@ all_vector_paths = np.asarray(all_vector_paths, dtype=np.unicode)
 # print(all_image_paths)
 
 
-# path_ds = tf.data.Dataset.from_tensor_slices(all_image_paths)
-# image_ds = path_ds.map(load_and_preprocess_image)
-# # print(image_ds)
-#
+path_ds = tf.data.Dataset.from_tensor_slices(all_image_paths)
+image_ds = path_ds.map(load_and_preprocess_image)
+print(image_ds)
+
 # # vector = load_vector(all_vector_paths)
 # path_2ds = tf.data.Dataset.from_tensor_slices(all_vector_paths)
 # vector_ds = path_2ds.map(load_vector)
@@ -68,31 +68,31 @@ all_vector_paths = np.asarray(all_vector_paths, dtype=np.unicode)
 # image_vector_ds = tf.data.Dataset.zip((image_ds, vector_ds))
 # print(image_vector_ds)
 
-# plt.figure(figsize=(8,8))
-# for n, im in enumerate(image_ds.take(4)):
-#     plt.subplot(2,2,n+1)
-#     plt.imshow(tf.cast(im, dtype=tf.float32))
-#     # plt.imshow(im.reshape(im.shape[0], im.shape[1]), cmap=plt.cm.Greys)
-#     plt.grid(False)
-#     plt.xticks([])
-#     plt.yticks([])
-#     plt.show()
+plt.figure(figsize=(8,8))
+for n, im in enumerate(image_ds.take(4)):
+    plt.subplot(2,2,n+1)
+    plt.imshow(tf.cast(im, dtype=tf.float32))
+    # plt.imshow(im.reshape(im.shape[0], im.shape[1]), cmap=plt.cm.Greys)
+    plt.grid(False)
+    plt.xticks([])
+    plt.yticks([])
+    plt.show()
 # for n, im in enumerate(image_ds.take(4)):
 #     tf.print(im, output_stream=sys.stderr)
 #
 # for n, im in enumerate(vector_ds.take(4)):
 #     tf.print(im, output_stream=sys.stderr)
 
-ds = tf.data.Dataset.from_tensor_slices((all_image_paths, all_vector_paths))
+# ds = tf.data.Dataset.from_tensor_slices((all_image_paths, all_vector_paths))
 
 
 # The tuples are unpacked into the positional arguments of the mapped function
-def load_and_preprocess_from_path_label(path, label):
-  return load_and_preprocess_image(path), load_vector(label)
+# def load_and_preprocess_from_path_label(path, label):
+#   return load_and_preprocess_image(path), load_vector(label)
 
 
-image_label_ds = ds.map(load_and_preprocess_from_path_label)
-print(image_label_ds)
+# image_label_ds = ds.map(load_and_preprocess_from_path_label)
+# print(image_label_ds)
 
 # plt.figure(figsize=(8,8))
 # for n, im in enumerate(image_label_ds.take(4)):
@@ -103,8 +103,8 @@ print(image_label_ds)
 #     plt.xticks([])
 #     plt.yticks([])
 #     plt.show()
-for n, im in enumerate(image_label_ds.take(4)):
-    tf.print(im, output_stream=sys.stderr)
+# for n, im in enumerate(image_label_ds.take(4)):
+#     tf.print(im, output_stream=sys.stderr)
 #
 # for n, im in enumerate(vector_ds.take(4)):
 #     tf.print(im, output_stream=sys.stderr)
