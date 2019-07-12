@@ -32,6 +32,7 @@ class ImageFormationLayer(object):
         cells = decoder.calculate_cell_depth()
         cells = cells.tolist()
         eng = matlab.engine.start_matlab()
+        coords = image['position']
         position = image['position'].tolist()
 
         color = image['color'].tolist()
@@ -41,13 +42,13 @@ class ImageFormationLayer(object):
 
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
-        cutout_face = cut.cutout_mask_array(np.float32(image))
+        cutout_face = cut.cutout_mask_array(np.uint8(image), False)
 
         # crop and resize face
         cropper = fc.FaceCropper()
         cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
 
-        return cropped_face
+        return cropped_face, coords
 
 
 def main():
@@ -74,4 +75,4 @@ def main():
         plt.show()
 
 
-main()
+# main()
