@@ -10,6 +10,17 @@ class SemanticCodeVector:
         self.model = h5py.File(path, 'r+')
 
     def read_pca_bases(self):
+        """
+        Function that reads vectors from .h5py file located in self.path
+
+        :return:
+        dictionary with keys    shape_pca               159447 80
+                                expression_pca          159447 64
+                                reflectance_pca         159447 80
+                                average_shape           159447
+                                average_reflectance     159447
+        """
+
         shape_pca = self.model['shape']['model']['pcaBasis'][()]
         shape_pca = shape_pca[0:len(shape_pca), 0:80]
         sdev = np.std(shape_pca, 0)
@@ -44,14 +55,30 @@ class SemanticCodeVector:
         return scv_pca_bases
 
     def read_cells(self):
+        """
+        Function that reads vector from .h5py file located in self.path
+
+        :return:
+        <class 'numpy.ndarray'> with shape (3, 105694)
+        """
         cells = self.model['shape']['representer']['cells'][()]
         return cells
 
     @staticmethod
     def sample_vector():
+        """
+        Function that samples the semantic code vector
+
+        :return:
+        dictionary with keys    shape           (80,)
+                                expression      (64,)
+                                reflectance     (80,)
+                                rotation        (3,)
+                                translation     (3,)
+                                illumination    (27,)
+        """
         a = np.random.normal(0, 1, 80)
         # a = np.random.uniform(-1, 1, 80)
-
         b = np.random.normal(0, 1, 80)
 
         # d = np.random.normal(0, 1, 64)
@@ -78,43 +105,50 @@ class SemanticCodeVector:
 
         return x
 
-    def plot_face3d(self):
-
-        scv_pca_bases = self.read_pca_bases()
-        plot_color = np.asarray(scv_pca_bases["average_reflectance"])
-        plot_color = np.reshape(plot_color, (3, int(plot_color.size / 3)), order='F')
-
-        plot_points = np.asarray(scv_pca_bases["average_shape"])
-        plot_points = np.reshape(plot_points, (3, int(plot_points.size / 3)), order='F')
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-        ax.set_zlabel('z')
-
-        ax.scatter3D(plot_points[0, ], plot_points[1, ], plot_points[2, ], s=1, c=np.transpose(plot_color))
-
-        plt.show()
+    # def plot_face3d(self):
+    #
+    #     scv_pca_bases = self.read_pca_bases()
+    #     plot_color = np.asarray(scv_pca_bases["average_reflectance"])
+    #     plot_color = np.reshape(plot_color, (3, int(plot_color.size / 3)), order='F')
+    #
+    #     plot_points = np.asarray(scv_pca_bases["average_shape"])
+    #     plot_points = np.reshape(plot_points, (3, int(plot_points.size / 3)), order='F')
+    #
+    #     fig = plt.figure()
+    #     ax = fig.add_subplot(111, projection='3d')
+    #     ax.set_xlabel('x')
+    #     ax.set_ylabel('y')
+    #     ax.set_zlabel('z')
+    #
+    #     ax.scatter3D(plot_points[0, ], plot_points[1, ], plot_points[2, ], s=1, c=np.transpose(plot_color))
+    #
+    #     plt.show()
 
     def calculate_coords(self, vector):
+        """
+        Calculates the spatial embedding of the vertices based on the PCA bases for shape and expression
+        and the average shape of a face and the parameters for shape and expression of the Semantic Code Vector
+        :param vector: Semantic Code Vector - only shape and expression parameters are used
+        :return: <class 'numpy.ndarray'> with shape (159447,)
+        """
         scv_pca_bases = self.read_pca_bases()
         # print(vector["shape"])
         vertices = scv_pca_bases["average_shape"] + \
             np.dot(scv_pca_bases["shape_pca"], vector["shape"]) + \
             np.dot(scv_pca_bases["expression_pca"], vector["expression"])
 
-        # print(scv_pca_bases["average_shape"] - vertices)
-
         return vertices
 
     def calculate_reflectance(self, vector):
+        """
+        Calculates the per vertex skin reflectance based on the PCA bases for skin reflectance and the
+        average reflectance and the parameters for skin reflectance of the Semantic Code Vector
+        :param vector: Semantic Code Vector - only the parameters for reflectance are used
+        :return: <class 'numpy.ndarray'> with shape (159447,)
+        """
         scv_pca_bases = self.read_pca_bases()
 
         skin_reflectance = scv_pca_bases["average_reflectance"] +  \
             np.dot(scv_pca_bases["reflectance_pca"], vector["reflectance"])
 
-        # print(scv_pca_bases["average_reflectance"] - skin_reflectance)
-
         return skin_reflectance
-
