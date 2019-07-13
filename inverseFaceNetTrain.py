@@ -37,7 +37,7 @@ def main():
     steps_per_epoch = tf.math.ceil(SHUFFLE_BUFFER_SIZE / BATCH_SIZE).numpy()
     print("Training with %d steps per epoch" % steps_per_epoch)
 
-    model.fit(keras_ds, epochs=1, steps_per_epoch=steps_per_epoch, callbacks=[cp_callback])
+    model.fit(keras_ds, epochs=5, steps_per_epoch=steps_per_epoch, callbacks=[cp_callback])
 
     # latest = tf.train.latest_checkpoint(checkpoint_dir)
 
