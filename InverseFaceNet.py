@@ -1,16 +1,9 @@
-from keras.models import Model
 import tensorflow as tf
-from keras.layers import Input
-from keras.layers.merge import Concatenate
-from keras.layers.core import RepeatVector
-from keras.layers import Dense, LSTM, CuDNNLSTM, Bidirectional, Lambda
-from keras.activations import softmax, exponential, tanh
 from keras import backend as K
-from keras.initializers import RandomNormal
-from keras.losses import categorical_crossentropy
 import numpy as np
 import random
 import ImageFormationLayer as ifl
+from tensorflow.keras import backend as K
 import cv2
 
 
@@ -62,7 +55,7 @@ class InverseFaceNetModel(object):
         # Create prediction layer
         prediction_layer = tf.keras.layers.Dense(257, activation=None, use_bias=True,
                                                  kernel_initializer=weights_init, bias_initializer='zeros',
-                                                 kernel_regularizer=tf.keras.regularizers.l2(WEIGHT_DECAY))
+                                                 kernel_regularizer=tf.keras.regularizers.l2(self.WEIGHT_DECAY))
 
         # Code to check compatibility of dimensions
         # for image_batch, label_batch in keras_ds.take(1):
@@ -102,9 +95,11 @@ class InverseFaceNetModel(object):
     def statistical_regularization_term(x):
         weight_expression = 0.8
         weight_reflectance = 1.7e-3
-        sr_term = sum(pow(x['shape'], 2)) + weight_expression * sum(pow(x['expression'], 2)) + \
-            weight_reflectance * sum(pow(x['reflectance'], 2))
+        sr_term = K.sum(tf.map_fn(lambda t: t*t, x['shape']), axis=0) \
+            + weight_expression * K.sum(tf.map_fn(lambda t: t*t, x['expression'])) \
+            + weight_reflectance * K.sum(tf.map_fn(lambda t: t*t, x['reflectance']))
 
+        # print("statistical reg error ", sr_term)
         return sr_term
 
     def dense_photometric_alignment(self, x, original_image):
@@ -186,17 +181,24 @@ class InverseFaceNetModel(object):
         # Regularization Loss
         reg_loss_func = self.statistical_regularization_term
 
-        def custom_loss(x, original_image):
-            """ Final loss calculation function to be passed to optimizer"""
+        def custom_loss(y_true, y_pred):
+            x = y_pred
+            x = K.transpose(x)
+            x = self.vector2dict(x)
+
+            original_image = self.model.input
+            original_image = K.squeeze(original_image, 0)
+
             # Regularization Loss
             reg_loss = reg_loss_func(x)
             # Photometric alignment loss
-            photo_loss = reg_loss_func(x, original_image)
+            # photo_loss = photo_loss_func(x, original_image)
 
             weight_photo = 1.92
             weight_reg = 2.9e-5
 
-            model_loss = weight_photo*photo_loss + weight_reg*reg_loss
+            # model_loss = weight_photo*photo_loss + weight_reg*reg_loss
+            model_loss = weight_reg * reg_loss
 
             return model_loss
 
