@@ -14,9 +14,9 @@ import ImageFormationLayer as ifl
 import cv2
 
 
-class InverseFaceNet(object):
+class InverseFaceNetModel(object):
 
-    def __init__(self, hps):
+    def __init__(self):
         # Parameters
         self.IMG_SIZE = 240
         self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, 3)
