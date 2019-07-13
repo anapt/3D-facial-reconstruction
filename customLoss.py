@@ -16,7 +16,7 @@ def statistical_regularization_term(x):
     weight_reflectance = 1.7e-3
     sr_term = sum(pow(x['shape'], 2)) + weight_expression * sum(pow(x['expression'], 2)) + \
         weight_reflectance * sum(pow(x['reflectance'], 2))
-
+    print("s term", sr_term)
     return sr_term
 
 
@@ -102,9 +102,9 @@ def custom_loss(vector, original_image):
     weight_photo = 1.92
     weight_reg = 2.9e-5
     # TODO add Sparse Landmark Alignment
-    loss = weight_photo * dense_photometric_alignment(x, original_image) + \
-        weight_reg * statistical_regularization_term(x)
-
+    # loss = weight_photo * dense_photometric_alignment(x, original_image) + \
+    #     weight_reg * statistical_regularization_term(x)
+    loss = weight_reg * statistical_regularization_term(x)
     # print("loss", loss)
 
     return loss
@@ -123,5 +123,5 @@ def main():
     print(custom_loss(vector, original_image))
 
 
-# main()
+main()
 
