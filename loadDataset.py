@@ -1,11 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
 import pathlib
-import random
 import numpy as np
-import matplotlib.pyplot as plt
-AUTOTUNE = tf.data.experimental.AUTOTUNE
-# tf.enable_eager_execution()
 
 
 def preprocess_image(image):
@@ -22,6 +18,8 @@ def load_and_preprocess_image(path):
 
 def load_dataset():
 
+    AUTOTUNE = tf.data.experimental.AUTOTUNE
+
     data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
     data_root = pathlib.Path(data_root)
 
@@ -29,6 +27,7 @@ def load_dataset():
     all_image_paths = [str(path) for path in all_image_paths]
 
     image_count = len(all_image_paths)
+    print("Dataset containg %d pairs of Images and Vectors." % image_count)
 
     sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
     sem_root = pathlib.Path(sem_root)
