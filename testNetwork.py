@@ -1,10 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
-import numpy as np
-import matplotlib.pyplot as plt
 import tensorflow as tf
-from testImport2 import load_dataset
+from loadDataset import load_dataset
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 
@@ -17,10 +14,10 @@ IMG_SHAPE = (IMG_SIZE, IMG_SIZE, 3)
 WEIGHT_DECAY = 0.001
 BASE_LEARNING_RATE = 0.01
 
-BATCH_SIZE = 10
+BATCH_SIZE = 20
 BATCH_ITERATIONS = 75000
 
-SHUFFLE_BUFFER_SIZE = 100
+SHUFFLE_BUFFER_SIZE = 1000
 
 # Create the base model from the pre-trained model XCEPTION
 base_model = tf.keras.applications.xception.Xception(include_top=False,
@@ -72,4 +69,4 @@ model.compile(optimizer=keras.optimizers.Adadelta(lr=BASE_LEARNING_RATE,
 steps_per_epoch = tf.math.ceil(SHUFFLE_BUFFER_SIZE/BATCH_SIZE).numpy()
 # print(steps_per_epoch)
 #
-model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch)
+model.fit(keras_ds, epochs=5, steps_per_epoch=steps_per_epoch)

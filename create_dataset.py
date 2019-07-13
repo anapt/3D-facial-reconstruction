@@ -50,11 +50,11 @@ def prepare_images(n):
 
 def main():
     # Number of images to create
-    N = 100
+    N = 1000
     path = './DATASET/model2017-1_bfm_nomouth.h5'
     eng = matlab.engine.start_matlab()
 
-    for n in range(0, 1):
+    for n in range(210, N):
         formation, cells = get_vectors(path, n)
         position = formation['position'].tolist()
         color = formation['color'].tolist()
