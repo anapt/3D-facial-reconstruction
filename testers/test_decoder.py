@@ -21,17 +21,16 @@ reflectance = data.calculate_reflectance(x)
 decoder = pmd.ParametricMoDecoder(vertices, reflectance, x, cells)
 
 formation = decoder.get_image_formation()
+decoder.create_rot_mat(10, 10 , 10)
 # np.savetxt('color.txt', formation['color'])
 # np.savetxt('position.txt', formation['position'])
 
-print(cells.shape)
-print("ordered")
 cells_ordered = decoder.calculate_cell_depth()
 # np.savetxt('cells.txt', cells_ordered)
 # np.savetxt('color.txt', color_ordered)
 
-plt.scatter(formation['position'][0, :], formation['position'][1, :], s=1)
-plt.show()
+# plt.scatter(formation['position'][0, :], formation['position'][1, :], s=1)
+# plt.show()
 
 
 
