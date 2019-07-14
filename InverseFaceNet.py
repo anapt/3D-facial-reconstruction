@@ -44,7 +44,11 @@ class InverseFaceNetModel(object):
         self.eng = matlab.engine.start_matlab()
 
     def build_model(self):
-        """ Create a Keras model """
+        """
+         Create a Keras model
+
+        :return: Keras.model()
+        """
 
         # Create the base model from the pre-trained model XCEPTION
         base_model = tf.keras.applications.xception.Xception(include_top=False,
@@ -87,6 +91,12 @@ class InverseFaceNetModel(object):
 
     @staticmethod
     def vector2dict(vector):
+        """
+        Transform vector to dictionary
+
+        :param vector: vector with shape (257,)
+        :return: dictionary of Semantic Code Vector
+        """
         x = {
             "shape": vector[0:80, ],
             "expression": vector[80:144, ],
