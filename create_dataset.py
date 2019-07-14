@@ -8,6 +8,15 @@ import FaceCropper as fc
 
 
 def get_vectors(path, n):
+    """
+    Samples vector, saves vector in .txt file
+    Calculate image formation (2d coordinates and color)
+
+    :param path: Path to Basel Face Model
+    :param n: iteration number
+    :return:    image formation (dictionary with keys position, color)
+                cell ordered with deepest one first
+    """
     data = scv.SemanticCodeVector(path)
     cells = data.read_cells()
 
