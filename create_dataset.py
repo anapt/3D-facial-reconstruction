@@ -1,7 +1,6 @@
 import numpy as np
 import matlab.engine
 
-import ImagePreProcessing as preprocess
 import parametricMoDecoder as pmd
 import semanticCodeVector as scv
 import LandmarkDetection as ld
@@ -37,15 +36,6 @@ def get_vectors(path, n):
     # np.savetxt("DATASET/cells/cells_%d.txt" % n, cells_ordered)
 
     return formation, cells_ordered
-
-
-def prepare_images(n):
-    image_path = ("./DATASET/images/im_%d.png" % n)
-    cutout_path = ("./DATASET/images/cutout/im_%d.png" % n)
-    cropped_image_path = ("./DATASET/images/cropped/image_%d.png" % n)
-
-    prep = preprocess.ImagePreProcessing(n)
-    prep.detect_crop_save()
 
 
 def main():
