@@ -5,19 +5,38 @@ import numpy as np
 
 
 def preprocess_image(image):
+    """
+    Decodes tensor and cast to tf.float32
+    Maps color channels to [-0.5, 0.5]
+
+    :param image: Tensor("ReadFile:0", shape=(), dtype=string)
+    :return: Tensor("truediv:0", dtype=float32)
+    """
     image = tf.image.decode_image(image, channels=3)
     image = tf.cast(image, dtype=tf.float32)
     image /= 255.0 - 0.5     # normalize to [-0.5,0.5] range
+
     return image
 
 
 def load_and_preprocess_image(path):
+    """
+    Reads string path into image string and calls preprocess function to cast into image tensor
+
+    :param path: Tensor("args_0:0", shape=(), dtype=string)
+    :return: Tensor("truediv:0", dtype=float32)
+    """
     image = tf.io.read_file(path)
     return preprocess_image(image)
 
 
 def load_dataset():
+    """
+    Read images and vectors (from txt files) and zips them together in a Tensorflow Dataset
+    Images and vectors should be in different directories
 
+    :return: tf.data.Dataset with pairs (Image, Semantic Code Vector)
+    """
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
     data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
