@@ -25,7 +25,6 @@ class ParametricMoDecoder:
         :param coords_3d: 3D coordinates in CCS shape : (3, 53149)
         :return: 2D coordinates in Screen space with shape (2, 53149)
         """
-        print("coords", coords_3d.shape)
         coords_2d = np.zeros((2, coords_3d.shape[1]), dtype=coords_3d.dtype)
 
         for i in range(0, coords_3d.shape[1]):
