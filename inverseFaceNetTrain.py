@@ -1,14 +1,8 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-
-import argparse
-import json
-import os
-import sys
 import tensorflow as tf
-
+import matplotlib.pyplot as plt
 from InverseFaceNet import InverseFaceNetModel
 from loadDataset import load_dataset
+import CollectBatchStats as batch_stats
 
 
 def main():
@@ -37,9 +31,15 @@ def main():
     steps_per_epoch = tf.math.ceil(SHUFFLE_BUFFER_SIZE / BATCH_SIZE).numpy()
     print("Training with %d steps per epoch" % steps_per_epoch)
 
-    model.fit(keras_ds, epochs=5, steps_per_epoch=steps_per_epoch, callbacks=[cp_callback])
+    batch_stats_callback = batch_stats.CollectBatchStats()
+    model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch, callbacks=[batch_stats_callback, cp_callback])
 
-    # latest = tf.train.latest_checkpoint(checkpoint_dir)
+    plt.figure()
+    plt.ylabel("Loss")
+    plt.xlabel("Training Steps")
+    # plt.ylim([0,2])
+    plt.plot(batch_stats_callback.batch_losses)
+    plt.show()
 
 
 main()

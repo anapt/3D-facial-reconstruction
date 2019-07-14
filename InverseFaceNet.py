@@ -1,10 +1,13 @@
 import tensorflow as tf
 from keras import backend as K
 import numpy as np
-import random
-import ImageFormationLayer as ifl
+import matlab.engine
 from tensorflow.keras import backend as K
 import cv2
+import semanticCodeVector as scv
+import parametricMoDecoder as pmd
+import LandmarkDetection as ld
+import FaceCropper as fc
 
 
 class InverseFaceNetModel(object):
@@ -36,6 +39,9 @@ class InverseFaceNetModel(object):
 
         # Loss Function
         self.loss_func = self.model_loss()
+
+        # Matlab engine
+        self.eng = matlab.engine.start_matlab()
 
     def build_model(self):
         """ Create a Keras model """
@@ -103,16 +109,15 @@ class InverseFaceNetModel(object):
         return sr_term
 
     def dense_photometric_alignment(self, x, original_image):
-        # TODO original_image has to come from the tf.dataset
-        formation = ifl.ImageFormationLayer(self.PATH, x)
-        new_image = formation.get_reconstructed_image()
+
+        new_image = self.get_reconstructed_image(x)
         # plt.imshow(new_image)
         # plt.show()
         # plt.imshow(original_image)
         # plt.show()
 
         new_image_aligned = self.align_images(new_image, original_image)
-
+        # new_image_aligned = new_image
         # plt.imshow(new_image_aligned)
         # plt.show()
 
@@ -122,6 +127,41 @@ class InverseFaceNetModel(object):
         # print("photo term", photo_term)
 
         return photo_term
+
+    def get_vertices_and_reflectance(self, vector):
+        semantic = scv.SemanticCodeVector(self.PATH)
+        vertices = semantic.calculate_coords(vector)
+        # read average face cells
+        cells = semantic.read_cells()
+        reflectance = semantic.calculate_reflectance(vector)
+
+        return vertices, reflectance, cells
+
+    def get_reconstructed_image(self, vector):
+        vertices, reflectance, cells = self.get_vertices_and_reflectance(vector)
+        decoder = pmd.ParametricMoDecoder(vertices, reflectance, vector, cells)
+
+        image = decoder.get_image_formation()
+
+        cells = decoder.calculate_cell_depth()
+        cells = cells.tolist()
+        # coords = image['position']
+        position = image['position'].tolist()
+
+        color = image['color'].tolist()
+
+        # draw image
+        image = self.eng.patch_and_show(position, color, cells)
+        # image = np.zeros(340, 340, 0)
+        # get face mask without mouth interior
+        cut = ld.LandmarkDetection()
+        cutout_face = cut.cutout_mask_array(np.uint8(image), False)
+
+        # crop and resize face
+        cropper = fc.FaceCropper()
+        cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
+
+        return cropped_face
 
     def align_images(self, new_image, original_image):
         # Convert images to grayscale
@@ -188,7 +228,9 @@ class InverseFaceNetModel(object):
 
             original_image = self.model.input
             original_image = K.squeeze(original_image, 0)
-
+            print("type original image", type(original_image))
+            # print(original_image.numpy())
+            # print(original_image)
             # Regularization Loss
             reg_loss = reg_loss_func(x)
             # Photometric alignment loss
