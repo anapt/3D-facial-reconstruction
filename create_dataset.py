@@ -1,10 +1,11 @@
+import cv2
 import numpy as np
-import matlab.engine
 
 import parametricMoDecoder as pmd
 import semanticCodeVector as scv
 import LandmarkDetection as ld
 import FaceCropper as fc
+from patchImage import patch
 
 
 def get_vectors(path, n):
@@ -51,16 +52,15 @@ def main():
     # Number of images to create
     N = 1000
     path = './DATASET/model2017-1_bfm_nomouth.h5'
-    eng = matlab.engine.start_matlab()
 
     for n in range(0, 1):
         formation, cells = get_vectors(path, n)
-        position = formation['position'].tolist()
-        color = formation['color'].tolist()
-        cells = cells.tolist()
+        position = formation['position']
+        color = formation['color']
+        cells = cells
 
         # create image
-        image = eng.patch_and_show(position, color, cells)
+        image = patch(position, color, cells)
 
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
