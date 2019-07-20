@@ -53,7 +53,7 @@ def main():
     path = './DATASET/model2017-1_bfm_nomouth.h5'
     eng = matlab.engine.start_matlab()
 
-    for n in range(210, N):
+    for n in range(0, 1):
         formation, cells = get_vectors(path, n)
         position = formation['position'].tolist()
         color = formation['color'].tolist()
