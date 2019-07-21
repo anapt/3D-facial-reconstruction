@@ -1,4 +1,9 @@
+from __future__ import absolute_import, division, print_function
+
 import tensorflow as tf
+
+tf.compat.v1.enable_eager_execution()
+
 import matplotlib.pyplot as plt
 from InverseFaceNet import InverseFaceNetModel
 from loadDataset import load_dataset

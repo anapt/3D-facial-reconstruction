@@ -1,4 +1,3 @@
-import cv2
 import numpy as np
 
 import parametricMoDecoder as pmd
@@ -57,7 +56,6 @@ def main():
         formation, cells = get_vectors(path, n)
         position = formation['position']
         color = formation['color']
-        cells = cells
 
         # create image
         image = patch(position, color, cells)
