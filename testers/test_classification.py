@@ -18,9 +18,9 @@ plt.rcParams['image.cmap'] = 'gray'
 caffe.set_mode_cpu()
 
 model_def = caffe_root + 'models/bvlc_alexnet/deploy.prototxt'
-model_def = '/home/anapt/Downloads/3DMM_CNN/deploy_network.prototxt'
-# model_weights = caffe_root + 'models/bvlc_alexnet/bvlc_alexnet.caffemodel'
-model_weights = '/home/anapt/Downloads/3DMM_CNN/3dmm_cnn_resnet_101.caffemodel'
+# model_def = '/home/anapt/Downloads/3DMM_CNN/deploy_network.prototxt'
+model_weights = caffe_root + 'models/bvlc_alexnet/bvlc_alexnet.caffemodel'
+# model_weights = '/home/anapt/Downloads/3DMM_CNN/3dmm_cnn_resnet_101.caffemodel'
 
 net = caffe.Net(model_def,      # defines the structure of the model
                 model_weights,  # contains the trained weights
