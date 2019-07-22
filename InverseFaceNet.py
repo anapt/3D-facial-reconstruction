@@ -6,8 +6,8 @@ tf.compat.v1.enable_eager_execution()
 
 import numpy as np
 import cv2
-import semanticCodeVector as scv
-import parametricMoDecoder as pmd
+import SemanticCodeVector as scv
+import ParametricMoDecoder as pmd
 import LandmarkDetection as ld
 import FaceCropper as fc
 from patchImage import patch
