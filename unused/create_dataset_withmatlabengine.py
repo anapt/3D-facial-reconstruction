@@ -1,8 +1,8 @@
 import numpy as np
 import matlab.engine
 
-import parametricMoDecoder as pmd
-import semanticCodeVector as scv
+import ParametricMoDecoder as pmd
+import SemanticCodeVector as scv
 import LandmarkDetection as ld
 import FaceCropper as fc
 
