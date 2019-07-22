@@ -1,7 +1,7 @@
 import numpy as np
 
-import parametricMoDecoder as pmd
-import semanticCodeVector as scv
+import ParametricMoDecoder as pmd
+import SemanticCodeVector as scv
 import LandmarkDetection as ld
 import FaceCropper as fc
 from patchImage import patch
@@ -52,7 +52,7 @@ def main():
     N = 1000
     path = './DATASET/model2017-1_bfm_nomouth.h5'
 
-    for n in range(0, 1):
+    for n in range(0, 10):
         formation, cells = get_vectors(path, n)
         position = formation['position']
         color = formation['color']
@@ -62,9 +62,10 @@ def main():
 
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
+        # RGB image with face
         cutout_face = cut.cutout_mask_array(np.uint8(image), True)
 
-        # crop and resize face
+        # crop, resize and save face
         cropper = fc.FaceCropper()
         cropper.generate(np.uint8(cutout_face), True, n)
         print(n)
