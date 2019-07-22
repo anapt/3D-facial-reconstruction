@@ -1,73 +1,13 @@
-import numpy as np
-
-import ParametricMoDecoder as pmd
-import SemanticCodeVector as scv
-import LandmarkDetection as ld
-import FaceCropper as fc
-from patchImage import patch
-
-
-def get_vectors(path, n):
-    """
-    Samples vector, saves vector in .txt file
-    Calculate image formation (2d coordinates and color)
-
-    :param path: Path to Basel Face Model
-    :param n: iteration number
-    :return:    image formation (dictionary with keys position, color)
-                cell ordered with deepest one first
-    """
-    data = scv.SemanticCodeVector(path)
-    cells = data.read_cells()
-
-    x = data.sample_vector()
-
-    vector = np.zeros(257, dtype=float)
-    vector[0:80, ] = x['shape']
-    vector[80:144, ] = x['expression']
-    vector[144:224, ] = x['reflectance']
-    vector[224:227, ] = x['rotation']
-    vector[227:230, ] = x['translation']
-    vector[230:257, ] = x['illumination']
-
-    np.savetxt("./DATASET/semantic/x_%d.txt" % n, vector)
-
-    vertices = data.calculate_coords(x)
-    reflectance = data.calculate_reflectance(x)
-
-    decoder = pmd.ParametricMoDecoder(vertices, reflectance, x, cells)
-
-    formation = decoder.get_image_formation()
-    # np.savetxt("./DATASET/color/color_%d.txt" % n, formation['color'])
-    # np.savetxt("./DATASET/position/position_%d.tgxt" % n, formation['position'])
-
-    cells_ordered = decoder.calculate_cell_depth()
-    # np.savetxt("DATASET/cells/cells_%d.txt" % n, cells_ordered)
-
-    return formation, cells_ordered
+import ImagePreprocess as image_preprocess
 
 
 def main():
     # Number of images to create
     N = 1000
-    path = './DATASET/model2017-1_bfm_nomouth.h5'
+    preprocess = image_preprocess.ImagePreprocess()
 
     for n in range(0, 10):
-        formation, cells = get_vectors(path, n)
-        position = formation['position']
-        color = formation['color']
-
-        # create image
-        image = patch(position, color, cells)
-
-        # get face mask without mouth interior
-        cut = ld.LandmarkDetection()
-        # RGB image with face
-        cutout_face = cut.cutout_mask_array(np.uint8(image), True)
-
-        # crop, resize and save face
-        cropper = fc.FaceCropper()
-        cropper.generate(np.uint8(cutout_face), True, n)
+        preprocess.create_image_and_save(n)
         print(n)
 
 
