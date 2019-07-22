@@ -6,8 +6,8 @@ from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
 
 # project classes
-import parametricMoDecoder as pmd
-import semanticCodeVector as scv
+import ParametricMoDecoder as pmd
+import SemanticCodeVector as scv
 
 ''' SEMANTIC CODE VECTOR '''
 # MODIFY TO path containing Basel Face model

@@ -1,4 +1,4 @@
-import semanticCodeVector as scv
+import SemanticCodeVector as scv
 import numpy as np
 
 

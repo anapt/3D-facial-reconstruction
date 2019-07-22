@@ -2,8 +2,8 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 
-import parametricMoDecoder as pmd
-import semanticCodeVector as scv
+import ParametricMoDecoder as pmd
+import SemanticCodeVector as scv
 
 ''' SEMANTIC CODE VECTOR '''
 # MODIFY TO path containing Basel Face model
