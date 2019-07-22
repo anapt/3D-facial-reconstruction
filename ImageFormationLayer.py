@@ -2,17 +2,17 @@ import numpy as np
 import matlab.engine
 import matplotlib.pyplot as plt
 
-import semanticCodeVector as scv
-import parametricMoDecoder as pmd
+import SemanticCodeVector as scv
+import ParametricMoDecoder as pmd
 import LandmarkDetection as ld
 import FaceCropper as fc
 
 
 class ImageFormationLayer(object):
 
-    def __init__(self, path, vector):
+    def __init__(self, vector):
         self.vector = vector
-        self.path = path
+        self.path = './DATASET/model2017-1_bfm_nomouth.h5'
 
     def get_vertices_and_reflectance(self):
         semantic = scv.SemanticCodeVector(self.path)
@@ -51,28 +51,28 @@ class ImageFormationLayer(object):
         return cropped_face
 
 
-def main():
-    show_result = True
-    n = 5
-    path = './DATASET/model2017-1_bfm_nomouth.h5'
-    vector_path = ("./DATASET/semantic/x_%d.txt" % n)
-    vector = np.loadtxt(vector_path)
-
-    x = {
-        "shape": vector[0:80, ],
-        "expression": vector[80:144, ],
-        "reflectance": vector[144:224, ],
-        "rotation": vector[224:227, ],
-        "translation": vector[227:230, ],
-        "illumination": vector[230:257, ]
-    }
-
-    formation = ImageFormationLayer(path, x)
-    image = formation.get_reconstructed_image()
-
-    if show_result:
-        plt.imshow(image)
-        plt.show()
-
-
-main()
+# def main():
+#     show_result = True
+#     n = 5
+#     path = './DATASET/model2017-1_bfm_nomouth.h5'
+#     vector_path = ("./DATASET/semantic/x_%d.txt" % n)
+#     vector = np.loadtxt(vector_path)
+#
+#     x = {
+#         "shape": vector[0:80, ],
+#         "expression": vector[80:144, ],
+#         "reflectance": vector[144:224, ],
+#         "rotation": vector[224:227, ],
+#         "translation": vector[227:230, ],
+#         "illumination": vector[230:257, ]
+#     }
+#
+#     formation = ImageFormationLayer(path, x)
+#     image = formation.get_reconstructed_image()
+#
+#     if show_result:
+#         plt.imshow(image)
+#         plt.show()
+#
+#
+# main()
