@@ -5,14 +5,12 @@ tf.compat.v1.enable_eager_execution()
 
 
 import numpy as np
-import matlab.engine
 import cv2
 import semanticCodeVector as scv
 import parametricMoDecoder as pmd
 import LandmarkDetection as ld
 import FaceCropper as fc
 from patchImage import patch
-from test_eager import to_numpy
 
 
 class InverseFaceNetModel(object):
@@ -112,15 +110,6 @@ class InverseFaceNetModel(object):
         return x
 
     @staticmethod
-    def tensor_to_numpy_array(img):
-        image = K.placeholder(shape=(240, 240, 3))
-
-        print("image type", type(img))
-        # image = img[:]
-        # print(img[0,0,0])
-        return image
-
-    @staticmethod
     def statistical_regularization_term(x):
         weight_expression = 0.8
         weight_reflectance = 1.7e-3
@@ -133,24 +122,8 @@ class InverseFaceNetModel(object):
 
     def dense_photometric_alignment(self, x, original_image):
 
-        # original_image = self.model.input
-        # original_image = K.squeeze(original_image, 0)
-        # print("type original image", type(original_image))
-
-        print("before reconstruction")
         new_image = self.get_reconstructed_image(x)
-        print("done")
-        # plt.imshow(new_image)
-        # plt.show()
-        # plt.imshow(original_image)
-        # plt.show()
-        print("before alignment")
         new_image_aligned = self.align_images(new_image, original_image)
-        # new_image_aligned = new_image
-        # plt.imshow(new_image_aligned)
-        # plt.show()
-        print("after alignment")
-        # photo_term = sum(sum(np.linalg.norm(original_image - new_image, axis=2))) / 53149
         photo_term = sum(sum(np.linalg.norm(original_image - new_image_aligned, axis=2))) / 53149
 
         # print("photo term", photo_term)
@@ -158,13 +131,9 @@ class InverseFaceNetModel(object):
         return photo_term
 
     def get_vertices_and_reflectance(self, vector):
-        print("get vertices and reflectance")
-        print(vector)
-        print(type(vector))
+
         semantic = scv.SemanticCodeVector(self.PATH)
-        print("done")
         vertices = semantic.calculate_coords(vector)
-        print("2")
         # read average face cells
         cells = semantic.read_cells()
         reflectance = semantic.calculate_reflectance(vector)
@@ -172,13 +141,8 @@ class InverseFaceNetModel(object):
         return vertices, reflectance, cells
 
     def get_reconstructed_image(self, vector):
-        # vertices = np.zeros(shape=(3, 53149))
-        # reflectance = np.zeros(shape=(3, 53149))
-        # cells = np.zeros(shape=(3, 105694))
-        # vector = np.zeros(shape=(257,))
-        vector.numpy()
-        print(vector)
-        print("get reconstruceted image")
+
+        vertices, reflectance, cells = self.get_vertices_and_reflectance()
         decoder = pmd.ParametricMoDecoder(vertices, reflectance, vector, cells)
 
         image = decoder.get_image_formation()
@@ -188,9 +152,8 @@ class InverseFaceNetModel(object):
         color = image['color']
 
         # draw image
-        print("before patch")
         image = patch(position, color, cells)
-        # image = np.zeros(340, 340, 0)
+
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
         cutout_face = cut.cutout_mask_array(np.uint8(image), False)
@@ -198,7 +161,7 @@ class InverseFaceNetModel(object):
         # crop and resize face
         cropper = fc.FaceCropper()
         cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
-        print("face cropped")
+
         return cropped_face
 
     def align_images(self, new_image, original_image):
@@ -246,13 +209,6 @@ class InverseFaceNetModel(object):
     def model_loss(self):
         """" Wrapper function which calculates auxiliary values for the complete loss function.
          Returns a *function* which calculates the complete loss given only the input and target output """
-        # Photometric alignment Loss
-        # x = self.model.outputs
-        # print("x: ", x)
-        # print("shape x: ", x.shape)
-        # original_image = self.model.inputs
-        # print("im: ", original_image)
-        # print("shape im: ", original_image.shape)
 
         # Photometric alignment Loss
         photo_loss_func = self.dense_photometric_alignment
@@ -268,23 +224,17 @@ class InverseFaceNetModel(object):
 
             original_image = self.model.input
             original_image = tf.compat.v1.squeeze(original_image, 0)
-            # original_image = to_numpy(original_image)
-            print("type original image", type(original_image))
-
-            print(type(original_image))
-            original_image = self.tensor_to_numpy_array(original_image)
 
             # Regularization Loss
             reg_loss = reg_loss_func(x)
             # Photometric alignment loss
-            print("photo loss")
-            photo_loss = photo_loss_func(x, original_image)
+            # photo_loss = photo_loss_func(x, original_image)
 
             weight_photo = 1.92
             weight_reg = 2.9e-5
 
-            model_loss = weight_photo*photo_loss + weight_reg*reg_loss
-            # model_loss = weight_reg * reg_loss
+            # model_loss = weight_photo*photo_loss + weight_reg*reg_loss
+            model_loss = weight_reg * reg_loss
 
             return model_loss
 
