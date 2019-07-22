@@ -35,7 +35,7 @@ class LandmarkDetection:
                         (optional) interchanges R and B color channels
 
         :param image: <class 'numpy.ndarray'> with shape (m, n, 3)
-        :param flip_rgb: boolean: if True interchange R and B color channels
+        :param flip_rgb: boolean: if True return RGB image else return BGR
         :return: mask of the face without the mouth interior <class 'numpy.ndarray'> with shape (m, n, 3)
         """
         out_face = np.zeros_like(image)
@@ -58,14 +58,16 @@ class LandmarkDetection:
             # get the mask of the face
             cv2.fillConvexPoly(feature_mask, remapped_shape[0:27], 1)
 
+            # extract the mouth
             mouth = np.array([[shape[60, :], shape[61, :], shape[62, :], shape[63, :], shape[64, :],
                                shape[65, :], shape[66, :], shape[67, :]]], dtype=np.int32)
-
+            # remove mouth interior
             cv2.fillConvexPoly(feature_mask, mouth, 0)
 
             feature_mask = feature_mask.astype(np.bool)
 
             out_face[feature_mask] = image[feature_mask]
+
             if flip_rgb:
                 out_face = cv2.cvtColor(out_face, cv2.COLOR_BGR2RGB)
 

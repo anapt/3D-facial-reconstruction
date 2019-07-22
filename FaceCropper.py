@@ -37,6 +37,5 @@ class FaceCropper(object):
             if save_image:
                 cropped_image_path = ("./DATASET/images/image_%d.png" % n)
                 cv2.imwrite(cropped_image_path, lastimg)
-            # print("type", type(lastimg))
-            # print(lastimg.shape)
+
             return lastimg
