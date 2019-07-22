@@ -113,12 +113,3 @@ class ImagePreprocess(object):
         # crop, resize and save face
         cropper = fc.FaceCropper()
         cropper.generate(np.uint8(cutout_face), True, n)
-        print(1)
-
-
-def main():
-    preprocess = ImagePreprocess()
-    preprocess.create_image_and_save(1)
-
-
-main()
