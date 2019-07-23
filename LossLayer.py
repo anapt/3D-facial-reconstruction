@@ -41,21 +41,35 @@ class LossLayer:
         photo_term = sum(sum(np.linalg.norm(original_image - new_image_aligned, axis=2))) / self.num_of_vertices
         print("photo term", photo_term)
 
-        return photo_term
+        return new_image_aligned, photo_term
 
-    def sparse_landmark_alignment(self, original_image):
+    def sparse_landmark_alignment(self, original_image, new_image):
+
         detector = ld.LandmarkDetection()
-        det = detector.detect_landmarks_for_loss(original_image)
-        return det
+        # original image landmarks
+        landmarks_original = detector.detect_landmarks_for_loss(original_image)
+        # reconstructed image landmarks
+        landmarks_reconstructed = detector.detect_landmarks_for_loss(new_image)
+
+        alignment_term = pow(np.linalg.norm(landmarks_original - landmarks_reconstructed), 2)
+        print("alignment term", alignment_term)
+
+        return alignment_term * 0.5
 
     def get_loss(self, original_image):
         weight_photo = 1.92
         weight_reg = 2.9e-5
-        # TODO add Sparse Landmark Alignment
-        # loss = weight_photo * self.dense_photometric_alignment(original_image) + \
-        #     weight_reg * self.statistical_regularization_term()
-        self.sparse_landmark_alignment(original_image)
-        loss = 0
+        weight_land = 1
+        new_image, photo_term = self.dense_photometric_alignment(original_image)
+        if weight_land == 1:
+            alignment_term = self.sparse_landmark_alignment(original_image, new_image)
+        else:
+            alignment_term = 0
+
+        loss = weight_photo * photo_term + \
+            weight_reg * self.statistical_regularization_term() + \
+            weight_land * alignment_term
+
         print("loss", loss)
 
         return loss
@@ -108,7 +122,7 @@ class LossLayer:
 def main():
     show_result = True
     n = 10
-    vector_path = ("./DATASET/semantic/x_%d.txt" % n)
+    vector_path = ("./DATASET/semantic/x_%d.txt" % 15)
     image_path = ("./DATASET/images/image_%d.png" % n)
     vector = np.loadtxt(vector_path)
 
