@@ -7,7 +7,7 @@ import ParametricMoDecoder as pmd
 import LandmarkDetection as ld
 import FaceCropper as fc
 import ImagePreprocess as preprocess
-
+import time
 
 class ImageFormationLayer(object):
 
@@ -37,7 +37,9 @@ class ImageFormationLayer(object):
         color = formation['color']
 
         # draw image
+        # start = time.time()
         image = self.preprocess.patch(position, color, cells)
+        # print("time for patch : ", time.time() - start)
 
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
@@ -73,4 +75,4 @@ def main():
         plt.show()
 
 
-main()
+# main()
