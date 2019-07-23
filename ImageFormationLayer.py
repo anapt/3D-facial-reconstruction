@@ -8,6 +8,8 @@ import LandmarkDetection as ld
 import FaceCropper as fc
 import ImagePreprocess as preprocess
 import time
+from random import sample
+
 
 class ImageFormationLayer(object):
 
@@ -50,6 +52,45 @@ class ImageFormationLayer(object):
         cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
 
         return cropped_face
+
+    def get_reconstructed_image_for_loss(self):
+        vertices, reflectance, cells = self.get_vertices_and_reflectance()
+        decoder = pmd.ParametricMoDecoder(vertices, reflectance, self.vector, cells)
+
+        formation = decoder.get_image_formation()
+        cells = decoder.calculate_cell_depth()
+
+        indices = np.unique(cells).astype(int)
+        indices = np.random.choice(indices, size=13000, replace=False)
+
+        position = formation['position']
+        color = formation['color']
+
+        # draw image
+        # start = time.time()
+        image = self.preprocess.patch(position, color, cells)
+        # print("time for patch : ", time.time() - start)
+
+        # get face mask without mouth interior
+        cut = ld.LandmarkDetection()
+        cutout_face = cut.cutout_mask_array(np.uint8(image), False)
+
+        # crop and resize face
+        cropper = fc.FaceCropper()
+        cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
+
+        return cropped_face, indices, position
+
+    def get_sampled_indices(self):
+        vertices, reflectance, cells = self.get_vertices_and_reflectance()
+        decoder = pmd.ParametricMoDecoder(vertices, reflectance, self.vector, cells)
+
+        cells = decoder.calculate_cell_depth()
+
+        indices = np.unique(cells)
+        indices = np.random.choice(indices, size=13000, replace=False)
+
+        return indices
 
 
 def main():
