@@ -70,11 +70,11 @@ class ImagePreprocess(object):
         return right_min + (value_scaled * right_span)
 
     def patch(self, position, color, cells):
-        n_cells = 105694
+        n_cells = cells.shape[1]
         w = 500
         image = np.zeros((w, w, 3), dtype=np.uint8)
 
-        for i in range(n_cells - 50000, n_cells):
+        for i in range(0, n_cells):
             triangle = cells[:, i]
             # print(i)
             # print(triangle)
