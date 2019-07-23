@@ -1,8 +1,8 @@
 import numpy as np
-import matlab.engine
-import matplotlib.pyplot as plt
-import ImageFormationLayer as ifl
 
+import ImageFormationLayer as ifl
+import LandmarkDetection as ld
+import time
 import cv2
 
 
@@ -20,6 +20,7 @@ class LossLayer:
             "translation": vector[227:230, ],
             "illumination": vector[230:257, ]
             }
+        self.num_of_vertices = 53149
 
     def statistical_regularization_term(self):
         weight_expression = 0.8
@@ -27,42 +28,40 @@ class LossLayer:
         sr_term = sum(self.x['shape']) + weight_expression * sum(self.x['expression']) + \
             weight_reflectance * sum(self.x['reflectance'])
 
+        print("statistical reg term", sr_term)
         return sr_term
 
     def dense_photometric_alignment(self, original_image):
-        # TODO original_image has to come from the tf.dataset
-        formation = ifl.ImageFormationLayer(self.PATH, self.x)
+
+        formation = ifl.ImageFormationLayer(self.x)
         new_image = formation.get_reconstructed_image()
-        # plt.imshow(new_image)
-        # plt.show()
-        # plt.imshow(original_image)
-        # plt.show()
 
         new_image_aligned = self.align_images(new_image, original_image)
 
-        # plt.imshow(new_image_aligned)
-        # plt.show()
-
-        # photo_term = sum(sum(np.linalg.norm(original_image - new_image, axis=2))) / 53149
-        photo_term = sum(sum(np.linalg.norm(original_image - new_image_aligned, axis=2))) / 53149
-
-        # print("photo term", photo_term)
+        photo_term = sum(sum(np.linalg.norm(original_image - new_image_aligned, axis=2))) / self.num_of_vertices
+        print("photo term", photo_term)
 
         return photo_term
+
+    def sparse_landmark_alignment(self, original_image):
+        detector = ld.LandmarkDetection()
+        det = detector.detect_landmarks_for_loss(original_image)
+        return det
 
     def get_loss(self, original_image):
         weight_photo = 1.92
         weight_reg = 2.9e-5
         # TODO add Sparse Landmark Alignment
-        loss = weight_photo * self.dense_photometric_alignment(original_image) + \
-            weight_reg * self.statistical_regularization_term()
-
-        # print("loss", loss)
+        # loss = weight_photo * self.dense_photometric_alignment(original_image) + \
+        #     weight_reg * self.statistical_regularization_term()
+        self.sparse_landmark_alignment(original_image)
+        loss = 0
+        print("loss", loss)
 
         return loss
 
     def align_images(self, new_image, original_image):
-
+        start = time.time()
         # Convert images to grayscale
         im1_gray = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
         im2_gray = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
@@ -101,43 +100,18 @@ class LossLayer:
         # Use homography
         height, width, channels = original_image.shape
         im1Reg = cv2.warpPerspective(new_image, h, (width, height))
-
+        end = time.time()
+        print(end - start)
         return im1Reg
-
-    # if __name__ == '__main__':
-    #     # Read reference image
-    #     refFilename = "form.jpg"
-    #     print("Reading reference image : ", refFilename)
-    #     imReference = cv2.imread(refFilename, cv2.IMREAD_COLOR)
-    #
-    #     # Read image to be aligned
-    #     imFilename = "scanned-form.jpg"
-    #     print("Reading image to align : ", imFilename);
-    #     im = cv2.imread(imFilename, cv2.IMREAD_COLOR)
-    #
-    #     print("Aligning images ...")
-    #     # Registered image will be resotred in imReg.
-    #     # The estimated homography will be stored in h.
-    #     imReg, h = align_images(im, imReference)
-    #
-    #     # Write aligned image to disk.
-    #     outFilename = "aligned.jpg"
-    #     print("Saving aligned image : ", outFilename);
-    #     cv2.imwrite(outFilename, imReg)
-    #
-    #     # Print estimated homography
-    #     print("Estimated homography : \n", h)
 
 
 def main():
     show_result = True
-    n = 5
+    n = 10
     vector_path = ("./DATASET/semantic/x_%d.txt" % n)
-    image_path = ("./DATASET/images/image_%d.png" % 10)
+    image_path = ("./DATASET/images/image_%d.png" % n)
     vector = np.loadtxt(vector_path)
-    # print(vector.shape)
-    # vector = np.ones((257, ))
-    # print(vector.shape)
+
     x = {
         "shape": vector[0:80, ],
         "expression": vector[80:144, ],
@@ -151,11 +125,13 @@ def main():
     # sr_term = ll.statistical_regularization_term()
     # print(sr_term)
     original_image = cv2.imread(image_path, 1)
-    original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-
+    # original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+    # cv2.imshow("", original_image)
+    # cv2.waitKey(1000)
     # print(ll.get_loss(original_image))
     # print(ll.get_loss(original_image))
+    start = time.time()
     ll.get_loss(original_image)
-
+    print("time elapsed = ", time.time() - start)
 
 main()
