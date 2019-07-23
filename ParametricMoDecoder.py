@@ -285,4 +285,6 @@ class ParametricMoDecoder:
         order = np.argsort(depth)
         cells_ordered = self.cells[:, order.astype(int)]
 
+        cells_ordered = cells_ordered[:, (cells_ordered.shape[1]-50000):]
+
         return cells_ordered
