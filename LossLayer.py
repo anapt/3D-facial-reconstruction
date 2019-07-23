@@ -28,7 +28,8 @@ class LossLayer:
         sr_term = sum(self.x['shape']) + weight_expression * sum(self.x['expression']) + \
             weight_reflectance * sum(self.x['reflectance'])
 
-        print("statistical reg term", sr_term)
+        # print("statistical reg term", sr_term)
+
         return sr_term
 
     def dense_photometric_alignment(self, original_image):
@@ -39,7 +40,8 @@ class LossLayer:
         new_image_aligned = self.align_images(new_image, original_image)
 
         photo_term = sum(sum(np.linalg.norm(original_image - new_image_aligned, axis=2))) / self.num_of_vertices
-        print("photo term", photo_term)
+
+        # print("photo term", photo_term)
 
         return new_image_aligned, photo_term
 
@@ -52,9 +54,10 @@ class LossLayer:
         landmarks_reconstructed = detector.detect_landmarks_for_loss(new_image)
 
         alignment_term = pow(np.linalg.norm(landmarks_original - landmarks_reconstructed), 2)
-        print("alignment term", alignment_term)
 
-        return alignment_term * 0.5
+        # print("alignment term", alignment_term)
+
+        return alignment_term * 0.25
 
     def get_loss(self, original_image):
         weight_photo = 1.92
@@ -70,12 +73,11 @@ class LossLayer:
             weight_reg * self.statistical_regularization_term() + \
             weight_land * alignment_term
 
-        print("loss", loss)
+        # print("loss", loss)
 
         return loss
 
     def align_images(self, new_image, original_image):
-        start = time.time()
         # Convert images to grayscale
         im1_gray = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
         im2_gray = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
@@ -114,38 +116,27 @@ class LossLayer:
         # Use homography
         height, width, channels = original_image.shape
         im1Reg = cv2.warpPerspective(new_image, h, (width, height))
-        end = time.time()
-        print(end - start)
+
         return im1Reg
 
 
 def main():
-    show_result = True
-    n = 10
-    vector_path = ("./DATASET/semantic/x_%d.txt" % 15)
+    n = 0
+    vector_path = ("./DATASET/semantic/x_%d.txt" % n)
     image_path = ("./DATASET/images/image_%d.png" % n)
+
     vector = np.loadtxt(vector_path)
 
-    x = {
-        "shape": vector[0:80, ],
-        "expression": vector[80:144, ],
-        "reflectance": vector[144:224, ],
-        "rotation": vector[224:227, ],
-        "translation": vector[227:230, ],
-        "illumination": vector[230:257, ]
-    }
-
     ll = LossLayer(vector)
-    # sr_term = ll.statistical_regularization_term()
-    # print(sr_term)
+
     original_image = cv2.imread(image_path, 1)
-    # original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-    # cv2.imshow("", original_image)
-    # cv2.waitKey(1000)
-    # print(ll.get_loss(original_image))
-    # print(ll.get_loss(original_image))
+    # RGB TO BGR
+    original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+
     start = time.time()
-    ll.get_loss(original_image)
-    print("time elapsed = ", time.time() - start)
+    loss = ll.get_loss(original_image)
+    print("Time elapsed: %f " % (time.time() - start))
+    print("Loss: %f" % loss)
+
 
 main()
