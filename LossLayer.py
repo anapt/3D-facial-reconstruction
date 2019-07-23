@@ -4,6 +4,7 @@ import ImageFormationLayer as ifl
 import LandmarkDetection as ld
 import time
 import cv2
+from patchImage import translate
 
 
 class LossLayer:
@@ -20,32 +21,42 @@ class LossLayer:
             "translation": vector[227:230, ],
             "illumination": vector[230:257, ]
             }
-        self.num_of_vertices = 53149
+        self.num_of_vertices = 13000
 
     def statistical_regularization_term(self):
         weight_expression = 0.8
         weight_reflectance = 1.7e-3
-        sr_term = sum(self.x['shape']) + weight_expression * sum(self.x['expression']) + \
-            weight_reflectance * sum(self.x['reflectance'])
+        sr_term = sum(pow(self.x['shape'], 2)) + weight_expression * sum(pow(self.x['expression'], 2)) + \
+            weight_reflectance * sum(pow(self.x['reflectance'], 2))
 
-        # print("statistical reg term", sr_term)
+        print("statistical reg term", sr_term)
 
         return sr_term
 
     def dense_photometric_alignment(self, original_image):
 
         formation = ifl.ImageFormationLayer(self.x)
-        new_image = formation.get_reconstructed_image()
+        new_image, indices, position = formation.get_reconstructed_image_for_loss()
+        position = translate(position, position.min(), position.max(), right_min=0, right_max=240)
 
         new_image_aligned = self.align_images(new_image, original_image)
+        photo_term = 0
 
-        photo_term = sum(sum(np.linalg.norm(original_image - new_image_aligned, axis=2))) / self.num_of_vertices
+        # print(original_image[np.int(position[0, indices[1]]), np.int(position[1, indices[1]])])
+        # print(new_image_aligned[np.int(position[0, indices[1]]), np.int(position[1, indices[1]])])
+        for i in range(0, indices.shape[0]):
+            photo_term = photo_term + np.linalg.norm(
+                original_image[np.int(position[0, indices[i]]), np.int(position[1, indices[i]])] -
+                new_image_aligned[np.int(position[0, indices[i]]), np.int(position[1, indices[i]])])
 
-        # print("photo term", photo_term)
+        photo_term = photo_term / indices.shape[0]
+
+        print("photo term", photo_term)
 
         return new_image_aligned, photo_term
 
-    def sparse_landmark_alignment(self, original_image, new_image):
+    @staticmethod
+    def sparse_landmark_alignment(original_image, new_image):
 
         detector = ld.LandmarkDetection()
         # original image landmarks
