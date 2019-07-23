@@ -72,3 +72,38 @@ class LandmarkDetection:
                 out_face = cv2.cvtColor(out_face, cv2.COLOR_BGR2RGB)
 
             return out_face
+
+    def detect_landmarks_for_loss(self, image):
+        out_face = np.zeros_like(image)
+        print("hey")
+        # cv2.imshow("", image)
+        # cv2.waitKey(1000)
+        # convert to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        cv2.imshow("", gray)
+        cv2.waitKey(1000)
+        # detect faces in bw image
+        landmarks = self.predictor(gray, dlib.get_rect(gray))
+        print(landmarks)
+        shape = face_utils.shape_to_np(landmarks)
+        print("shape", shape)
+        # # initialize mask array
+        # # remapped_shape = np.zeros_like(shape)
+        # feature_mask = np.zeros((image.shape[0], image.shape[1]))
+        #
+        # # we extract the face
+        # remapped_shape = self.face_remap(shape)
+        # # get the mask of the face
+        # cv2.fillConvexPoly(feature_mask, remapped_shape[0:27], 1)
+        #
+        # # extract the mouth
+        # mouth = np.array([[shape[60, :], shape[61, :], shape[62, :], shape[63, :], shape[64, :],
+        #                    shape[65, :], shape[66, :], shape[67, :]]], dtype=np.int32)
+        # # remove mouth interior
+        # cv2.fillConvexPoly(feature_mask, mouth, 0)
+        #
+        # feature_mask = feature_mask.astype(np.bool)
+        #
+        # out_face[feature_mask] = image[feature_mask]
+
+        return out_face
