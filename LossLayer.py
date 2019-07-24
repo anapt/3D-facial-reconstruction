@@ -29,7 +29,7 @@ class LossLayer:
         sr_term = sum(pow(self.x['shape'], 2)) + weight_expression * sum(pow(self.x['expression'], 2)) + \
             weight_reflectance * sum(pow(self.x['reflectance'], 2))
 
-        print("statistical reg term", sr_term)
+        # print("statistical reg term", sr_term)
 
         return sr_term
 
@@ -51,7 +51,7 @@ class LossLayer:
 
         photo_term = photo_term / indices.shape[0]
 
-        print("photo term", photo_term)
+        # print("photo term", photo_term)
 
         return new_image_aligned, photo_term
 
@@ -64,11 +64,11 @@ class LossLayer:
         # reconstructed image landmarks
         landmarks_reconstructed = detector.detect_landmarks_for_loss(new_image)
 
-        alignment_term = pow(np.linalg.norm(landmarks_original - landmarks_reconstructed), 2)
+        alignment_term = (1/46) * pow(np.linalg.norm(landmarks_original - landmarks_reconstructed), 2)
 
         # print("alignment term", alignment_term)
 
-        return alignment_term * 0.25
+        return alignment_term
 
     def get_loss(self, original_image):
         weight_photo = 1.92
@@ -132,7 +132,8 @@ class LossLayer:
 
 
 def main():
-    n = 0
+    n = 1
+
     vector_path = ("./DATASET/semantic/x_%d.txt" % n)
     image_path = ("./DATASET/images/image_%d.png" % n)
 
