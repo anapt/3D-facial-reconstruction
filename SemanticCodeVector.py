@@ -28,8 +28,7 @@ class SemanticCodeVector:
         shape_pca = self.model['shape']['model']['pcaBasis'][()]
         shape_pca = shape_pca[0:len(shape_pca), 0:80]
         sdev = np.std(shape_pca, 0)
-        # print("shape variance")
-        # print(np.var(shape_pca))
+
         shape_pca = np.multiply(shape_pca, np.transpose(sdev))
         normalize(shape_pca, copy=False)
 
@@ -94,7 +93,7 @@ class SemanticCodeVector:
 
         # TODO range is smaller than the one used in the paper
         g = np.random.uniform(0.1, 0.4, 27)
-        g[0] = np.random.uniform(0.4, 1, 1)
+        g[0] = np.random.uniform(0.5, 1, 1)
 
         t = np.random.uniform(-25, 25, 3)
 
