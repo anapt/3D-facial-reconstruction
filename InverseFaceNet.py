@@ -120,110 +120,27 @@ class InverseFaceNetModel(object):
         # print("statistical reg error ", sr_term)
         return sr_term
 
-    def dense_photometric_alignment(self, x, original_image):
-
-        new_image = self.get_reconstructed_image(x)
-        new_image_aligned = self.align_images(new_image, original_image)
-        photo_term = sum(sum(np.linalg.norm(original_image - new_image_aligned, axis=2))) / 53149
-
-        # print("photo term", photo_term)
-
-        return photo_term
-
-    def get_vertices_and_reflectance(self, vector):
-
-        semantic = scv.SemanticCodeVector(self.PATH)
-        vertices = semantic.calculate_coords(vector)
-        # read average face cells
-        cells = semantic.read_cells()
-        reflectance = semantic.calculate_reflectance(vector)
-
-        return vertices, reflectance, cells
-
-    def get_reconstructed_image(self, vector):
-
-        vertices, reflectance, cells = self.get_vertices_and_reflectance()
-        decoder = pmd.ParametricMoDecoder(vertices, reflectance, vector, cells)
-
-        image = decoder.get_image_formation()
-
-        cells = decoder.calculate_cell_depth()
-        position = image['position']
-        color = image['color']
-
-        # draw image
-        image = patch(position, color, cells)
-
-        # get face mask without mouth interior
-        cut = ld.LandmarkDetection()
-        cutout_face = cut.cutout_mask_array(np.uint8(image), False)
-
-        # crop and resize face
-        cropper = fc.FaceCropper()
-        cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
-
-        return cropped_face
-
-    def align_images(self, new_image, original_image):
-        # Convert images to grayscale
-        im1_gray = cv2.cvtColor(new_image, cv2.COLOR_BGR2GRAY)
-        im2_gray = cv2.cvtColor(original_image, cv2.COLOR_BGR2GRAY)
-
-        # Detect ORB features and compute descriptors.
-        orb = cv2.ORB_create(self.MAX_FEATURES)
-        keypoints1, descriptors1 = orb.detectAndCompute(im1_gray, None)
-        keypoints2, descriptors2 = orb.detectAndCompute(im2_gray, None)
-
-        # Match features.
-        matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
-        matches = matcher.match(descriptors1, descriptors2, None)
-
-        # Sort matches by score
-        matches.sort(key=lambda x: x.distance, reverse=False)
-
-        # Remove not so good matches
-        numGoodMatches = int(len(matches) * self.GOOD_MATCH_PERCENT)
-        matches = matches[:numGoodMatches]
-
-        # Draw top matches
-        # imMatches = cv2.drawMatches(new_image, keypoints1, original_image, keypoints2, matches, None)
-        # cv2.imwrite("matches.jpg", imMatches)
-
-        # Extract location of good matches
-        points1 = np.zeros((len(matches), 2), dtype=np.float32)
-        points2 = np.zeros((len(matches), 2), dtype=np.float32)
-
-        for i, match in enumerate(matches):
-            points1[i, :] = keypoints1[match.queryIdx].pt
-            points2[i, :] = keypoints2[match.trainIdx].pt
-
-        # Find homography
-        h, mask = cv2.findHomography(points1, points2, cv2.RANSAC)
-
-        # Use homography
-        height, width, channels = original_image.shape
-        im1Reg = cv2.warpPerspective(new_image, h, (width, height))
-
-        return im1Reg
+    # def model_space_parameter_loss(self, x):
 
     def model_loss(self):
         """" Wrapper function which calculates auxiliary values for the complete loss function.
          Returns a *function* which calculates the complete loss given only the input and target output """
 
-        # Photometric alignment Loss
-        photo_loss_func = self.dense_photometric_alignment
+        # Model space parameter loss
+        model_space_loss = self.model_space_parameter_loss
         # Regularization Loss
         reg_loss_func = self.statistical_regularization_term
 
         def custom_loss(y_true, y_pred):
-            x = y_pred
-            x = K.transpose(x)
-            # x.numpy()
-            print(x)
-            x = self.vector2dict(x)
+            y_pred = K.transpose(y_pred)
+            x = self.vector2dict(y_pred)
 
-            original_image = self.model.input
-            original_image = tf.compat.v1.squeeze(original_image, 0)
+            y_true = K.transpose(y_true)
+
+            tf.math.subtract(y_pred-y_true)
+
+            print("x vector", x)
+
 
             # Regularization Loss
             reg_loss = reg_loss_func(x)
