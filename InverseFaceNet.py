@@ -57,12 +57,16 @@ class InverseFaceNetModel(object):
                                                              weights='imagenet',
                                                              input_tensor=None,
                                                              input_shape=self.IMG_SHAPE)
+        # base_model = tf.keras.applications.vgg16.VGG16(include_top=False,
+        #                                                weights='imagenet',
+        #                                                input_shape=self.IMG_SHAPE)
         base_model.trainable = False
-        # base_model.summary()
+        base_model.summary()
         weights_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None)
 
         # Create global average pooling layer
-        global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
+        # global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
+        global_average_layer = tf.keras.layers.GlobalMaxPooling2D()
 
         # Create prediction layer
         prediction_layer = tf.keras.layers.Dense(257, activation=None, use_bias=True,
