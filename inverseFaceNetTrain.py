@@ -14,11 +14,11 @@ def main():
     """ Main function for InverseFaceNet CNN"""
     # Parameters
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    BATCH_SIZE = 20
-    SHUFFLE_BUFFER_SIZE = 1000
 
     # Build and compile model:
     inverseNet = InverseFaceNetModel()
+    BATCH_SIZE = inverseNet.BATCH_SIZE
+    SHUFFLE_BUFFER_SIZE = inverseNet.SHUFFLE_BUFFER_SIZE
     inverseNet.compile()
     model = inverseNet.model
 
@@ -37,14 +37,23 @@ def main():
     print("Training with %d steps per epoch" % steps_per_epoch)
 
     batch_stats_callback = batch_stats.CollectBatchStats()
-    model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch, callbacks=[batch_stats_callback, cp_callback])
+    history = model.fit(keras_ds, epochs=5, steps_per_epoch=steps_per_epoch, callbacks=[batch_stats_callback, cp_callback])
 
     plt.figure()
     plt.ylabel("Loss")
     plt.xlabel("Training Steps")
-    # plt.ylim([0,2])
     plt.plot(batch_stats_callback.batch_losses)
-    plt.show()
+    plt.savefig('batch_stats.pdf')
+
+    plt.figure()
+    plt.title('Mean Squared Error')
+    plt.plot(history.history['mean_squared_error'])
+    plt.savefig('mse.pdf')
+
+    plt.figure()
+    plt.title('Loss')
+    plt.plot(history.history['loss'])
+    plt.savefig('loss.pdf')
 
 
 main()
