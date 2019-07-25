@@ -57,6 +57,21 @@ class SemanticCodeVector:
         }
         return scv_pca_bases
 
+    def get_parameters_dim_sdev(self):
+        shape_pca = self.model['shape']['model']['pcaBasis'][()]
+        shape_pca = shape_pca[0:len(shape_pca), 0:80]
+        shape_sdev = np.std(shape_pca, 0)
+
+        reflectance_pca = self.model['color']['model']['pcaBasis'][()]
+        reflectance_pca = reflectance_pca[0:len(reflectance_pca), 0:80]
+        reflectance_sdev = np.std(reflectance_pca, 0)
+
+        expression_pca = self.model['expression']['model']['pcaBasis'][()]
+        expression_pca = expression_pca[0:len(expression_pca), 0:64]
+        expression_sdev = np.std(expression_pca, 0)
+
+        return shape_sdev, reflectance_sdev, expression_sdev
+
     def read_cells(self):
         """
         Function that reads vector from .h5py file located in self.path
