@@ -3,7 +3,6 @@ import tensorflow as tf
 from keras import backend as K
 tf.compat.v1.enable_eager_execution()
 
-
 import numpy as np
 import cv2
 import SemanticCodeVector as scv
@@ -21,7 +20,7 @@ class InverseFaceNetModel(object):
         self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, 3)
 
         self.WEIGHT_DECAY = 0.001
-        self.BASE_LEARNING_RATE = 0.01
+        self.BASE_LEARNING_RATE = 0.1
 
         self.BATCH_SIZE = 20
         self.BATCH_ITERATIONS = 75000
@@ -42,6 +41,9 @@ class InverseFaceNetModel(object):
 
         # Loss Function
         self.loss_func = self.model_loss()
+
+        self.data = scv.SemanticCodeVector('./DATASET/model2017-1_bfm_nomouth.h5')
+        self.shape_sdev, self.reflectance_sdev, self.expression_sdev = self.data.get_parameters_dim_sdev()
 
     def build_model(self):
         """
@@ -93,34 +95,91 @@ class InverseFaceNetModel(object):
         """
         Transform vector to dictionary
 
-        :param vector: vector with shape (257,)
+        :param vector: vector with shape (257, batch_size)
         :return: dictionary of Semantic Code Vector
         """
-        print("vector", vector)
+
+        shape = np.ones(shape=(80*self.BATCH_SIZE,))
+        expression = np.ones(shape=(64*self.BATCH_SIZE,))
+        reflectance = np.ones(shape=(80*self.BATCH_SIZE,))
+        rotation = np.ones(shape=(3*self.BATCH_SIZE,))
+        translation = np.ones(shape=(3*self.BATCH_SIZE,))
+        illumination = np.ones(shape=(27*self.BATCH_SIZE,))
+        for i in range(0, self.BATCH_SIZE):
+            if i == 0:
+                np.append(shape, vector[0:80, ])
+                np.append(expression, vector[80:144, ])
+                np.append(reflectance, vector[144:224, ])
+                np.append(rotation, vector[224:227, ])
+                np.append(translation, vector[227:230, ])
+                np.append(illumination, vector[230:257, ])
+            else:
+                idx = 257*i
+                np.append(shape, vector[idx:idx+80, ])
+                np.append(expression, vector[idx+80:idx+144, ])
+                np.append(reflectance, vector[idx+144:idx+224, ])
+                np.append(rotation, vector[idx+224:idx+227, ])
+                np.append(translation, vector[idx+227:idx+230, ])
+                np.append(illumination, vector[idx+230:idx+257, ])
 
         x = {
-            "shape": vector[0:80, ],
-            "expression": vector[80:144, ],
-            "reflectance": vector[144:224, ],
-            "rotation": vector[224:227, ],
-            "translation": vector[227:230, ],
-            "illumination": vector[230:257, ]
+            "shape": shape,
+            "expression": expression,
+            "reflectance": reflectance,
+            "rotation": rotation,
+            "translation": translation,
+            "illumination": illumination
         }
 
         return x
 
-    @staticmethod
-    def statistical_regularization_term(x):
-        weight_expression = 0.8
-        weight_reflectance = 1.7e-3
-        sr_term = K.sum(tf.map_fn(lambda t: t*t, x['shape']), axis=0) \
-            + weight_expression * K.sum(tf.map_fn(lambda t: t*t, x['expression'])) \
-            + weight_reflectance * K.sum(tf.map_fn(lambda t: t*t, x['reflectance']))
+    def model_space_parameter_loss(self, y):
+        std_shape = tf.constant(self.shape_sdev, dtype=tf.float32)
+        std_shape = tf.compat.v1.reshape(std_shape, shape=(80,))
+        # shape_var = K.tile(std_shape, self.BATCH_SIZE)
+        shape_var = std_shape
+        # weight
+        shape_var = tf.math.scalar_mul(50, shape_var, name='shape_var')
 
-        # print("statistical reg error ", sr_term)
-        return sr_term
+        std_expression = tf.constant(self.expression_sdev, dtype=tf.float32)
+        std_expression = tf.compat.v1.reshape(std_expression, shape=(64,))
+        # expression_var = K.tile(std_expression, self.BATCH_SIZE)
+        expression_var = std_expression
+        # weight
+        expression_var = tf.math.scalar_mul(50, expression_var, name='expression_var')
 
-    # def model_space_parameter_loss(self, x):
+        std_reflectance = tf.constant(self.reflectance_sdev, dtype=tf.float32)
+        std_reflectance = tf.compat.v1.reshape(std_reflectance, shape=(80,))
+        # reflectance_var = K.tile(std_reflectance, self.BATCH_SIZE)
+        reflectance_var = std_reflectance
+        # weight
+        reflectance_var = tf.math.scalar_mul(100, reflectance_var, name='reflectance_var')
+
+        rotation = tf.constant(400, shape=(1,), dtype=tf.float32)
+        rotation = K.tile(rotation, 3)
+
+        illumination = tf.constant(20, shape=(1,), dtype=tf.float32)
+        illumination = K.tile(illumination, 27)
+
+        translation = tf.constant(5, shape=(1,), dtype=tf.float32)
+        translation = K.tile(translation, 3)
+
+        sigma = tf.compat.v1.concat([shape_var, expression_var, reflectance_var, rotation, translation, illumination],
+                                    axis=0)
+
+        sigma = tf.linalg.tensor_diag(sigma)
+
+        alpha = tf.linalg.matmul(sigma, y, transpose_b=True)
+
+        beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
+
+        loss = beta
+        # loss = y
+        # alpha = tf.linalg.matvec(sigma, y)
+
+        # loss = tf.linalg.tensordot(alpha, alpha, axes=1, name='loss')
+
+        return loss
 
     def model_loss(self):
         """" Wrapper function which calculates auxiliary values for the complete loss function.
@@ -128,30 +187,18 @@ class InverseFaceNetModel(object):
 
         # Model space parameter loss
         model_space_loss = self.model_space_parameter_loss
-        # Regularization Loss
-        reg_loss_func = self.statistical_regularization_term
 
         def custom_loss(y_true, y_pred):
-            y_pred = K.transpose(y_pred)
-            x = self.vector2dict(y_pred)
+            # flatten
+            # y_pred = tf.reshape(y_pred, [-1])
+            # y_true = tf.reshape(y_true, [-1])
 
-            y_true = K.transpose(y_true)
+            # get x vector
 
-            tf.math.subtract(y_pred-y_true)
+            y = tf.math.subtract(y_pred, y_true, name='pred_minus_true')
 
-            print("x vector", x)
-
-
-            # Regularization Loss
-            reg_loss = reg_loss_func(x)
-            # Photometric alignment loss
-            # photo_loss = photo_loss_func(x, original_image)
-
-            weight_photo = 1.92
-            weight_reg = 2.9e-5
-
-            # model_loss = weight_photo*photo_loss + weight_reg*reg_loss
-            model_loss = weight_reg * reg_loss
+            # Model Space Parameter Loss
+            model_loss = model_space_loss(y)
 
             return model_loss
 
@@ -162,5 +209,5 @@ class InverseFaceNetModel(object):
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
                                                                   rho=0.95, epsilon=None, decay=0.0),
                            loss=self.loss_func,
-                           metrics=['mean_absolute_error'])
+                           metrics=[tf.keras.losses.mean_squared_error])
         print('Model Compiled!')
