@@ -31,25 +31,22 @@ vector_path = ("./DATASET/semantic/x_%d.txt" % 0)
 y_pred = np.loadtxt(vector_path)
 
 x = vector2dict(y_pred)
-y_pred = tf.constant(y_pred)
-y_true = tf.constant(y_true)
+y_pred = tf.constant(y_pred, shape=(257,))
+y_true = tf.constant(y_true, shape=(257,))
 
-
+print(y_true)
 y = tf.math.subtract(y_pred, y_true, name='pred_minus_true')
 
 print(y)
 
-y_transpose = K.transpose(y)
-
-print(y_transpose)
-
 # sigma = np.ones(shape=(257, 257))
-var_shape = np.var(x['shape'])
-# print(var_shape)
+# var_shape = np.var(x['shape'])
+var_shape = tf.compat.v1.numpy_function(np.var, [x['shape']], Tout=tf.float64)
+print(var_shape)
 # var_shape = tf.compat.v1.numpy_function(np.var, [x['shape']], Tout=tf.float64)
-var_shape = tf.constant(var_shape, dtype=tf.float64, shape=(1,))
+# var_shape = tf.constant(var_shape, dtype=tf.float64, shape=(1,))
 shape_var = K.tile(var_shape, 80)
-
+print(shape_var)
 var_expression = np.var(x['expression'])
 var_expression = tf.constant(var_expression, dtype=tf.float64, shape=(1,))
 expression_var = K.tile(var_expression, 64)
@@ -67,12 +64,21 @@ illumination = K.tile(illumination, 27)
 translation = tf.constant(5, shape=(1,), dtype=tf.float64)
 translation = K.tile(translation, 3)
 
-# diagonal = [shape_var, expression_var, reflectance_var, rotation, translation, illumination]
+shape_var = tf.math.scalar_mul(50, shape_var, name='shape_var')
+expression_var = tf.math.scalar_mul(50, expression_var, name='expression_var')
+reflectance_var = tf.math.scalar_mul(100, reflectance_var, name='reflectance_var')
 
 sigma = tf.compat.v1.concat([shape_var, expression_var, reflectance_var, rotation, translation, illumination], axis=0)
 
 sigma = tf.linalg.tensor_diag(sigma)
-print(sigma)
+
+alpha = tf.linalg.matvec(sigma, y)
+print(alpha)
+
+loss = tf.linalg.tensordot(alpha, alpha, axes=1, name='loss')
+
+print(loss)
+
 
 # print(tf.compat.v2.shape(var_shape))
 # var_expression = tf.compat.v1.numpy_function(np.var, [x['expression']], Tout=tf.float32)
