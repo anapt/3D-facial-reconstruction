@@ -1,5 +1,4 @@
 import numpy as np
-import matlab.engine
 import matplotlib.pyplot as plt
 
 import SemanticCodeVector as scv
@@ -7,8 +6,6 @@ import ParametricMoDecoder as pmd
 import LandmarkDetection as ld
 import FaceCropper as fc
 import ImagePreprocess as preprocess
-import time
-from random import sample
 
 
 class ImageFormationLayer(object):
@@ -45,13 +42,13 @@ class ImageFormationLayer(object):
 
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
-        cutout_face = cut.cutout_mask_array(np.uint8(image), False)
+        cutout_face = cut.cutout_mask_array(np.uint8(image), n=None, flip_rgb=False, save_image=False)
 
         # crop and resize face
-        cropper = fc.FaceCropper()
-        cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
+        # cropper = fc.FaceCropper()
+        # cropped_face = cropper.generate(np.uint8(cutout_face), False, None)
 
-        return cropped_face
+        return cutout_face
 
     def get_reconstructed_image_for_loss(self):
         vertices, reflectance, cells = self.get_vertices_and_reflectance()
@@ -95,7 +92,7 @@ class ImageFormationLayer(object):
 
 def main():
     show_result = True
-    n = 10
+    n = 0
     vector_path = ("./DATASET/semantic/x_%d.txt" % n)
     vector = np.loadtxt(vector_path)
 
@@ -116,4 +113,4 @@ def main():
         plt.show()
 
 
-# main()
+main()
