@@ -38,7 +38,7 @@ def load_dataset():
     """
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-    data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
+    data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/overfit'
     data_root = pathlib.Path(data_root)
 
     all_image_paths = list(data_root.glob('*'))
@@ -47,7 +47,7 @@ def load_dataset():
     image_count = len(all_image_paths)
     print("Dataset containg %d pairs of Images and Vectors." % image_count)
 
-    sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
+    sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/overfit'
     sem_root = pathlib.Path(sem_root)
 
     all_vector_paths = list(sem_root.glob('*'))
