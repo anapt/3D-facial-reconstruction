@@ -52,7 +52,6 @@ class LandmarkDetection:
             # print(landmarks)
             shape = face_utils.shape_to_np(landmarks)
             center = shape[33, :]
-            print(center)
             # initialize mask array
             # remapped_shape = np.zeros_like(shape)
             feature_mask = np.zeros((image.shape[0], image.shape[1]))
