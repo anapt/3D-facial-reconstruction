@@ -21,7 +21,7 @@ class InverseFaceNetModel(object):
 
         # self.WEIGHT_DECAY = 0.001
         self.WEIGHT_DECAY = 0.0000001
-        self.BASE_LEARNING_RATE = 0.01
+        self.BASE_LEARNING_RATE = 0.1
 
         self.BATCH_SIZE = 4
         self.BATCH_ITERATIONS = 75000
@@ -54,13 +54,13 @@ class InverseFaceNetModel(object):
         """
 
         # Create the base model from the pre-trained model XCEPTION
-        base_model = tf.keras.applications.xception.Xception(include_top=False,
-                                                             weights='imagenet',
-                                                             input_tensor=None,
-                                                             input_shape=self.IMG_SHAPE)
-        # base_model = tf.keras.applications.vgg16.VGG16(include_top=False,
-        #                                                weights='imagenet',
-        #                                                input_shape=self.IMG_SHAPE)
+        # base_model = tf.keras.applications.xception.Xception(include_top=False,
+        #                                                      weights='imagenet',
+        #                                                      input_tensor=None,
+        #                                                      input_shape=self.IMG_SHAPE)
+        base_model = tf.keras.applications.vgg16.VGG16(include_top=False,
+                                                       weights='imagenet',
+                                                       input_shape=self.IMG_SHAPE)
         base_model.trainable = False
         base_model.summary()
         weights_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None)
@@ -162,19 +162,19 @@ class InverseFaceNetModel(object):
         shape = tf.constant(15, shape=(1,), dtype=tf.float32)
         shape = K.tile(shape, 80)
 
-        expression = tf.constant(15, shape=(1,), dtype=tf.float32)
+        expression = tf.constant(4, shape=(1,), dtype=tf.float32)
         expression = K.tile(expression, 64)
 
-        reflectance = tf.constant(10, shape=(1,), dtype=tf.float32)
+        reflectance = tf.constant(12, shape=(1,), dtype=tf.float32)
         reflectance = K.tile(reflectance, 80)
 
-        rotation = tf.constant(4, shape=(1,), dtype=tf.float32)
+        rotation = tf.constant(0.4, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, 3)
 
-        illumination = tf.constant(3, shape=(1,), dtype=tf.float32)
+        illumination = tf.constant(5, shape=(1,), dtype=tf.float32)
         illumination = K.tile(illumination, 27)
 
-        translation = tf.constant(1, shape=(1,), dtype=tf.float32)
+        translation = tf.constant(0.01, shape=(1,), dtype=tf.float32)
         translation = K.tile(translation, 3)
 
         sigma = tf.compat.v1.concat([shape, expression, reflectance, rotation, translation, illumination],
@@ -186,7 +186,7 @@ class InverseFaceNetModel(object):
 
         beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
 
-        loss = beta
+        loss = K.mean(beta, axis=-1)
         # loss = y
         # alpha = tf.linalg.matvec(sigma, y)
 
