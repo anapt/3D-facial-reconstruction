@@ -20,7 +20,7 @@ class InverseFaceNetModel(object):
         self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, 3)
 
         self.WEIGHT_DECAY = 0.001
-        self.BASE_LEARNING_RATE = 0.1
+        self.BASE_LEARNING_RATE = 0.01
 
         self.BATCH_SIZE = 20
         self.BATCH_ITERATIONS = 75000
@@ -65,8 +65,8 @@ class InverseFaceNetModel(object):
         weights_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None)
 
         # Create global average pooling layer
-        # global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
-        global_average_layer = tf.keras.layers.GlobalMaxPooling2D()
+        global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
+        # global_average_layer = tf.keras.layers.GlobalMaxPooling2D()
 
         # Create prediction layer
         prediction_layer = tf.keras.layers.Dense(257, activation=None, use_bias=True,
@@ -143,21 +143,21 @@ class InverseFaceNetModel(object):
         # shape_var = K.tile(std_shape, self.BATCH_SIZE)
         shape_var = std_shape
         # weight
-        shape_var = tf.math.scalar_mul(50, shape_var, name='shape_var')
+        shape_var = tf.math.scalar_mul(5000, shape_var, name='shape_var')
 
         std_expression = tf.constant(self.expression_sdev, dtype=tf.float32)
         std_expression = tf.compat.v1.reshape(std_expression, shape=(64,))
         # expression_var = K.tile(std_expression, self.BATCH_SIZE)
         expression_var = std_expression
         # weight
-        expression_var = tf.math.scalar_mul(50, expression_var, name='expression_var')
+        expression_var = tf.math.scalar_mul(5000, expression_var, name='expression_var')
 
         std_reflectance = tf.constant(self.reflectance_sdev, dtype=tf.float32)
         std_reflectance = tf.compat.v1.reshape(std_reflectance, shape=(80,))
         # reflectance_var = K.tile(std_reflectance, self.BATCH_SIZE)
         reflectance_var = std_reflectance
         # weight
-        reflectance_var = tf.math.scalar_mul(100, reflectance_var, name='reflectance_var')
+        reflectance_var = tf.math.scalar_mul(10000, reflectance_var, name='reflectance_var')
 
         rotation = tf.constant(400, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, 3)
@@ -171,17 +171,18 @@ class InverseFaceNetModel(object):
         sigma = tf.compat.v1.concat([shape_var, expression_var, reflectance_var, rotation, translation, illumination],
                                     axis=0)
 
-        sigma = tf.linalg.tensor_diag(sigma)
-
-        alpha = tf.linalg.matmul(sigma, y, transpose_b=True)
-
-        beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
-
-        loss = beta
+        # sigma = tf.linalg.tensor_diag(sigma)
+        #
+        # alpha = tf.linalg.matmul(sigma, y, transpose_b=True)
+        #
+        # beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
+        #
+        # loss = beta
         # loss = y
         # alpha = tf.linalg.matvec(sigma, y)
 
-        # loss = tf.linalg.tensordot(alpha, alpha, axes=1, name='loss')
+        loss = tf.linalg.matmul(y, y, transpose_b=True, name='loss')
+        loss = K.mean(loss, axis=-1)
 
         return loss
 
@@ -213,5 +214,5 @@ class InverseFaceNetModel(object):
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
                                                                   rho=0.95, epsilon=None, decay=0.0),
                            loss=self.loss_func,
-                           metrics=[tf.keras.losses.mean_squared_error])
+                           metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')
