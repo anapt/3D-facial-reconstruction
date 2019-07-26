@@ -139,50 +139,58 @@ class InverseFaceNetModel(object):
         return x
 
     def model_space_parameter_loss(self, y):
-        std_shape = tf.constant(self.shape_sdev, dtype=tf.float32)
-        std_shape = tf.compat.v1.reshape(std_shape, shape=(80,))
-        # shape_var = K.tile(std_shape, self.BATCH_SIZE)
-        shape_var = std_shape
-        # weight
-        shape_var = tf.math.scalar_mul(5000, shape_var, name='shape_var')
+        # std_shape = tf.constant(self.shape_sdev, dtype=tf.float32)
+        # std_shape = tf.compat.v1.reshape(std_shape, shape=(80,))
+        # # shape_var = K.tile(std_shape, self.BATCH_SIZE)
+        # shape_var = std_shape
+        # # weight
+        # shape_var = tf.math.scalar_mul(5000, shape_var, name='shape_var')
+        #
+        # std_expression = tf.constant(self.expression_sdev, dtype=tf.float32)
+        # std_expression = tf.compat.v1.reshape(std_expression, shape=(64,))
+        # # expression_var = K.tile(std_expression, self.BATCH_SIZE)
+        # expression_var = std_expression
+        # # weight
+        # expression_var = tf.math.scalar_mul(5000, expression_var, name='expression_var')
+        #
+        # std_reflectance = tf.constant(self.reflectance_sdev, dtype=tf.float32)
+        # std_reflectance = tf.compat.v1.reshape(std_reflectance, shape=(80,))
+        # # reflectance_var = K.tile(std_reflectance, self.BATCH_SIZE)
+        # reflectance_var = std_reflectance
+        # # weight
+        # reflectance_var = tf.math.scalar_mul(1000, reflectance_var, name='reflectance_var')
+        shape = tf.constant(15, shape=(1,), dtype=tf.float32)
+        shape = K.tile(shape, 80)
 
-        std_expression = tf.constant(self.expression_sdev, dtype=tf.float32)
-        std_expression = tf.compat.v1.reshape(std_expression, shape=(64,))
-        # expression_var = K.tile(std_expression, self.BATCH_SIZE)
-        expression_var = std_expression
-        # weight
-        expression_var = tf.math.scalar_mul(5000, expression_var, name='expression_var')
+        expression = tf.constant(15, shape=(1,), dtype=tf.float32)
+        expression = K.tile(expression, 64)
 
-        std_reflectance = tf.constant(self.reflectance_sdev, dtype=tf.float32)
-        std_reflectance = tf.compat.v1.reshape(std_reflectance, shape=(80,))
-        # reflectance_var = K.tile(std_reflectance, self.BATCH_SIZE)
-        reflectance_var = std_reflectance
-        # weight
-        reflectance_var = tf.math.scalar_mul(10000, reflectance_var, name='reflectance_var')
+        reflectance = tf.constant(10, shape=(1,), dtype=tf.float32)
+        reflectance = K.tile(reflectance, 80)
 
-        rotation = tf.constant(400, shape=(1,), dtype=tf.float32)
+        rotation = tf.constant(4, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, 3)
 
-        illumination = tf.constant(20, shape=(1,), dtype=tf.float32)
+        illumination = tf.constant(3, shape=(1,), dtype=tf.float32)
         illumination = K.tile(illumination, 27)
 
-        translation = tf.constant(5, shape=(1,), dtype=tf.float32)
+        translation = tf.constant(1, shape=(1,), dtype=tf.float32)
         translation = K.tile(translation, 3)
 
-        sigma = tf.compat.v1.concat([shape_var, expression_var, reflectance_var, rotation, translation, illumination],
+        sigma = tf.compat.v1.concat([shape, expression, reflectance, rotation, translation, illumination],
                                     axis=0)
 
-        # sigma = tf.linalg.tensor_diag(sigma)
-        #
-        # alpha = tf.linalg.matmul(sigma, y, transpose_b=True)
-        #
-        # beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
-        #
-        # loss = beta
+        sigma = tf.linalg.tensor_diag(sigma)
+
+        alpha = tf.linalg.matmul(sigma, y, transpose_b=True)
+
+        beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
+
+        loss = beta
         # loss = y
         # alpha = tf.linalg.matvec(sigma, y)
 
-        loss = tf.linalg.matmul(y, y, transpose_b=True, name='loss')
+        # loss = tf.linalg.matmul(y, y, transpose_b=True, name='loss')
         # loss = K.mean(loss, axis=-1)
 
         return loss

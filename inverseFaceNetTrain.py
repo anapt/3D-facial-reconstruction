@@ -37,7 +37,7 @@ def main():
     print("Training with %d steps per epoch" % steps_per_epoch)
 
     batch_stats_callback = batch_stats.CollectBatchStats()
-    history = model.fit(keras_ds, epochs=40, steps_per_epoch=20, callbacks=[batch_stats_callback, cp_callback])
+    history = model.fit(keras_ds, epochs=20, steps_per_epoch=steps_per_epoch, callbacks=[batch_stats_callback, cp_callback])
 
     model.save('my_model.h5')
     # new_model = tf.keras.models.load_model('my_model.h5')
