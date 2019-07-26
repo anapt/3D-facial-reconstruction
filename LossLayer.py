@@ -1,9 +1,9 @@
 import numpy as np
+import time
+import cv2
 
 import ImageFormationLayer as ifl
 import LandmarkDetection as ld
-import time
-import cv2
 from patchImage import translate
 
 
@@ -151,4 +151,4 @@ def main():
     print("Loss: %f" % loss)
 
 
-main()
+# main()
