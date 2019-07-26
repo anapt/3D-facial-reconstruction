@@ -19,13 +19,14 @@ class InverseFaceNetModel(object):
         self.IMG_SIZE = 240
         self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, 3)
 
-        self.WEIGHT_DECAY = 0.001
+        # self.WEIGHT_DECAY = 0.001
+        self.WEIGHT_DECAY = 0.0000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 20
+        self.BATCH_SIZE = 4
         self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 1000
+        self.SHUFFLE_BUFFER_SIZE = 16
 
         # Parameters for Loss
         self.PATH = './DATASET/model2017-1_bfm_nomouth.h5'
@@ -182,7 +183,7 @@ class InverseFaceNetModel(object):
         # alpha = tf.linalg.matvec(sigma, y)
 
         loss = tf.linalg.matmul(y, y, transpose_b=True, name='loss')
-        loss = K.mean(loss, axis=-1)
+        # loss = K.mean(loss, axis=-1)
 
         return loss
 
@@ -212,7 +213,15 @@ class InverseFaceNetModel(object):
     def compile(self):
         """ Compiles the Keras model. Includes metrics to differentiate between the two main loss terms """
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
-                                                                  rho=0.95, epsilon=None, decay=0.0),
+                                                                  rho=0.95, epsilon=None, decay=self.WEIGHT_DECAY),
                            loss=self.loss_func,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')
+
+    # def compile(self):
+    #     """ Compiles the Keras model. Includes metrics to differentiate between the two main loss terms """
+    #     self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
+    #                                                               rho=0.95, epsilon=None, decay=0.0),
+    #                        loss=tf.keras.losses.mean_absolute_error,
+    #                        metrics=[tf.keras.losses.mean_squared_error])
+    #     print('Model Compiled!')
