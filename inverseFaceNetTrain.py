@@ -37,7 +37,11 @@ def main():
     print("Training with %d steps per epoch" % steps_per_epoch)
 
     batch_stats_callback = batch_stats.CollectBatchStats()
-    history = model.fit(keras_ds, epochs=5, steps_per_epoch=steps_per_epoch, callbacks=[batch_stats_callback, cp_callback])
+    history = model.fit(keras_ds, epochs=40, steps_per_epoch=20, callbacks=[batch_stats_callback, cp_callback])
+
+    model.save('my_model.h5')
+    # new_model = tf.keras.models.load_model('my_model.h5')
+    # new_model.summary()
 
     plt.figure()
     plt.ylabel("Loss")
@@ -49,6 +53,11 @@ def main():
     plt.title('Mean Squared Error')
     plt.plot(history.history['mean_squared_error'])
     plt.savefig('mse.pdf')
+
+    plt.figure()
+    plt.title('Mean Absolute Error')
+    plt.plot(history.history['mean_absolute_error'])
+    plt.savefig('mae.pdf')
 
     plt.figure()
     plt.title('Loss')
