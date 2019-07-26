@@ -25,7 +25,7 @@ class LandmarkDetection:
         remapped_image = cv2.convexHull(shape)
         return remapped_image
 
-    def cutout_mask_array(self, image, flip_rgb):
+    def cutout_mask_array(self, image, n, flip_rgb, save_image):
         """
         Function that:
                         detects landmarks
@@ -35,7 +35,9 @@ class LandmarkDetection:
                         (optional) interchanges R and B color channels
 
         :param image: <class 'numpy.ndarray'> with shape (m, n, 3)
+        :param n: number of iteration, used when save_image is True
         :param flip_rgb: boolean: if True return RGB image else return BGR
+        :param save_image: boolean if True save image
         :return: mask of the face without the mouth interior <class 'numpy.ndarray'> with shape (m, n, 3)
         """
         out_face = np.zeros_like(image)
@@ -49,6 +51,8 @@ class LandmarkDetection:
             landmarks = self.predictor(gray, face)
             # print(landmarks)
             shape = face_utils.shape_to_np(landmarks)
+            center = shape[33, :]
+            print(center)
             # initialize mask array
             # remapped_shape = np.zeros_like(shape)
             feature_mask = np.zeros((image.shape[0], image.shape[1]))
@@ -68,8 +72,14 @@ class LandmarkDetection:
 
             out_face[feature_mask] = image[feature_mask]
 
+            out_face = out_face[center[1] - 120:center[1] + 120, center[0] - 120:center[0] + 120]
+
             if flip_rgb:
                 out_face = cv2.cvtColor(out_face, cv2.COLOR_BGR2RGB)
+
+            if save_image:
+                cropped_image_path = ("./DATASET/images/image_%d.png" % n)
+                cv2.imwrite(cropped_image_path, out_face)
 
             return out_face
 
