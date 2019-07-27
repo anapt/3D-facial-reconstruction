@@ -155,23 +155,23 @@ class InverseFaceNetEncoder(object):
         # reflectance_var = std_reflectance
         # # weight
         # reflectance_var = tf.math.scalar_mul(1000, reflectance_var, name='reflectance_var')
-        shape = tf.constant(15, shape=(1,), dtype=tf.float32)
+        shape = tf.constant(40, shape=(1,), dtype=tf.float32)
         shape = K.tile(shape, 80)
 
-        expression = tf.constant(4, shape=(1,), dtype=tf.float32)
+        expression = tf.constant(12, shape=(1,), dtype=tf.float32)
         expression = K.tile(expression, 64)
 
         reflectance = tf.constant(12, shape=(1,), dtype=tf.float32)
         reflectance = K.tile(reflectance, 80)
 
-        rotation = tf.constant(0.4, shape=(1,), dtype=tf.float32)
+        rotation = tf.constant(20, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, 3)
-
-        illumination = tf.constant(5, shape=(1,), dtype=tf.float32)
-        illumination = K.tile(illumination, 27)
 
         translation = tf.constant(0.01, shape=(1,), dtype=tf.float32)
         translation = K.tile(translation, 3)
+
+        illumination = tf.constant(5, shape=(1,), dtype=tf.float32)
+        illumination = K.tile(illumination, 27)
 
         sigma = tf.compat.v1.concat([shape, expression, reflectance, rotation, translation, illumination],
                                     axis=0)

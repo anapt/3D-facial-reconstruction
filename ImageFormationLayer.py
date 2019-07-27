@@ -11,7 +11,7 @@ import ImagePreprocess as preprocess
 class ImageFormationLayer(object):
 
     def __init__(self, vector):
-        self.vector = vector
+        self.vector = self.vector2dict(vector)
         self.path = './DATASET/model2017-1_bfm_nomouth.h5'
         self.preprocess = preprocess.ImagePreprocess()
 
@@ -89,6 +89,18 @@ class ImageFormationLayer(object):
 
         return indices
 
+    @staticmethod
+    def vector2dict(vector):
+        x = {
+            "shape": np.squeeze(vector[0:80, ]),
+            "expression": np.squeeze(vector[80:144, ]),
+            "reflectance": np.squeeze(vector[144:224, ]),
+            "rotation": np.squeeze(vector[224:227, ]),
+            "translation": np.squeeze(vector[227:230, ]),
+            "illumination": np.squeeze(vector[230:257, ])
+        }
+        return x
+
 
 def main():
     show_result = True
@@ -96,16 +108,7 @@ def main():
     vector_path = ("./DATASET/semantic/x_%d.txt" % n)
     vector = np.loadtxt(vector_path)
 
-    x = {
-        "shape": vector[0:80, ],
-        "expression": vector[80:144, ],
-        "reflectance": vector[144:224, ],
-        "rotation": vector[224:227, ],
-        "translation": vector[227:230, ],
-        "illumination": vector[230:257, ]
-    }
-
-    formation = ImageFormationLayer(x)
+    formation = ImageFormationLayer(vector)
     image = formation.get_reconstructed_image()
 
     if show_result:
@@ -113,4 +116,4 @@ def main():
         plt.show()
 
 
-main()
+# main()
