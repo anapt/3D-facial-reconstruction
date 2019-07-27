@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import SemanticCodeVector as scv
 import ParametricMoDecoder as pmd
 import LandmarkDetection as ld
-import FaceCropper as fc
+from unused import FaceCropper as fc
 import ImagePreprocess as preprocess
 
 
