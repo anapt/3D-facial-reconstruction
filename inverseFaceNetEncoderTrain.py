@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from InverseFaceNetEncoder import InverseFaceNetEncoder
-from loadDataset import load_dataset
+from loadDataset import load_training_dataset
 import CollectBatchStats as batch_stats
 
 tf.compat.v1.enable_eager_execution()
@@ -22,14 +22,13 @@ def main():
     model = inverseNet.model
 
     checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
-    checkpoint_dir = "./DATASET/training/"
 
     cp_callback = tf.keras.callbacks.ModelCheckpoint(
         checkpoint_path, verbose=1, save_weights_only=True,
         # Save weights, every 5-epochs.
         period=5)
 
-    keras_ds = load_dataset()
+    keras_ds = load_training_dataset()
     keras_ds = keras_ds.shuffle(SHUFFLE_BUFFER_SIZE).repeat().batch(BATCH_SIZE).prefetch(buffer_size=AUTOTUNE)
 
     steps_per_epoch = tf.math.ceil(SHUFFLE_BUFFER_SIZE / BATCH_SIZE).numpy()
@@ -39,8 +38,6 @@ def main():
     history = model.fit(keras_ds, epochs=100, steps_per_epoch=8, callbacks=[batch_stats_callback, cp_callback])
 
     model.save('my_model.h5')
-    # new_model = tf.keras.models.load_model('my_model.h5')
-    # new_model.summary()
 
     plt.figure()
     plt.ylabel("Loss")
