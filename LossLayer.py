@@ -4,7 +4,8 @@ import cv2
 
 import ImageFormationLayer as ifl
 import LandmarkDetection as ld
-from patchImage import translate
+# from unused.patchImage import translate
+import ImagePreprocess as preprocess
 
 
 class LossLayer:
@@ -37,7 +38,8 @@ class LossLayer:
 
         formation = ifl.ImageFormationLayer(self.x)
         new_image, indices, position = formation.get_reconstructed_image_for_loss()
-        position = translate(position, position.min(), position.max(), right_min=0, right_max=240)
+        position = preprocess.ImagePreprocess.translate(position, position.min(), position.max(),
+                                                        right_min=0, right_max=240)
 
         new_image_aligned = self.align_images(new_image, original_image)
         photo_term = 0
