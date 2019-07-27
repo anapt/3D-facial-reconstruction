@@ -1,13 +1,12 @@
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
-
-tf.compat.v1.enable_eager_execution()
-
 import matplotlib.pyplot as plt
-from InverseFaceNetEncoder import InverseFaceNetModel
+from InverseFaceNetEncoder import InverseFaceNetEncoder
 from loadDataset import load_dataset
 import CollectBatchStats as batch_stats
+
+tf.compat.v1.enable_eager_execution()
 
 
 def main():
@@ -16,7 +15,7 @@ def main():
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
     # Build and compile model:
-    inverseNet = InverseFaceNetModel()
+    inverseNet = InverseFaceNetEncoder()
     BATCH_SIZE = inverseNet.BATCH_SIZE
     SHUFFLE_BUFFER_SIZE = inverseNet.SHUFFLE_BUFFER_SIZE
     inverseNet.compile()

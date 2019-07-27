@@ -1,18 +1,14 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
 from keras import backend as K
-tf.compat.v1.enable_eager_execution()
 
 import numpy as np
-import cv2
 import SemanticCodeVector as scv
-import ParametricMoDecoder as pmd
-import LandmarkDetection as ld
-import FaceCropper as fc
-from patchImage import patch
+
+tf.compat.v1.enable_eager_execution()
 
 
-class InverseFaceNetModel(object):
+class InverseFaceNetEncoder(object):
 
     def __init__(self):
         # Parameters
