@@ -3,17 +3,21 @@ import pathlib
 import numpy as np
 
 
-def preprocess_image(image):
+def preprocess_image(image, test_dataset):
     """
     Decodes tensor and cast to tf.float32
     Maps color channels to [-0.5, 0.5]
 
     :param image: Tensor("ReadFile:0", shape=(), dtype=string)
+    :param test_dataset: Boolean, if creating test dataset, reshape tensor
     :return: Tensor("truediv:0", dtype=float32)
     """
     image = tf.image.decode_image(image, channels=3)
     image = tf.cast(image, dtype=tf.float32)
     image /= 255.0 - 0.5     # normalize to [-0.5,0.5] range
+
+    if test_dataset:
+        image = tf.reshape(image, shape=[1, 240, 240, 3])
 
     return image
 
@@ -26,7 +30,7 @@ def load_and_preprocess_image(path):
     :return: Tensor("truediv:0", dtype=float32)
     """
     image = tf.io.read_file(path)
-    return preprocess_image(image)
+    return preprocess_image(image, False)
 
 
 def load_and_preprocess_image_4d(path):
@@ -37,12 +41,7 @@ def load_and_preprocess_image_4d(path):
     :return: Tensor("truediv:0", dtype=float32)
     """
     image = tf.io.read_file(path)
-
-    image = tf.image.decode_image(image, channels=3)
-    image = tf.cast(image, dtype=tf.float32)
-    image /= 255.0 - 0.5  # normalize to [-0.5,0.5] range
-    image = tf.reshape(image, shape=[1, 240, 240, 3])
-    return image
+    return preprocess_image(image, True)
 
 
 def load_training_dataset():
