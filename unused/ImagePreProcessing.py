@@ -1,4 +1,4 @@
-import FaceCropper as fc
+from unused import FaceCropper as fc
 import LandmarkDetection as ld
 
 
