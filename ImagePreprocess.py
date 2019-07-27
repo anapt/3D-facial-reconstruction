@@ -1,5 +1,5 @@
 import LandmarkDetection as ld
-import FaceCropper as fc
+from unused import FaceCropper as fc
 import ParametricMoDecoder as pmd
 import SemanticCodeVector as scv
 
@@ -55,10 +55,9 @@ class ImagePreprocess(object):
         return formation, cells_ordered
 
     @staticmethod
-    def translate(value, left_min, left_max):
+    def translate(value, left_min, left_max, right_min=0, right_max=500):
         # Figure out how 'wide' each range is
-        right_min = 0
-        right_max = 500
+
         left_span = left_max - left_min
         right_span = right_max - right_min
 
