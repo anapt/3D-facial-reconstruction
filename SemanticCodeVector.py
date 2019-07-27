@@ -27,22 +27,22 @@ class SemanticCodeVector:
 
         shape_pca = self.model['shape']['model']['pcaBasis'][()]
         shape_pca = shape_pca[0:len(shape_pca), 0:80]
-        sdev = np.std(shape_pca, 0)
-
-        shape_pca = np.multiply(shape_pca, np.transpose(sdev))
-        normalize(shape_pca, copy=False)
+        # sdev = np.std(shape_pca, 0)
+        #
+        # shape_pca = np.multiply(shape_pca, np.transpose(sdev))
+        normalize(shape_pca, copy=False, norm='l1')
 
         reflectance_pca = self.model['color']['model']['pcaBasis'][()]
         reflectance_pca = reflectance_pca[0:len(reflectance_pca), 0:80]
         sdev = np.std(reflectance_pca, 0)
         reflectance_pca = np.multiply(reflectance_pca, np.transpose(sdev))
-        # normalize(reflectance_pca, copy=False)
+        normalize(reflectance_pca, copy=False, norm='l1')
 
         expression_pca = self.model['expression']['model']['pcaBasis'][()]
         expression_pca = expression_pca[0:len(expression_pca), 0:64]
-        sdev = np.std(expression_pca, 0)
-        expression_pca = np.multiply(expression_pca, np.transpose(sdev))
-        normalize(expression_pca, copy=False)
+        # sdev = np.std(expression_pca, 0)
+        # expression_pca = np.multiply(expression_pca, np.transpose(sdev))
+        normalize(expression_pca, copy=False, norm='l1')
 
         average_shape = self.model['shape']['model']['mean'][()]
 
@@ -96,18 +96,18 @@ class SemanticCodeVector:
                                 illumination    (27,)
         """
         a = np.random.normal(0, 1, 80)
-        # a = np.random.uniform(-1, 1, 80)
-        b = np.random.normal(0, 1, 80)
+        # a = np.random.uniform(-2, 2, 80)
+        b = np.random.normal(0, 0.15, 80)
 
         # d = np.random.normal(0, 1, 64)
-        d = np.random.uniform(-3, 3, 64)
-        d[0] = np.random.uniform(-2.5, 2.5, 1)
+        d = np.random.uniform(-14, 14, 64)
+        d[0] = 10*d[0]
 
         rotmat = np.random.uniform(-10, 10, 3)
         rotmat[2] = np.random.uniform(-7, 7, 1)
 
         # TODO range is smaller than the one used in the paper
-        g = np.random.uniform(0.1, 0.4, 27)
+        g = np.random.uniform(0.2, 0.4, 27)
         g[0] = np.random.uniform(0.5, 1, 1)
 
         t = np.random.uniform(-25, 25, 3)
