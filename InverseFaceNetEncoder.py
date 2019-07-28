@@ -19,10 +19,10 @@ class InverseFaceNetEncoder(object):
         self.WEIGHT_DECAY = 0.0000001
         self.BASE_LEARNING_RATE = 0.1
 
-        self.BATCH_SIZE = 4
+        self.BATCH_SIZE = 1
         self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 16
+        self.SHUFFLE_BUFFER_SIZE = 15
 
         # Parameters for Loss
         self.PATH = './DATASET/model2017-1_bfm_nomouth.h5'
@@ -158,16 +158,16 @@ class InverseFaceNetEncoder(object):
         shape = tf.constant(40, shape=(1,), dtype=tf.float32)
         shape = K.tile(shape, 80)
 
-        expression = tf.constant(12, shape=(1,), dtype=tf.float32)
+        expression = tf.constant(20, shape=(1,), dtype=tf.float32)
         expression = K.tile(expression, 64)
 
         reflectance = tf.constant(12, shape=(1,), dtype=tf.float32)
         reflectance = K.tile(reflectance, 80)
 
-        rotation = tf.constant(20, shape=(1,), dtype=tf.float32)
+        rotation = tf.constant(40, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, 3)
 
-        translation = tf.constant(0.01, shape=(1,), dtype=tf.float32)
+        translation = tf.constant(1, shape=(1,), dtype=tf.float32)
         translation = K.tile(translation, 3)
 
         illumination = tf.constant(5, shape=(1,), dtype=tf.float32)
