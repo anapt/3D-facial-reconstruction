@@ -57,14 +57,19 @@ def main():
     net = InverseFaceNet()
 
     # net.evaluate_model()
-    image_path = './DATASET/images/image_10.png'
+    image_path = './DATASET/images/image_0.png'
     x = net.model_predict(image_path)
-
+    np.savetxt("./x_pred.txt", x)
+    # print(x)
+    # print(x[227:230, ])
+    x_true = np.loadtxt('./DATASET/semantic/x_0.txt')
+    print(x_true.shape)
     image = net.calculate_decoder_output(x)
 
     show_result = True
     if show_result:
         plt.imshow(image)
         plt.show()
+
 
 main()
