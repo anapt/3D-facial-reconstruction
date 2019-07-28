@@ -38,7 +38,7 @@ class ImagePreprocess(object):
         vector[227:230, ] = x['translation']
         vector[230:257, ] = x['illumination']
 
-        np.savetxt("./DATASET/semantic/x_%d.txt" % n, vector)
+        np.savetxt("./DATASET/semantic/x_{:06}.txt".format(n), vector)
 
         vertices = data.calculate_coords(x)
         reflectance = data.calculate_reflectance(x)
@@ -46,11 +46,8 @@ class ImagePreprocess(object):
         decoder = pmd.ParametricMoDecoder(vertices, reflectance, x, cells)
 
         formation = decoder.get_image_formation()
-        # np.savetxt("./DATASET/color/color_%d.txt" % n, formation['color'])
-        # np.savetxt("./DATASET/position/position_%d.tgxt" % n, formation['position'])
 
         cells_ordered = decoder.calculate_cell_depth()
-        # np.savetxt("DATASET/cells/cells_%d.txt" % n, cells_ordered)
 
         return formation, cells_ordered
 

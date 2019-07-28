@@ -77,7 +77,7 @@ class LandmarkDetection:
                 out_face = cv2.cvtColor(out_face, cv2.COLOR_BGR2RGB)
 
             if save_image:
-                cropped_image_path = ("./DATASET/images/image_%d.png" % n)
+                cropped_image_path = ("./DATASET/images/image_{:06}.png".format(n))
                 cv2.imwrite(cropped_image_path, out_face)
 
             return out_face

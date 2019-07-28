@@ -105,7 +105,7 @@ class ImageFormationLayer(object):
 def main():
     show_result = True
     n = 0
-    vector_path = ("./DATASET/semantic/x_%d.txt" % n)
+    vector_path = ("./DATASET/semantic/x_{:06}.txt".format(n))
     vector = np.loadtxt(vector_path)
 
     formation = ImageFormationLayer(vector)

@@ -136,8 +136,8 @@ class LossLayer:
 def main():
     n = 1
 
-    vector_path = ("./DATASET/semantic/x_%d.txt" % n)
-    image_path = ("./DATASET/images/image_%d.png" % n)
+    vector_path = ("./DATASET/semantic/x_{:06}.txt".format(n))
+    image_path = ("./DATASET/images/image_{:06}.png".format(n))
 
     vector = np.loadtxt(vector_path)
 
