@@ -3,7 +3,7 @@ import ImagePreprocess as image_preprocess
 
 def main():
     # Number of images to create
-    N = 10
+    N = 100
     preprocess = image_preprocess.ImagePreprocess()
 
     for n in range(0, N):
