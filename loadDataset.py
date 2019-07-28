@@ -1,4 +1,6 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
+tf.compat.v1.enable_eager_execution()
 import pathlib
 import numpy as np
 
@@ -12,9 +14,10 @@ def preprocess_image(image, test_dataset):
     :param test_dataset: Boolean, if creating test dataset, reshape tensor
     :return: Tensor("truediv:0", dtype=float32)
     """
-    image = tf.image.decode_image(image, channels=3)
-    image = tf.cast(image, dtype=tf.float32)
-    image /= 255.0 - 0.5     # normalize to [-0.5,0.5] range
+    image = tf.image.decode_image(image, channels=3, dtype=tf.dtypes.float32)
+    # print(image.shape)
+    # image = tf.cast(image, dtype=tf.float32)
+    image = image/255.0     # normalize to [-0.5,0.5] range
 
     if test_dataset:
         image = tf.reshape(image, shape=[1, 240, 240, 3])
@@ -53,16 +56,16 @@ def load_training_dataset():
     """
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-    data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/overfit'
+    data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/over'
     data_root = pathlib.Path(data_root)
 
     all_image_paths = list(data_root.glob('*'))
     all_image_paths = [str(path) for path in all_image_paths]
 
     image_count = len(all_image_paths)
-    print("Dataset containg %d pairs of Images and Vectors." % image_count)
+    print("Dataset containing %d pairs of Images and Vectors." % image_count)
 
-    sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/overfit'
+    sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/over'
     sem_root = pathlib.Path(sem_root)
 
     all_vector_paths = list(sem_root.glob('*'))
@@ -77,10 +80,9 @@ def load_training_dataset():
     vectors = np.zeros((257, len(all_vector_paths)))
     for n, path in enumerate(all_vector_paths):
         v = np.loadtxt(path)
-        vectors[:, n] = np.asarray(v)
+        vectors[:, n] = v
 
     vectors_ds = tf.data.Dataset.from_tensor_slices(np.transpose(vectors))
-
     image_vector_ds = tf.data.Dataset.zip((image_ds, vectors_ds))
 
     return image_vector_ds
@@ -95,7 +97,7 @@ def load_testing_dataset():
     """
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-    data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/testing'
+    data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
     data_root = pathlib.Path(data_root)
 
     all_image_paths = list(data_root.glob('*'))
@@ -104,7 +106,7 @@ def load_testing_dataset():
     image_count = len(all_image_paths)
     print("Dataset containg %d pairs of Images and Vectors." % image_count)
 
-    sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/testing'
+    sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
     sem_root = pathlib.Path(sem_root)
 
     all_vector_paths = list(sem_root.glob('*'))
@@ -126,3 +128,9 @@ def load_testing_dataset():
     image_vector_ds = tf.data.Dataset.zip((image_ds, vectors_ds))
 
     return image_vector_ds
+
+
+def main():
+    load_training_dataset()
+
+# main()
