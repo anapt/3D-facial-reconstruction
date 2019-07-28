@@ -28,8 +28,6 @@ class InverseFaceNetEncoder(object):
         self.PATH = './DATASET/model2017-1_bfm_nomouth.h5'
         self.MAX_FEATURES = 500
         self.GOOD_MATCH_PERCENT = 0.15
-        self.photo_loss = 0
-        self.reg_loss = 0
 
         # Model
         self.model = self.build_model()
@@ -56,19 +54,21 @@ class InverseFaceNetEncoder(object):
         #                                                      input_shape=self.IMG_SHAPE)
         base_model = tf.keras.applications.vgg16.VGG16(include_top=False,
                                                        weights='imagenet',
-                                                       input_shape=self.IMG_SHAPE)
+                                                       input_shape=self.IMG_SHAPE,
+                                                       pooling='avg')
         base_model.trainable = False
         base_model.summary()
         weights_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None)
 
         # Create global average pooling layer
-        global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
+        # global_average_layer = tf.keras.layers.GlobalAveragePooling2D()
         # global_average_layer = tf.keras.layers.GlobalMaxPooling2D()
 
         # Create prediction layer
         prediction_layer = tf.keras.layers.Dense(257, activation=None, use_bias=True,
                                                  kernel_initializer=weights_init, bias_initializer='zeros',
-                                                 kernel_regularizer=tf.keras.regularizers.l2(self.WEIGHT_DECAY))
+                                                 # kernel_regularizer=tf.keras.regularizers.l2(self.WEIGHT_DECAY)
+                                                 )
 
         # Code to check compatibility of dimensions
         # for image_batch, label_batch in keras_ds.take(1):
@@ -86,53 +86,10 @@ class InverseFaceNetEncoder(object):
         # Stack model layers
         model_o = tf.keras.Sequential([
             base_model,
-            global_average_layer,
             prediction_layer
         ])
 
         return model_o
-
-    def vector2dict(self, vector):
-        """
-        Transform vector to dictionary
-
-        :param vector: vector with shape (257, batch_size)
-        :return: dictionary of Semantic Code Vector
-        """
-
-        shape = np.ones(shape=(80*self.BATCH_SIZE,))
-        expression = np.ones(shape=(64*self.BATCH_SIZE,))
-        reflectance = np.ones(shape=(80*self.BATCH_SIZE,))
-        rotation = np.ones(shape=(3*self.BATCH_SIZE,))
-        translation = np.ones(shape=(3*self.BATCH_SIZE,))
-        illumination = np.ones(shape=(27*self.BATCH_SIZE,))
-        for i in range(0, self.BATCH_SIZE):
-            if i == 0:
-                np.append(shape, vector[0:80, ])
-                np.append(expression, vector[80:144, ])
-                np.append(reflectance, vector[144:224, ])
-                np.append(rotation, vector[224:227, ])
-                np.append(translation, vector[227:230, ])
-                np.append(illumination, vector[230:257, ])
-            else:
-                idx = 257*i
-                np.append(shape, vector[idx:idx+80, ])
-                np.append(expression, vector[idx+80:idx+144, ])
-                np.append(reflectance, vector[idx+144:idx+224, ])
-                np.append(rotation, vector[idx+224:idx+227, ])
-                np.append(translation, vector[idx+227:idx+230, ])
-                np.append(illumination, vector[idx+230:idx+257, ])
-
-        x = {
-            "shape": shape,
-            "expression": expression,
-            "reflectance": reflectance,
-            "rotation": rotation,
-            "translation": translation,
-            "illumination": illumination
-        }
-
-        return x
 
     def model_space_parameter_loss(self, y):
         # std_shape = tf.constant(self.shape_sdev, dtype=tf.float32)
@@ -155,10 +112,10 @@ class InverseFaceNetEncoder(object):
         # reflectance_var = std_reflectance
         # # weight
         # reflectance_var = tf.math.scalar_mul(1000, reflectance_var, name='reflectance_var')
-        shape = tf.constant(40, shape=(1,), dtype=tf.float32)
+        shape = tf.constant(35, shape=(1,), dtype=tf.float32)
         shape = K.tile(shape, 80)
 
-        expression = tf.constant(20, shape=(1,), dtype=tf.float32)
+        expression = tf.constant(35, shape=(1,), dtype=tf.float32)
         expression = K.tile(expression, 64)
 
         reflectance = tf.constant(12, shape=(1,), dtype=tf.float32)
@@ -167,7 +124,7 @@ class InverseFaceNetEncoder(object):
         rotation = tf.constant(40, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, 3)
 
-        translation = tf.constant(1, shape=(1,), dtype=tf.float32)
+        translation = tf.constant(0.3, shape=(1,), dtype=tf.float32)
         translation = K.tile(translation, 3)
 
         illumination = tf.constant(5, shape=(1,), dtype=tf.float32)
@@ -183,11 +140,6 @@ class InverseFaceNetEncoder(object):
         beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
 
         loss = K.mean(beta, axis=-1)
-        # loss = y
-        # alpha = tf.linalg.matvec(sigma, y)
-
-        # loss = tf.linalg.matmul(y, y, transpose_b=True, name='loss')
-        # loss = K.mean(loss, axis=-1)
 
         return loss
 
@@ -199,11 +151,6 @@ class InverseFaceNetEncoder(object):
         model_space_loss = self.model_space_parameter_loss
 
         def custom_loss(y_true, y_pred):
-            # flatten
-            # y_pred = tf.reshape(y_pred, [-1])
-            # y_true = tf.reshape(y_true, [-1])
-
-            # get x vector
 
             y = tf.math.subtract(y_pred, y_true, name='pred_minus_true')
 
