@@ -7,4 +7,6 @@ __pycache__/
 /altmany-export_fig-b1a7288/
 /tensorflow tutorials
 /plots
-
+/loss function weigths
+*.pdf
+*.ods
