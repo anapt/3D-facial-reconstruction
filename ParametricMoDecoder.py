@@ -29,8 +29,8 @@ class ParametricMoDecoder:
         coords_2d = np.zeros((2, coords_3d.shape[1]), dtype=coords_3d.dtype)
 
         for i in range(0, coords_3d.shape[1]):
-            if abs(coords_3d[2, i]) > 1:
-                inv_z = abs(1/coords_3d[2, i])
+            if (coords_3d[2, i]) > 1:
+                inv_z = (1/coords_3d[2, i])
                 coords_2d[:, i] = ([coords_3d[0, i]*inv_z, coords_3d[1, i]*inv_z])
 
             else:
