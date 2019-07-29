@@ -103,14 +103,13 @@ class SemanticCodeVector:
         d = np.random.uniform(-14, 14, 64)
         d[0] = 10*d[0]
 
-        rotmat = np.random.uniform(-10, 10, 3)
-        rotmat[2] = np.random.uniform(-7, 7, 1)
+        rotmat = np.random.uniform(-25, 25, 3)
 
         # TODO range is smaller than the one used in the paper
         g = np.random.uniform(0.2, 0.4, 27)
         g[0] = np.random.uniform(0.5, 1, 1)
 
-        t = np.random.uniform(-25, 25, 3)
+        t = np.random.uniform(-30, 30, 3)
 
         x = {
             "shape": a,

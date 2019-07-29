@@ -1,5 +1,6 @@
 import numpy as np
 import math as math
+import ImagePreprocess as preprocess
 
 
 class ParametricMoDecoder:
@@ -28,13 +29,15 @@ class ParametricMoDecoder:
         coords_2d = np.zeros((2, coords_3d.shape[1]), dtype=coords_3d.dtype)
 
         for i in range(0, coords_3d.shape[1]):
-            if abs(coords_3d[2, i]) > 50:
+            if abs(coords_3d[2, i]) > 1:
                 inv_z = abs(1/coords_3d[2, i])
                 coords_2d[:, i] = ([coords_3d[0, i]*inv_z, coords_3d[1, i]*inv_z])
 
             else:
                 coords_2d[:, i] = [0, 0]
 
+        translate = preprocess.ImagePreprocess()
+        coords_2d = translate.translate(coords_2d, np.amin(coords_2d), np.amax(coords_2d), 0, 500)
         return coords_2d
 
     @staticmethod
@@ -56,7 +59,7 @@ class ParametricMoDecoder:
         s3 = math.sin(math.radians(a))
 
         rot_mat_so3 = np.matrix([[c1*c2, c1*s2*s3 - c3*s1, s1*s3 - c1*c3*s2],
-                                 [c2*s1, c1*c3 + s1*s2*s3, c3*s1*s2 - c1*c3],
+                                 [c2*s1, c1*c3 + s1*s2*s3, c3*s1*s2 - c1*s3],
                                  [-s2, c2*s3, c2*c3]])
 
         return rot_mat_so3
@@ -72,6 +75,25 @@ class ParametricMoDecoder:
         :return: coordinates in CCS with shape (3, 53149)
         """
         coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
+        translate = preprocess.ImagePreprocess()
+        coords_ws = translate.translate(coords_ws, np.amin(coords_ws), np.amax(coords_ws), 0, 500)
+        for i in range(0, coords_ws.shape[1]):
+            coords_cs[::, i] = np.dot(inv_rotmat, ((coords_ws[::, i]) - translation))
+
+        return coords_cs
+
+    @staticmethod
+    def transform_wcs2ccs_vectors(coords_ws, inv_rotmat, translation):
+        """
+        Affine transformation from World Space Coordinate to Camera Space Coordinates
+
+        :param coords_ws: coordinates in WCS with shape (3, 53149)
+        :param inv_rotmat: inverse of rotation matrix
+        :param translation: translation vector (part of the Semantic Code Vector)
+        :return: coordinates in CCS with shape (3, 53149)
+        """
+        coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
+
         for i in range(0, coords_ws.shape[1]):
             coords_cs[::, i] = np.dot(inv_rotmat, (coords_ws[::, i] - translation))
 
@@ -245,8 +267,7 @@ class ParametricMoDecoder:
         reflectance = np.reshape(self.reflectance, (3, int(self.reflectance.size / 3)), order='F')
 
         rotmatSO3 = self.create_rot_mat(self.x['rotation'][0], self.x['rotation'][1], self.x['rotation'][2])
-        inv_rotmat = np.linalg.inv(rotmatSO3)
-
+        inv_rotmat = np.transpose(rotmatSO3)
         # Calculate color
         # world space normals
         ws_normals = self.calculate_normals(self.cells)
