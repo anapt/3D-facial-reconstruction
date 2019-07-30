@@ -9,6 +9,7 @@ class SemanticCodeVector:
     def __init__(self, path):
         """
         Class initializer
+
         :param path: path to Basel Face Model
         """
         self.model = h5py.File(path, 'r+')
@@ -128,6 +129,7 @@ class SemanticCodeVector:
         """
         Calculates the spatial embedding of the vertices based on the PCA bases for shape and expression
         and the average shape of a face and the parameters for shape and expression of the Semantic Code Vector
+
         :param vector: Semantic Code Vector - only shape and expression parameters are used
         :return: <class 'numpy.ndarray'> with shape (159447,)
         """
@@ -143,6 +145,7 @@ class SemanticCodeVector:
         """
         Calculates the per vertex skin reflectance based on the PCA bases for skin reflectance and the
         average reflectance and the parameters for skin reflectance of the Semantic Code Vector
+
         :param vector: Semantic Code Vector - only the parameters for reflectance are used
         :return: <class 'numpy.ndarray'> with shape (159447,)
         """

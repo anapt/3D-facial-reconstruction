@@ -8,6 +8,7 @@ class ParametricMoDecoder:
     def __init__(self, vertices, reflectance, x, cells):
         """
         Class initializer
+
         :param vertices: <class 'numpy.ndarray'>    (159447,)
         :param reflectance: <class 'numpy.ndarray'> (159447,)
         :param x: Semantic Code Vector              dictionary
@@ -296,8 +297,9 @@ class ParametricMoDecoder:
 
     def calculate_cell_depth(self):
         """
-        Calculates depth of each triangle and returns all triangles with deepest at top
-        :return: <class 'numpy.ndarray'> with shape (3, 105694)
+        Calculates depth of each triangle and returns the 50000 triangles with smallest depth
+
+        :return: <class 'numpy.ndarray'> with shape (3, 50000)
         """
         vertices = np.reshape(self.vertices, (3, int(self.vertices.size / 3)), order='F')
         depth = np.zeros(self.cells.shape[1], dtype=self.cells.dtype)
