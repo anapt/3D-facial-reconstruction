@@ -20,7 +20,6 @@ class ImagePreprocess(object):
         Samples vector, saves vector in .txt file
         Calculate image formation (2d coordinates and color)
 
-        :param path: Path to Basel Face Model
         :param n: iteration number
         :return:    image formation (dictionary with keys position, color)
                     cell ordered with deepest one first
@@ -53,8 +52,18 @@ class ImagePreprocess(object):
 
     @staticmethod
     def translate(value, left_min, left_max, right_min=0, right_max=500):
-        # Figure out how 'wide' each range is
+        """
+        Translates coordinates from range [left_min, left_max]
+        to range [right_min, right_max]
 
+        :param value:       value to translate
+        :param left_min:    float
+        :param left_max:    float
+        :param right_min:   float
+        :param right_max:   float
+        :return: same shape and type as value
+        """
+        # Figure out how 'wide' each range is
         left_span = left_max - left_min
         right_span = right_max - right_min
 
@@ -67,6 +76,18 @@ class ImagePreprocess(object):
         return right_min + (value_scaled * right_span)
 
     def patch(self, position, color, cells):
+        """
+        Drawing function
+
+        :param position:    projected coordinates of the vertices
+                            <class 'numpy.ndarray'> with shape (2, 53149)
+        :param color:       color of the vertices
+                            <class 'numpy.ndarray'> with shape (3, 53149)
+        :param cells:       array containing the connections between vertices
+                            <class 'numpy.ndarray'> with shape (3, 50000)
+        :return:            drawn image
+                            <class 'numpy.ndarray'> with shape (500, 500, 3)
+        """
         n_cells = cells.shape[1]
         w = 500
         image = np.zeros((w, w, 3), dtype=np.uint8)
@@ -75,26 +96,21 @@ class ImagePreprocess(object):
 
         for i in range(0, n_cells):
             triangle = cells[:, i]
-            # print(i)
-            # print(triangle)
             x = position[0, triangle]
             y = position[1, triangle]
             coord[:, :, i] = np.transpose(np.vstack((x, y)))
 
-        coord = self.translate(coord, np.amin(coord), np.amax(coord), 130 , 370)
-        # cv2.fillConvexPoly(image, np.int64([coord]), color=tuple([int(x) for x in triangle_color]))
+        coord = self.translate(coord, np.amin(coord), np.amax(coord), 130, 370)
 
         for i in range(0, n_cells):
             triangle = cells[:, i]
-            # print(i)
-            # print(triangle)
 
             tri_color = color[:, triangle]
-
             triangle_color = (np.average(tri_color, axis=1)) * 255
 
             cv2.fillConvexPoly(image, np.int64([coord[:, :, i]]), color=tuple([int(x) for x in triangle_color]))
 
+        # rotate drawn image
         center = (w / 2, w / 2)
         angle180 = 180
         scale = 1.0
@@ -105,6 +121,12 @@ class ImagePreprocess(object):
         return rotated180
 
     def create_image_and_save(self, n):
+        """
+        Wrapper function that calls the preprocess with the correct order
+
+        :param n: number of image (int)
+        :return:
+        """
         formation, cells = self.get_vectors(n)
         position = formation['position']
         color = formation['color']
@@ -116,7 +138,3 @@ class ImagePreprocess(object):
         cut = ld.LandmarkDetection()
         # RGB image with face
         cut.cutout_mask_array(np.uint8(image), n, True, True)
-
-        # # crop, resize and save face
-        # cropper = fc.FaceCropper()
-        # cropper.generate(np.uint8(cutout_face), True, n)
