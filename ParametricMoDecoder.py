@@ -74,11 +74,13 @@ class ParametricMoDecoder:
         :param translation: translation vector (part of the Semantic Code Vector)
         :return: coordinates in CCS with shape (3, 53149)
         """
-        coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
+
         translate = preprocess.ImagePreprocess()
         coords_ws = translate.translate(coords_ws, np.amin(coords_ws), np.amax(coords_ws), 0, 500)
-        for i in range(0, coords_ws.shape[1]):
-            coords_cs[::, i] = np.dot(inv_rotmat, ((coords_ws[::, i]) - translation))
+
+        sub = np.subtract(np.transpose(coords_ws), translation)
+
+        coords_cs = np.matmul(inv_rotmat, np.transpose(sub))
 
         return coords_cs
 
@@ -268,19 +270,20 @@ class ParametricMoDecoder:
 
         rotmatSO3 = self.create_rot_mat(self.x['rotation'][0], self.x['rotation'][1], self.x['rotation'][2])
         inv_rotmat = np.transpose(rotmatSO3)
+
         # Calculate color
         # world space normals
         ws_normals = self.calculate_normals(self.cells)
 
         # transform world space normals to camera space normals
-        cs_normals = self.transform_wcs2ccs(ws_normals, inv_rotmat, self.x['translation'])
+        cs_normals = self.transform_wcs2ccs_vectors(ws_normals, inv_rotmat, self.x['translation'])
 
         # calculate color
         color = np.zeros(reflectance.shape, dtype=reflectance.dtype)
         for i in range(0, reflectance.shape[1]):
             color[:, i] = self.get_color(reflectance[:, i], cs_normals[:, i], self.x['illumination'])
 
-        # calculate projected coordinates
+        # Calculate projected coordinates
         cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
         projected = self.projection(cs_vertices)
 
