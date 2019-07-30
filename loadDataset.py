@@ -128,9 +128,3 @@ def load_testing_dataset():
     image_vector_ds = tf.data.Dataset.zip((image_ds, vectors_ds))
 
     return image_vector_ds
-
-
-def main():
-    load_training_dataset()
-
-# main()
