@@ -83,6 +83,12 @@ class LandmarkDetection:
             return out_face
 
     def detect_landmarks_for_loss(self, image):
+        """
+        Function that returns Landmark coordinates for original Loss Layer
+
+        :param image:   <class 'numpy.ndarray'> with shape (240, 240, 3)
+        :return:        <class 'numpy.ndarray'> with shape (46, 2)
+        """
         gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
         # detect landmarks and transform to image coordinates
