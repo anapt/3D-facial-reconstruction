@@ -124,7 +124,7 @@ class InverseFaceNetEncoder(object):
         rotation = tf.constant(40, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, 3)
 
-        translation = tf.constant(0.3, shape=(1,), dtype=tf.float32)
+        translation = tf.constant(30, shape=(1,), dtype=tf.float32)
         translation = K.tile(translation, 3)
 
         illumination = tf.constant(5, shape=(1,), dtype=tf.float32)
