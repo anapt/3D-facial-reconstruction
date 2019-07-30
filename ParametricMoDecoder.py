@@ -192,13 +192,13 @@ class ParametricMoDecoder:
         # sum over illumination and Spherical harmonic scalar
         _sum = 0
         for i in range(0, 9):
-            _sum = _sum + illumination[:, i] * self.spherical_harmonics(normal[0], normal[1], normal[2], i)
+            _sum = _sum + np.multiply(illumination[:, i], self.spherical_harmonics(normal[0], normal[1], normal[2], i))
         # point wise multiplication with reflectance at vertex
         color = np.multiply(reflectance, _sum)
         # transpose because we want color to have shape (3, 53149)
         color = np.transpose(color)
 
-        return color
+        return np.squeeze(color)
 
     @staticmethod
     def normalize_v3(arr):
@@ -276,12 +276,12 @@ class ParametricMoDecoder:
         ws_normals = self.calculate_normals(self.cells)
 
         # transform world space normals to camera space normals
-        cs_normals = self.transform_wcs2ccs_vectors(ws_normals, inv_rotmat, self.x['translation'])
+        cs_normals = self.transform_wcs2ccs(ws_normals, inv_rotmat, self.x['translation'])
 
         # calculate color
         color = np.zeros(reflectance.shape, dtype=reflectance.dtype)
         for i in range(0, reflectance.shape[1]):
-            color[:, i] = self.get_color(reflectance[:, i], cs_normals[:, i], self.x['illumination'])
+            color[:, i] = self.get_color((reflectance[:, i]), cs_normals[:, i], self.x['illumination'])
 
         # Calculate projected coordinates
         cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
