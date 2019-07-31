@@ -78,8 +78,8 @@ class ParametricMoDecoder:
 
         translate = preprocess.ImagePreprocess()
         coords_ws = translate.translate(coords_ws, np.amin(coords_ws), np.amax(coords_ws), 0, 500)
-
-        sub = np.subtract(np.transpose(coords_ws), translation)
+        print(translation)
+        sub = np.subtract(np.transpose(coords_ws), 100 * translation)
 
         coords_cs = np.matmul(inv_rotmat, np.transpose(sub))
 
@@ -98,7 +98,7 @@ class ParametricMoDecoder:
         coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
 
         for i in range(0, coords_ws.shape[1]):
-            coords_cs[::, i] = np.dot(inv_rotmat, (coords_ws[::, i] - translation))
+            coords_cs[::, i] = np.dot(inv_rotmat, (coords_ws[::, i] - (10 * translation)))
 
         return coords_cs
 
