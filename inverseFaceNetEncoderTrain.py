@@ -35,7 +35,7 @@ def main():
     print("Training with %d steps per epoch" % steps_per_epoch)
 
     batch_stats_callback = batch_stats.CollectBatchStats()
-    history = model.fit(keras_ds, epochs=70, steps_per_epoch=steps_per_epoch, callbacks=[batch_stats_callback,
+    history = model.fit(keras_ds, epochs=100, steps_per_epoch=steps_per_epoch, callbacks=[batch_stats_callback,
                                                                                          cp_callback])
 
     plt.figure()
