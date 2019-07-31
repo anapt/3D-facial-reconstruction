@@ -2,7 +2,7 @@ import LandmarkDetection as ld
 from unused import FaceCropper as fc
 import ParametricMoDecoder as pmd
 import SemanticCodeVector as scv
-
+import time
 import numpy as np
 import cv2
 
@@ -117,7 +117,6 @@ class ImagePreprocess(object):
 
         rotation_matrix = cv2.getRotationMatrix2D(center, angle180, scale)
         rotated180 = cv2.warpAffine(image, rotation_matrix, (w, w))
-
         return rotated180
 
     def create_image_and_save(self, n):
