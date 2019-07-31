@@ -1,7 +1,7 @@
 import numpy as np
 import math as math
 import ImagePreprocess as preprocess
-
+import time
 
 class ParametricMoDecoder:
 
@@ -28,7 +28,6 @@ class ParametricMoDecoder:
         :return: 2D coordinates in Screen space with shape (2, 53149)
         """
         coords_2d = np.zeros((2, coords_3d.shape[1]), dtype=coords_3d.dtype)
-
         for i in range(0, coords_3d.shape[1]):
             if (coords_3d[2, i]) > 1:
                 inv_z = (1/coords_3d[2, i])
@@ -75,13 +74,10 @@ class ParametricMoDecoder:
         :param translation: translation vector (part of the Semantic Code Vector)
         :return: coordinates in CCS with shape (3, 53149)
         """
-
         translate = preprocess.ImagePreprocess()
         coords_ws = translate.translate(coords_ws, np.amin(coords_ws), np.amax(coords_ws), 0, 500)
-        print(translation)
-        sub = np.subtract(np.transpose(coords_ws), 100 * translation)
 
-        coords_cs = np.matmul(inv_rotmat, np.transpose(sub))
+        coords_cs = np.matmul(inv_rotmat, np.transpose(np.transpose(coords_ws) - (100 * translation)))
 
         return coords_cs
 
@@ -179,27 +175,52 @@ class ParametricMoDecoder:
             n = 1
         return n
 
+    @staticmethod
+    def spherical_harmonics_array(x, y, z, b):
+        """
+        Second order Spherical Harmonics
+
+        :param x: x coordinate [1, 3N]
+        :param y: x coordinate
+        :param z: x coordinate
+        :param b: parameters that specifies iteration number
+        :return: scalar (float)
+        """
+        r = np.power(x, 2) + np.power(y, 2) + np.power(z, 2)
+        if b == 0:
+            n = 0.25 * pow(5 / math.pi, 0.5) * np.divide((2 * np.power(z, 2) - np.power(x, 2) - np.power(y, 2)), r)
+        elif b == 1:
+            n = 0.5 * pow(15 / math.pi, 0.5) * np.divide((np.multiply(z, x)), np.power(r, 2))
+        elif b == 3:
+            n = 0.5 * pow(15 / math.pi, 0.5) * np.divide((np.power(x, 2) - np.power(y, 2)), np.power(r, 2))
+        elif b == 2:
+            n = 0.5 * pow(15 / math.pi, 0.5) * np.divide((np.multiply(y, z)), np.power(r, 2))
+        elif b == 4:
+            n = 0.5 * pow(15 / math.pi, 0.5) * np.divide((np.multiply(x, y)), np.power(r, 2))
+        else:
+            n = 1
+        return n
+
     def get_color(self, reflectance, normal, illumination):
         """
         Calculates color of vertex
 
         :param reflectance: vector of reflectance at vertex with shape (3,)
         :param normal: normal vector at vertex with shape (3,)
-        :param illumination: illumination vector from Semantic Code Vector with shape (27,)
+        :param illumination: illumination vector from Semantic Code Vector with shape (3, 9)
         :return: <class 'numpy.ndarray'> with shape (3,)
         """
-        # reshape illumination to nd.array with shape (3,9)
-        illumination = np.reshape(illumination, (3, 9), order='F')
         # sum over illumination and Spherical harmonic scalar
-        _sum = 0
+        _sum = np.zeros(shape=(3, 53149))
+
         for i in range(0, 9):
-            _sum = _sum + np.multiply(illumination[:, i], self.spherical_harmonics(normal[0], normal[1], normal[2], i))
+            _sum = _sum + np.multiply(np.reshape(illumination[:, i], (3, 1)),
+                                      self.spherical_harmonics_array(normal[0, :],
+                                                                     normal[1, :], normal[2, :], i))
         # point wise multiplication with reflectance at vertex
         color = np.multiply(reflectance, _sum)
-        # transpose because we want color to have shape (3, 53149)
-        color = np.transpose(color)
 
-        return np.squeeze(color)
+        return color
 
     @staticmethod
     def normalize_v3(arr):
@@ -279,10 +300,9 @@ class ParametricMoDecoder:
         # transform world space normals to camera space normals
         cs_normals = self.transform_wcs2ccs(ws_normals, inv_rotmat, self.x['translation'])
 
-        # calculate color
-        color = np.zeros(reflectance.shape, dtype=reflectance.dtype)
-        for i in range(0, reflectance.shape[1]):
-            color[:, i] = self.get_color((reflectance[:, i]), cs_normals[:, i], self.x['illumination'])
+        # reshape illumination to nd.array with shape (3,9)
+        illumination = np.reshape(self.x['illumination'], (3, 9), order='F')
+        color = self.get_color(reflectance, cs_normals, illumination)
 
         # Calculate projected coordinates
         cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
