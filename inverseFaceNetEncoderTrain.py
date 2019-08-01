@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from InverseFaceNetEncoder import InverseFaceNetEncoder
-from loadDataset import load_training_dataset
+from loadDataset import load_dataset_batches
 import CollectBatchStats as batch_stats
 
 tf.compat.v1.enable_eager_execution()
@@ -28,7 +28,7 @@ def main():
         # Save weights, every 5-epochs.
         period=5)
 
-    keras_ds = load_training_dataset()
+    keras_ds = load_dataset_batches(_case='training')
     keras_ds = keras_ds.shuffle(SHUFFLE_BUFFER_SIZE).repeat().batch(BATCH_SIZE).prefetch(buffer_size=AUTOTUNE)
 
     steps_per_epoch = tf.math.ceil(SHUFFLE_BUFFER_SIZE / BATCH_SIZE).numpy()

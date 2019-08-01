@@ -47,7 +47,7 @@ def load_and_preprocess_image_4d(path):
     return preprocess_image(image, True)
 
 
-def load_training_dataset():
+def load_dataset_batches(_case):
     """
     Read images and vectors (from txt files) and zips them together in a Tensorflow Dataset
     Images and vectors should be in different directories
@@ -56,7 +56,19 @@ def load_training_dataset():
     """
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-    data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/over'
+    if _case == 'training':
+        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/over'
+        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/over'
+    elif _case == 'bootstrapping':
+        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/bootstrapping'
+        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/bootstrapping'
+    elif _case == 'validation':
+        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/validation'
+        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/validation'
+    else:
+        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
+        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
+
     data_root = pathlib.Path(data_root)
 
     all_image_paths = list(data_root.glob('*'))
@@ -65,7 +77,6 @@ def load_training_dataset():
     image_count = len(all_image_paths)
     print("Dataset containing %d pairs of Images and Vectors." % image_count)
 
-    sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/over'
     sem_root = pathlib.Path(sem_root)
 
     all_vector_paths = list(sem_root.glob('*'))
@@ -88,7 +99,7 @@ def load_training_dataset():
     return image_vector_ds
 
 
-def load_testing_dataset():
+def load_dataset_single_image():
     """
     Read images and vectors (from txt files) and zips them together in a Tensorflow Dataset
     Images and vectors should be in different directories
