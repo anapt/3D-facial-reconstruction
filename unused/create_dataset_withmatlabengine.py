@@ -4,7 +4,7 @@ import matlab.engine
 import ParametricMoDecoder as pmd
 import SemanticCodeVector as scv
 import LandmarkDetection as ld
-from unused import FaceCropper as fc
+import FaceCropper as fc
 
 
 def get_vectors(path, n):
