@@ -1,8 +1,7 @@
 import LandmarkDetection as ld
-from unused import FaceCropper as fc
+import FaceCropper as fc
 import ParametricMoDecoder as pmd
 import SemanticCodeVector as scv
-import time
 import numpy as np
 import cv2
 
@@ -27,7 +26,8 @@ class ImagePreprocess(object):
         data = scv.SemanticCodeVector(self.path)
         cells = data.read_cells()
 
-        x = data.sample_vector()
+        # x = data.sample_vector()
+        x = data.sample_vector_for_bootstrapping()
 
         vector = np.zeros(257, dtype=float)
         vector[0:80, ] = x['shape']
@@ -37,7 +37,8 @@ class ImagePreprocess(object):
         vector[227:230, ] = x['translation']
         vector[230:257, ] = x['illumination']
 
-        np.savetxt("./DATASET/semantic/x_{:06}.txt".format(n), vector)
+        # np.savetxt("./DATASET/semantic/x_{:06}.txt".format(n), vector)
+        np.savetxt("./DATASET/semantic/bootstrapping/x_{:06}.txt".format(n), vector)
 
         vertices = data.calculate_coords(x)
         reflectance = data.calculate_reflectance(x)
@@ -136,4 +137,7 @@ class ImagePreprocess(object):
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
         # RGB image with face
-        cut.cutout_mask_array(np.uint8(image), n, True, True)
+        out_face = cut.cutout_mask_array(np.uint8(image), n, True, False)
+
+        cropped_image_path = ("./DATASET/images/bootstrapping/image_{:06}.png".format(n))
+        cv2.imwrite(cropped_image_path, out_face)

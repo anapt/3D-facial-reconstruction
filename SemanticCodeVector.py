@@ -124,6 +124,48 @@ class SemanticCodeVector:
 
         return x
 
+    @staticmethod
+    def sample_vector_for_bootstrapping():
+        """
+        Function that samples the semantic code vector
+
+        :return:
+        dictionary with keys    shape           (80,)
+                                expression      (64,)
+                                reflectance     (80,)
+                                rotation        (3,)
+                                translation     (3,)
+                                illumination    (27,)
+        """
+        a = np.random.normal(0, 1, 80)
+        # a = np.random.uniform(-2, 2, 80)
+        b = np.random.normal(0, 0.15, 80)
+
+        # d = np.random.normal(0, 1, 64)
+        d = np.random.uniform(-14, 14, 64)
+        d[0] = 10 * d[0]
+
+        rotmat = np.random.uniform(-20, 20, 3)
+        rotmat[2] = np.random.uniform(-15, 15, 1)
+
+        # TODO range is smaller than the one used in the paper
+        g = np.random.uniform(0.1, 0.5, 27)
+        g[0] = np.random.uniform(0.3, 1, 1)
+
+        t = np.random.uniform(1.30, 3.70, 3)
+        t[2] = np.random.uniform(-0.30, 0.30, 1)
+
+        x = {
+            "shape": a,
+            "expression": d,
+            "reflectance": b,
+            "rotation": rotmat,
+            "translation": t,
+            "illumination": g
+        }
+
+        return x
+
     def calculate_coords(self, vector):
         """
         Calculates the spatial embedding of the vertices based on the PCA bases for shape and expression
