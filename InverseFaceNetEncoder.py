@@ -170,11 +170,3 @@ class InverseFaceNetEncoder(object):
                            loss=self.loss_func,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')
-
-    # def compile(self):
-    #     """ Compiles the Keras model. Includes metrics to differentiate between the two main loss terms """
-    #     self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
-    #                                                               rho=0.95, epsilon=None, decay=0.0),
-    #                        loss=tf.keras.losses.mean_absolute_error,
-    #                        metrics=[tf.keras.losses.mean_squared_error])
-    #     print('Model Compiled!')

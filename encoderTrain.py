@@ -58,7 +58,7 @@ class EncoderTrain:
 
         self.inverseNet.compile()
 
-        bootstrapping_ds = load_dataset_batches(_case='bootstrapping')
+        bootstrapping_ds = load_dataset_batches(_case='training')
         bootstrapping_ds = bootstrapping_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().\
             batch(self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
@@ -97,14 +97,18 @@ class EncoderTrain:
 def main():
 
     train = EncoderTrain()
+    print("\n \n \nPhase 1\n START")
 
     train.training_phase_1()
-    print("Phase 1, completed")
+
+    print("Phase 1: COMPLETE")
+    print("\n \n \nPhase 2\n START")
 
     train.training_phase_2()
-    print("Phase 2, completed")
 
-    print("Saving plots")
+    print("Phase 2: COMPLETE")
+    print("Saving plots...")
+
     train.plots()
 
 
