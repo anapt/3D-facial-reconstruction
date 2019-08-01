@@ -10,7 +10,7 @@ class FaceCropper(object):
         """
         self.face_cascade = cv2.CascadeClassifier(self.CASCADE_PATH)
 
-    def generate(self, img, save_image, n):
+    def generate(self, img, save_image=False, n=None):
         """
         Detect face and crop to desired dimensions
         :param img: input image containing a single face in black background
@@ -22,7 +22,8 @@ class FaceCropper(object):
         if faces is None:
             print('Failed to detect face')
             return 0
-        elif len(faces) == 1:
+        elif len(faces) >= 1:
+            print("here")
             for (x, y, w, h) in faces:
                 r = max(w, h) / 2
                 centerx = x + w / 2
@@ -32,10 +33,14 @@ class FaceCropper(object):
                 nr = int(r * 2)
 
                 faceimg = img[ny:ny + nr, nx:nx + nr]
-                lastimg = cv2.resize(faceimg, (240, 240))
+                lastimg = cv2.resize(faceimg, (200, 200))
 
             if save_image:
                 cropped_image_path = ("./DATASET/images/image_%d.png" % n)
                 cv2.imwrite(cropped_image_path, lastimg)
+
+            cv2.imshow("", lastimg)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
             return lastimg
