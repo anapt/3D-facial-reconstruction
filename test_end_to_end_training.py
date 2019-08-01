@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
 import CollectBatchStats as batch_stats
+import SemanticCodeVector as scv
 from keras import backend as K
 
 
@@ -46,12 +47,27 @@ class InverseFaceNet(object):
         # Loss Function
         self.loss_func = self.model_loss()
 
+        self.data = scv.SemanticCodeVector('./DATASET/model2017-1_bfm_nomouth.h5')
+        self.bases = self.data.read_pca_bases()
+        self.shape_pca, self.expression_pca, self.reflectance_pca, self.avg_shape, self.avg_reflectance = \
+            self.bases_dict_2_vectors()
+
+    def bases_dict_2_vectors(self):
+
+        avg_shape = self.bases['average_shape']
+        shape_pca = self.bases['shape_pca']
+        reflectance_pca = self.bases['reflectance_pca']
+        expression_pca = self.bases['expression_pca']
+        avg_reflectance = self.bases['average_reflectance']
+
+        return shape_pca, expression_pca, reflectance_pca, avg_shape, avg_reflectance
+
     def build_model(self):
         """
-                 Create a Keras model
+         Create a Keras model
 
-                :return: Keras.model()
-                """
+        :return: Keras.model()
+        """
 
         # Create the base model from the pre-trained model XCEPTION
         # base_model = tf.keras.applications.xception.Xception(include_top=False,
@@ -117,10 +133,42 @@ class InverseFaceNet(object):
 
         return regularization_term
 
-    def loss_layer(self, y):
-        loss = y
+    def photometric_term(self, y_true, y_pred):
+        shape = tf.slice(y_pred, begin=[0, 0], size=[self.BATCH_SIZE, 80], name='shape')
+        expression = tf.slice(y_pred, begin=[0, 80], size=[self.BATCH_SIZE, 64], name='expression')
+        reflectance = tf.slice(y_pred, begin=[0, 144], size=[self.BATCH_SIZE, 80], name='reflectance')
 
-        return loss
+        avg_shape = tf.constant(self.avg_shape, shape=[159447, 1], dtype=tf.float32)
+        shape_pca = tf.constant(self.shape_pca, dtype=tf.float32)
+        expression_pca = tf.constant(self.expression_pca, dtype=tf.float32)
+        avg_reflectance = tf.constant(self.avg_reflectance, shape=[159447, 1], dtype=tf.float32)
+        reflectance_pca = tf.constant(self.reflectance_pca, dtype=tf.float32)
+
+        # shape = 159447, BATCH_SIZE or 3N, BATCH_SIZE
+        alpha = tf.math.add(avg_shape, tf.linalg.matmul(shape_pca, shape, transpose_b=True))
+        vertices_pred = tf.math.add(alpha, tf.linalg.matmul(expression_pca, expression, transpose_b=True))
+        skin_ref_pred = tf.math.add(avg_reflectance, tf.linalg.matmul(reflectance_pca, reflectance, transpose_b=True))
+
+        shape = tf.slice(y_true, begin=[0, 0], size=[self.BATCH_SIZE, 80], name='shape')
+        expression = tf.slice(y_true, begin=[0, 80], size=[self.BATCH_SIZE, 64], name='expression')
+        reflectance = tf.slice(y_true, begin=[0, 144], size=[self.BATCH_SIZE, 80], name='reflectance')
+
+        # shape = 159447, BATCH_SIZE or 3N, BATCH_SIZE
+        alpha = tf.math.add(avg_shape, tf.linalg.matmul(shape_pca, shape, transpose_b=True))
+        vertices_true = tf.math.add(alpha, tf.linalg.matmul(expression_pca, expression, transpose_b=True))
+        skin_ref_true = tf.math.add(avg_reflectance, tf.linalg.matmul(reflectance_pca, reflectance, transpose_b=True))
+
+        vertices_dist = tf.linalg.norm(vertices_pred - vertices_true, ord='euclidean', axis=0)
+        reflectance_dist = tf.linalg.norm(skin_ref_pred - skin_ref_true, ord='euclidean', axis=0)
+
+        loss_vertices = tf.math.reduce_mean(vertices_dist)
+        loss_reflectance = tf.math.reduce_mean(reflectance_dist)
+
+        weight_vertices = 1
+        weight_reflectance = 1
+        photo_term = weight_vertices * loss_vertices + weight_reflectance * loss_reflectance
+
+        return photo_term
 
     def model_loss(self):
         """" Wrapper function which calculates auxiliary values for the complete loss function.
@@ -128,22 +176,19 @@ class InverseFaceNet(object):
 
         # Model space parameter loss
         regularization = self.regularization_term
+        photometric = self.photometric_term
+        # print(self.model.input)
 
         def custom_loss(y_true, y_pred):
 
             weight_reg = 2.9*10e-5
-            # shape = tf.slice(y_pred, begin=[0, 0], size=[BATCH_SIZE, 80], name='shape')
-            # expression = tf.slice(y_pred, begin=[0, 80], size=[BATCH_SIZE, 64], name='expression')
-            # reflectance = tf.slice(y_pred, begin=[0, 144], size=[BATCH_SIZE, 80], name='reflectance')
-            # rotation = tf.slice(y_pred, begin=[0, 224], size=[BATCH_SIZE, 3], name='rotation')
-            # translation = tf.slice(y_pred, begin=[0, 227], size=[BATCH_SIZE, 3], name='translation')
-            # illumination = tf.slice(y_pred, begin=[0, 230], size=[BATCH_SIZE, 27], name='illumination')
+            weight_photo = 1
 
-            y = tf.math.subtract(y_pred, y_true, name='pred_minus_true')
-            print("ypred:", y_pred)
-            # Model Space Parameter Loss
+            # Model Loss Layer
             reg_term = regularization(y_pred)
-            model_loss = weight_reg * reg_term
+            photo_term = photometric(y_true, y_pred)
+
+            model_loss = weight_reg * reg_term + weight_photo * photo_term
 
             return model_loss
 
