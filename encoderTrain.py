@@ -15,8 +15,8 @@ class EncoderTrain:
 
     def __init__(self):
         # Parameters
-        self.checkpoint_dir = "./DATASET/training/"
-        self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
+        self.checkpoint_dir = "./DATASET/training100/"
+        self.checkpoint_path = "./DATASET/training100/cp-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
             self.checkpoint_path, verbose=1, save_weights_only=True,
@@ -104,7 +104,7 @@ def main():
     print("Phase 1: COMPLETE")
     print("\n \n \nPhase 2\n START")
 
-    train.training_phase_2()
+    # train.training_phase_2()
 
     print("Phase 2: COMPLETE")
     print("Saving plots...")

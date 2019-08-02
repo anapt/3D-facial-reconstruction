@@ -17,12 +17,12 @@ class InverseFaceNetEncoder(object):
 
         # self.WEIGHT_DECAY = 0.001
         self.WEIGHT_DECAY = 0.0000001
-        self.BASE_LEARNING_RATE = 0.1
+        self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 1
+        self.BATCH_SIZE = 32
         self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 15
+        self.SHUFFLE_BUFFER_SIZE = 100
 
         # Parameters for Loss
         self.PATH = './DATASET/model2017-1_bfm_nomouth.h5'

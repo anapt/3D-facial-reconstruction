@@ -27,7 +27,7 @@ class ImagePreprocess(object):
         cells = data.read_cells()
 
         # x = data.sample_vector()
-        x = data.sample_vector_for_bootstrapping()
+        x = data.sample_vector()
 
         vector = np.zeros(257, dtype=float)
         vector[0:80, ] = x['shape']
@@ -38,7 +38,7 @@ class ImagePreprocess(object):
         vector[230:257, ] = x['illumination']
 
         # np.savetxt("./DATASET/semantic/x_{:06}.txt".format(n), vector)
-        np.savetxt("./DATASET/semantic/bootstrapping/x_{:06}.txt".format(n), vector)
+        np.savetxt("./DATASET/semantic/x_{:06}.txt".format(n), vector)
 
         vertices = data.calculate_coords(x)
         reflectance = data.calculate_reflectance(x)
@@ -139,5 +139,5 @@ class ImagePreprocess(object):
         # RGB image with face
         out_face = cut.cutout_mask_array(np.uint8(image), n, True, False)
 
-        cropped_image_path = ("./DATASET/images/bootstrapping/image_{:06}.png".format(n))
+        cropped_image_path = ("./DATASET/images/image_{:06}.png".format(n))
         cv2.imwrite(cropped_image_path, out_face)
