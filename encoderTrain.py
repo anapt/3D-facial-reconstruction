@@ -65,7 +65,7 @@ class EncoderTrain:
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
 
-        bootstrapping = model.fit(bootstrapping_ds, epochs=48, steps_per_epoch=steps_per_epoch,
+        bootstrapping = model.fit(bootstrapping_ds, epochs=90, steps_per_epoch=steps_per_epoch,
                                   callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(bootstrapping)
