@@ -49,6 +49,27 @@ class EncoderTrain:
 
         self.history_list.append(history_1)
 
+    def training_phase_1_2(self):
+        # load weights trained on synthetic faces and start bootstrapping
+        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+
+        model = self.inverseNet.model
+        model.load_weights(latest)
+
+        self.inverseNet.compile()
+
+        keras_ds = load_dataset_batches(_case='training')
+        keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(self.BATCH_SIZE).prefetch(buffer_size=
+                                                                                                       self.AUTOTUNE)
+
+        steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
+        print("Training with %d steps per epoch" % steps_per_epoch)
+
+        history_1 = model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch,
+                              callbacks=[self.batch_stats_callback, self.cp_callback])
+
+        self.history_list.append(history_1)
+
     def training_phase_2(self):
         # load weights trained on synthetic faces and start bootstrapping
         latest = tf.train.latest_checkpoint(self.checkpoint_dir)
@@ -97,7 +118,7 @@ class EncoderTrain:
 def main():
 
     train = EncoderTrain()
-    print("\n \n \nPhase 1\n START")
+    print("\n \n \nPhase 1\nSTART")
 
     train.training_phase_1()
 

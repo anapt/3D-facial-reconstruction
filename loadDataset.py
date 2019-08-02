@@ -57,8 +57,8 @@ def load_dataset_batches(_case):
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
     if _case == 'training':
-        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/over'
-        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/over'
+        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/training/'
+        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/training/'
     elif _case == 'bootstrapping':
         data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/bootstrapping'
         sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/bootstrapping'
