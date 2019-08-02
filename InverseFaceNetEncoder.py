@@ -91,6 +91,13 @@ class InverseFaceNetEncoder(object):
 
     @staticmethod
     def model_space_parameter_loss(y):
+        """
+        Custom loss function that incorporates weights for each variable in the
+        Semantic Code Vector
+
+        :param y: Tensor, y_pred - y_true with shape (Batch_size, 257)
+        :return: Float32, mean loss
+        """
         # std_shape = tf.constant(self.shape_sdev, dtype=tf.float32)
         # std_shape = tf.compat.v1.reshape(std_shape, shape=(80,))
         # # shape_var = K.tile(std_shape, self.BATCH_SIZE)
