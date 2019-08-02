@@ -3,12 +3,13 @@ import tensorflow as tf
 import CollectBatchStats as batch_stats
 import SemanticCodeVector as scv
 from keras import backend as K
-
+from loadDataset import load_dataset_batches
 
 tf.compat.v1.enable_eager_execution()
 
 
 class InverseFaceNet(object):
+    AUTOTUNE = tf.data.experimental.AUTOTUNE
 
     def __init__(self):
         # Parameters
@@ -17,7 +18,7 @@ class InverseFaceNet(object):
 
         # self.WEIGHT_DECAY = 0.001
         self.WEIGHT_DECAY = 0.0000001
-        self.BASE_LEARNING_RATE = 0.1
+        self.BASE_LEARNING_RATE = 0.01
 
         self.BATCH_SIZE = 1
         self.BATCH_ITERATIONS = 75000
@@ -30,7 +31,7 @@ class InverseFaceNet(object):
         self.GOOD_MATCH_PERCENT = 0.15
 
         self.checkpoint_dir = "./DATASET/training/"
-        self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
+        self.checkpoint_path = "./DATASET/training_end2end/cp-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
             self.checkpoint_path, verbose=1, save_weights_only=True,
@@ -113,6 +114,7 @@ class InverseFaceNet(object):
 
         # load trained weights from bootstrapping
         latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        latest = './DATASET/training/cp-0090.ckpt'
         model_o.load_weights(latest)
 
         return model_o
@@ -122,9 +124,9 @@ class InverseFaceNet(object):
         expression = tf.slice(y_pred, begin=[0, 80], size=[self.BATCH_SIZE, 64], name='expression')
         reflectance = tf.slice(y_pred, begin=[0, 144], size=[self.BATCH_SIZE, 80], name='reflectance')
 
-        shape2 = tf.math.square(shape, name='shape_squared')
-        reflectance2 = tf.math.multiply(tf.math.square(reflectance), 1.7 * 10e-3)
-        expression2 = tf.math.multiply(tf.math.square(expression), 0.8)
+        shape2 = tf.math.multiply(tf.math.square(shape, name='shape_squared'), 0.9)
+        reflectance2 = tf.math.multiply(tf.math.square(reflectance), 32)
+        expression2 = tf.math.multiply(tf.math.square(expression), 1.6 * 10e-3)
 
         regularization_term = tf.math.reduce_sum(shape2, axis=1) + tf.math.reduce_sum(reflectance2, axis=1) + \
             tf.math.reduce_sum(expression2, axis=1)
@@ -158,14 +160,15 @@ class InverseFaceNet(object):
         vertices_true = tf.math.add(alpha, tf.linalg.matmul(expression_pca, expression, transpose_b=True))
         skin_ref_true = tf.math.add(avg_reflectance, tf.linalg.matmul(reflectance_pca, reflectance, transpose_b=True))
 
-        vertices_dist = tf.linalg.norm(vertices_pred - vertices_true, ord='euclidean', axis=0)
-        reflectance_dist = tf.linalg.norm(skin_ref_pred - skin_ref_true, ord='euclidean', axis=0)
+        vertices_dist = tf.linalg.norm(vertices_pred - vertices_true, ord=2, axis=0)
+        reflectance_dist = tf.linalg.norm(skin_ref_pred - skin_ref_true, ord=2, axis=0)
 
         loss_vertices = tf.math.reduce_mean(vertices_dist)
         loss_reflectance = tf.math.reduce_mean(reflectance_dist)
 
         weight_vertices = 1
-        weight_reflectance = 1
+        weight_reflectance = 37
+
         photo_term = weight_vertices * loss_vertices + weight_reflectance * loss_reflectance
 
         return photo_term
@@ -181,7 +184,8 @@ class InverseFaceNet(object):
 
         def custom_loss(y_true, y_pred):
 
-            weight_reg = 2.9*10e-5
+            weight_reg = 0.06
+            # weight_reg = 1
             weight_photo = 1
 
             # Model Loss Layer
@@ -189,6 +193,7 @@ class InverseFaceNet(object):
             photo_term = photometric(y_true, y_pred)
 
             model_loss = weight_reg * reg_term + weight_photo * photo_term
+            # model_loss = weight_reg * reg_term
 
             return model_loss
 
@@ -207,5 +212,14 @@ def main():
     train = InverseFaceNet()
 
     train.compile()
+    keras_ds = load_dataset_batches(_case='training')
+    keras_ds = keras_ds.shuffle(train.SHUFFLE_BUFFER_SIZE).repeat().batch(train.BATCH_SIZE).prefetch(buffer_size=
+                                                                                                   train.AUTOTUNE)
+
+    steps_per_epoch = tf.math.ceil(train.SHUFFLE_BUFFER_SIZE / train.BATCH_SIZE).numpy()
+    print("Training with %d steps per epoch" % steps_per_epoch)
+
+    history_1 = train.model.fit(keras_ds, epochs=100, steps_per_epoch=steps_per_epoch,
+                          callbacks=[train.batch_stats_callback, train.cp_callback])
 
 main()
