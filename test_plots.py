@@ -47,7 +47,7 @@ def main():
     plt.title('Shape')
     plt.plot(x['shape'], color='red', marker='o', linestyle='None')
     plt.plot(x_true['shape'], color='blue', marker='+', linestyle='None', alpha=1)
-    plt.savefig('./tests/exp3_100epochs/shape.png')
+    plt.savefig('./tests/exp7/shape.png')
     plt.show()
 
     # plot expression, red dots are predicted values
@@ -56,7 +56,7 @@ def main():
     plt.title('Expression')
     plt.plot(x['expression'], color='red', marker='D', linestyle='None')
     plt.plot(x_true['expression'], color='blue', marker='d', linestyle='None', alpha=1)
-    plt.savefig('./tests/exp3_100epochs/expression.png')
+    plt.savefig('./tests/exp7/expression.png')
     plt.show()
 
     # plot shape, red dots are predicted values
@@ -65,7 +65,7 @@ def main():
     plt.title('Reflectance')
     plt.plot(x['reflectance'], color='red', marker='h', linestyle='None', alpha=0.5)
     plt.plot(x_true['reflectance'], color='blue', marker='H', linestyle='None', alpha=0.5)
-    plt.savefig('./tests/exp3_100epochs/reflectance.png')
+    plt.savefig('./tests/exp7/reflectance.png')
     plt.show()
 
     # plot shape, red dots are predicted values
@@ -74,21 +74,21 @@ def main():
     plt.title('Rotation')
     plt.plot(x['rotation'], color='red', marker='o', linestyle='None')
     plt.plot(x_true['rotation'], color='blue', marker='+', linestyle='None', alpha=1)
-    plt.savefig('./tests/exp3_100epochs/rotation.png')
+    plt.savefig('./tests/exp7/rotation.png')
     plt.show()
 
     plt.figure()
     plt.title('Translation')
     plt.plot(x['translation'], color='red', marker='o', linestyle='None')
     plt.plot(x_true['translation'], color='blue', marker='+', linestyle='None', alpha=1)
-    plt.savefig('./tests/exp3_100epochs/translation')
+    plt.savefig('./tests/exp7/translation')
     plt.show()
 
     plt.figure()
     plt.title('Illumination')
     plt.plot(x['illumination'], color='red', marker='o', linestyle='None')
     plt.plot(x_true['illumination'], color='blue', marker='+', linestyle='None', alpha=1)
-    plt.savefig('./tests/exp3_100epochs/illumination.png')
+    plt.savefig('./tests/exp7/illumination.png')
     plt.show()
 
 

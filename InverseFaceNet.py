@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import tensorflow as tf
 from keras import backend as K
 from InverseFaceNetEncoder import InverseFaceNetEncoder
-from loadDataset import load_testing_dataset, load_and_preprocess_image_4d
+from loadDataset import load_dataset_single_image, load_and_preprocess_image_4d
 import ImageFormationLayer as ifl
 import numpy as np
 import SemanticCodeVector as scv
@@ -18,6 +18,7 @@ class InverseFaceNet(object):
         self.checkpoint_dir = "./DATASET/training/"
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
         print(self.latest)
+        self.latest = './DATASET/training_end2end/cp-0060.ckpt'
         self.encoder = InverseFaceNetEncoder()
         self.model = self.load_model()
 
@@ -33,7 +34,7 @@ class InverseFaceNet(object):
 
     def evaluate_model(self):
 
-        test_ds = load_testing_dataset()
+        test_ds = load_dataset_single_image()
         loss, mse, mae = self.model.evaluate(test_ds)
         print("Restored model, Loss: {0}, Mean Squared Error: {1}, Mean Absolute Error: {2}".format(loss, mse, mae))
 
