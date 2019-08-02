@@ -17,12 +17,16 @@ class InverseFaceNet(object):
         self.PATH = self.PATH_DIR + 'model16im.h5'
         self.checkpoint_dir = "./DATASET/training/"
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        print(self.latest)
         self.latest = './DATASET/training_end2end/cp-0060.ckpt'
         self.encoder = InverseFaceNetEncoder()
         self.model = self.load_model()
 
     def load_model(self):
+        """
+        Load trained model and compile
+
+        :return: Compiled Keras model
+        """
         self.encoder.build_model()
         model = self.encoder.model
         model.load_weights(self.latest)
@@ -33,10 +37,11 @@ class InverseFaceNet(object):
         return model
 
     def evaluate_model(self):
-
+        """ Evaluate model on validation data """
         test_ds = load_dataset_single_image()
         loss, mse, mae = self.model.evaluate(test_ds)
-        print("Restored model, Loss: {0}, Mean Squared Error: {1}, Mean Absolute Error: {2}".format(loss, mse, mae))
+        print("\nRestored model, Loss: {0} \nMean Squared Error: {1}\n"
+              "Mean Absolute Error: {2}\n".format(loss, mse, mae))
 
     def model_predict(self, image_path):
 
@@ -45,8 +50,14 @@ class InverseFaceNet(object):
 
         return np.transpose(x)
 
-    def calculate_decoder_output(self, x):
+    @staticmethod
+    def calculate_decoder_output(x):
+        """
+        Reconstruct image
 
+        :param x: <class 'numpy.ndarray'> with shape (257, ) : semantic code vector
+        :return: <class 'numpy.ndarray'> with shape (240, 240, 3)
+        """
         decoder = ifl.ImageFormationLayer(x)
 
         image = decoder.get_reconstructed_image()
