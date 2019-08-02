@@ -1,8 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
 from keras import backend as K
-
-import numpy as np
 import SemanticCodeVector as scv
 
 tf.compat.v1.enable_eager_execution()
@@ -37,8 +35,8 @@ class InverseFaceNetEncoder(object):
         # Loss Function
         self.loss_func = self.model_loss()
 
-        self.data = scv.SemanticCodeVector('./DATASET/model2017-1_bfm_nomouth.h5')
-        self.shape_sdev, self.reflectance_sdev, self.expression_sdev = self.data.get_parameters_dim_sdev()
+        # self.data = scv.SemanticCodeVector('./DATASET/model2017-1_bfm_nomouth.h5')
+        # self.shape_sdev, self.reflectance_sdev, self.expression_sdev = self.data.get_parameters_dim_sdev()
 
     def build_model(self):
         """
@@ -91,7 +89,8 @@ class InverseFaceNetEncoder(object):
 
         return model_o
 
-    def model_space_parameter_loss(self, y):
+    @staticmethod
+    def model_space_parameter_loss(y):
         # std_shape = tf.constant(self.shape_sdev, dtype=tf.float32)
         # std_shape = tf.compat.v1.reshape(std_shape, shape=(80,))
         # # shape_var = K.tile(std_shape, self.BATCH_SIZE)
