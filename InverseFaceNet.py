@@ -120,6 +120,14 @@ class InverseFaceNet(object):
         return model_o
 
     def regularization_term(self, y_pred):
+        """
+        Custom loss
+        Regularization term : forces shape, expression and reflectances to be close to that of the
+        average face
+
+        :param y_pred: network output : Tensor with shape (BATCH_SIZE, 257)
+        :return: regularization loss
+        """
         shape = tf.slice(y_pred, begin=[0, 0], size=[self.BATCH_SIZE, 80], name='shape')
         expression = tf.slice(y_pred, begin=[0, 80], size=[self.BATCH_SIZE, 64], name='expression')
         reflectance = tf.slice(y_pred, begin=[0, 144], size=[self.BATCH_SIZE, 80], name='reflectance')
@@ -136,6 +144,15 @@ class InverseFaceNet(object):
         return regularization_term
 
     def photometric_term(self, y_true, y_pred):
+        """
+        Custom loss
+        Regularization term : forces shape, expression and reflectances to be close to that of the
+        average face
+
+        :param y_true: ground truth semantic code vector : Tensor with shape (BATCH_SIZE, 257)
+        :param y_pred: network output : Tensor with shape (BATCH_SIZE, 257)
+        :return: photometric alignment loss
+        """
         shape = tf.slice(y_pred, begin=[0, 0], size=[self.BATCH_SIZE, 80], name='shape')
         expression = tf.slice(y_pred, begin=[0, 80], size=[self.BATCH_SIZE, 64], name='expression')
         reflectance = tf.slice(y_pred, begin=[0, 144], size=[self.BATCH_SIZE, 80], name='reflectance')
@@ -185,7 +202,6 @@ class InverseFaceNet(object):
         def custom_loss(y_true, y_pred):
 
             weight_reg = 0.06
-            # weight_reg = 1
             weight_photo = 1
 
             # Model Loss Layer
@@ -193,7 +209,6 @@ class InverseFaceNet(object):
             photo_term = photometric(y_true, y_pred)
 
             model_loss = weight_reg * reg_term + weight_photo * photo_term
-            # model_loss = weight_reg * reg_term
 
             return model_loss
 
