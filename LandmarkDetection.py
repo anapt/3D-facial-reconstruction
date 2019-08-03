@@ -5,7 +5,7 @@ from imutils import face_utils
 
 
 class LandmarkDetection:
-    PREDICTOR_PATH = "/home/anapt/PycharmProjects/thesis/DATASET/shape_predictor_68_face_landmarks.dat"
+    PREDICTOR_PATH = "./DATASET/shape_predictor_68_face_landmarks.dat"
 
     def __init__(self):
         """

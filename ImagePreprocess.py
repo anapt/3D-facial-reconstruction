@@ -38,7 +38,7 @@ class ImagePreprocess(object):
         vector[230:257, ] = x['illumination']
 
         # np.savetxt("./DATASET/semantic/x_{:06}.txt".format(n), vector)
-        np.savetxt("./DATASET/semantic/x_{:06}.txt".format(n), vector)
+        np.savetxt("./DATASET/semantic/training/x_{:06}.txt".format(n), vector)
 
         vertices = data.calculate_coords(x)
         reflectance = data.calculate_reflectance(x)
@@ -139,5 +139,5 @@ class ImagePreprocess(object):
         # RGB image with face
         out_face = cut.cutout_mask_array(np.uint8(image), n, True, False)
 
-        cropped_image_path = ("./DATASET/images/image_{:06}.png".format(n))
+        cropped_image_path = ("./DATASET/images/training/image_{:06}.png".format(n))
         cv2.imwrite(cropped_image_path, out_face)
