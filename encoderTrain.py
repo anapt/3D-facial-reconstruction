@@ -7,7 +7,6 @@ from loadDataset import load_dataset_batches
 import CollectBatchStats as batch_stats
 
 tf.compat.v1.enable_eager_execution()
-# tf.debugging.set_log_device_placement(True)
 print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
 
 class EncoderTrain:

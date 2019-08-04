@@ -57,17 +57,17 @@ def load_dataset_batches(_case):
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
     if _case == 'training':
-        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/training/'
-        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/training/'
+        data_root = './DATASET/images/training/'
+        sem_root = './DATASET/semantic/training/'
     elif _case == 'bootstrapping':
-        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/bootstrapping'
-        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/bootstrapping'
+        data_root = './DATASET/images/bootstrapping'
+        sem_root = './DATASET/semantic/bootstrapping'
     elif _case == 'validation':
-        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/validation'
-        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/validation'
+        data_root = './DATASET/images/validation'
+        sem_root = './DATASET/semantic/validation'
     else:
-        data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
-        sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
+        data_root = './DATASET/images/'
+        sem_root = './DATASET/semantic/'
 
     data_root = pathlib.Path(data_root)
 
@@ -108,7 +108,7 @@ def load_dataset_single_image():
     """
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-    data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
+    data_root = './DATASET/images/'
     data_root = pathlib.Path(data_root)
 
     all_image_paths = list(data_root.glob('*'))
@@ -117,7 +117,7 @@ def load_dataset_single_image():
     image_count = len(all_image_paths)
     print("Dataset containg %d pairs of Images and Vectors." % image_count)
 
-    sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
+    sem_root = './DATASET/semantic/'
     sem_root = pathlib.Path(sem_root)
 
     all_vector_paths = list(sem_root.glob('*'))
