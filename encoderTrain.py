@@ -1,4 +1,4 @@
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -7,7 +7,8 @@ from loadDataset import load_dataset_batches
 import CollectBatchStats as batch_stats
 
 tf.compat.v1.enable_eager_execution()
-
+# tf.debugging.set_log_device_placement(True)
+print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
 
 class EncoderTrain:
     """ Main function for InverseFaceNet CNN"""
@@ -15,13 +16,13 @@ class EncoderTrain:
 
     def __init__(self):
         # Parameters
-        self.checkpoint_dir = "./DATASET/training100/"
-        self.checkpoint_path = "./DATASET/training100/cp-{epoch:04d}.ckpt"
+        self.checkpoint_dir = "./DATASET/training/"
+        self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
             self.checkpoint_path, verbose=1, save_weights_only=True,
             # Save weights, every 5-epochs.
-            period=10)
+            period=5)
 
         self.batch_stats_callback = batch_stats.CollectBatchStats()
 
@@ -36,27 +37,6 @@ class EncoderTrain:
 
         self.inverseNet.compile()
         model = self.inverseNet.model
-
-        keras_ds = load_dataset_batches(_case='training')
-        keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(self.BATCH_SIZE).prefetch(buffer_size=
-                                                                                                       self.AUTOTUNE)
-
-        steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
-        print("Training with %d steps per epoch" % steps_per_epoch)
-
-        history_1 = model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch,
-                              callbacks=[self.batch_stats_callback, self.cp_callback])
-
-        self.history_list.append(history_1)
-
-    def training_phase_1_2(self):
-        # load weights trained on synthetic faces and start bootstrapping
-        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-
-        model = self.inverseNet.model
-        model.load_weights(latest)
-
-        self.inverseNet.compile()
 
         keras_ds = load_dataset_batches(_case='training')
         keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(self.BATCH_SIZE).prefetch(buffer_size=
@@ -97,22 +77,22 @@ class EncoderTrain:
             plt.ylabel("Custom Loss, phase % d" % i)
             plt.xlabel("Training Steps")
             plt.plot(self.batch_stats_callback.batch_losses)
-            plt.savefig('batch_stats_%d.pdf' % i)
+            plt.savefig('./plots/batch_stats_%d.pdf' % i)
 
             plt.figure()
             plt.title('Mean Squared Error, phase %d' % i)
             plt.plot(self.history_list[i].history['mean_squared_error'])
-            plt.savefig('mse%d.pdf' % i)
+            plt.savefig('./plots/mse%d.pdf' % i)
 
             plt.figure()
             plt.title('Mean Absolute Error, phase %d' % i)
             plt.plot(self.history_list[i].history['mean_absolute_error'])
-            plt.savefig('mae%d.pdf' % i)
+            plt.savefig('./plots/mae%d.pdf' % i)
 
             plt.figure()
             plt.title('Loss, phase %d' % i)
             plt.plot(self.history_list[i].history['loss'])
-            plt.savefig('loss%d.pdf' % i)
+            plt.savefig('./plots/loss%d.pdf' % i)
 
 
 def main():
@@ -123,11 +103,11 @@ def main():
     train.training_phase_1()
 
     print("Phase 1: COMPLETE")
-    print("\n \n \nPhase 2\n START")
-
-    # train.training_phase_2()
-
-    print("Phase 2: COMPLETE")
+    # print("\n \n \nPhase 2\n START")
+    #
+    # # train.training_phase_2()
+    #
+    # print("Phase 2: COMPLETE")
     print("Saving plots...")
 
     train.plots()

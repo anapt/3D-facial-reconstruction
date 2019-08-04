@@ -13,14 +13,14 @@ class InverseFaceNetEncoder(object):
         self.IMG_SIZE = 240
         self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, 3)
 
-        # self.WEIGHT_DECAY = 0.001
-        self.WEIGHT_DECAY = 0.0000001
+        self.WEIGHT_DECAY = 0.001
+        # self.WEIGHT_DECAY = 0.0000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 32
+        self.BATCH_SIZE = 2
         self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 100
+        self.SHUFFLE_BUFFER_SIZE = 20000
 
         # Parameters for Loss
         self.PATH = './DATASET/model2017-1_bfm_nomouth.h5'
@@ -46,14 +46,15 @@ class InverseFaceNetEncoder(object):
         """
 
         # Create the base model from the pre-trained model XCEPTION
-        # base_model = tf.keras.applications.xception.Xception(include_top=False,
-        #                                                      weights='imagenet',
-        #                                                      input_tensor=None,
-        #                                                      input_shape=self.IMG_SHAPE)
-        base_model = tf.keras.applications.vgg16.VGG16(include_top=False,
-                                                       weights='imagenet',
-                                                       input_shape=self.IMG_SHAPE,
-                                                       pooling='avg')
+        base_model = tf.keras.applications.xception.Xception(include_top=False,
+                                                             weights='imagenet',
+                                                             input_tensor=None,
+                                                             input_shape=self.IMG_SHAPE,
+                                                             pooling='avg')
+        # base_model = tf.keras.applications.vgg16.VGG16(include_top=False,
+        #                                                weights='imagenet',
+        #                                                input_shape=self.IMG_SHAPE,
+        #                                                pooling='avg')
         base_model.trainable = False
         base_model.summary()
         weights_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None)
