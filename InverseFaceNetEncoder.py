@@ -151,7 +151,7 @@ class InverseFaceNetEncoder(object):
 
             loss = K.mean(beta, axis=-1)
 
-        return loss
+            return loss
 
     def model_loss(self):
         """" Wrapper function which calculates auxiliary values for the complete loss function.
@@ -167,7 +167,7 @@ class InverseFaceNetEncoder(object):
                 # Model Space Parameter Loss
                 model_loss = model_space_loss(y)
 
-            return model_loss
+                return model_loss
 
         return custom_loss
 

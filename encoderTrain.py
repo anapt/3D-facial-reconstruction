@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from InverseFaceNetEncoder import InverseFaceNetEncoder
 from loadDataset import load_dataset_batches
 import CollectBatchStats as batch_stats
+from keras import backend as K
 
 tf.compat.v1.enable_eager_execution()
 print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
@@ -23,7 +24,7 @@ class EncoderTrain:
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
             self.checkpoint_path, verbose=1, save_weights_only=True,
             # Save weights, every 5-epochs.
-            period=5)
+            period=1)
 
         self.batch_stats_callback = batch_stats.CollectBatchStats()
 
@@ -99,18 +100,38 @@ class EncoderTrain:
 
 def main():
     gpus = tf.config.experimental.list_physical_devices('GPU')
-    # config = tf.ConfigProto()
-    # config.gpu_options.per_process_gpu_memory_fraction = 0.9
-    # tf.keras.backend.tensorflow_backend.set_session(tf.Session(config=config))
+    tf.debugging.set_log_device_placement(True)
+    if gpus:
+        try:
+            # Currently, memory growth needs to be the same across GPUs
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+            print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+        except RuntimeError as e:
+            # Memory growth must be set before GPUs have been initialized
+            print(e)
+    # if gpus:
+    #     # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
+    #     try:
+    #         tf.config.experimental.set_virtual_device_configuration(
+    #             gpus[1],
+    #             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024 * 8)])
+    #         tf.config.experimental.set_virtual_device_configuration(
+    #             gpus[0],
+    #             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024 * 8)])
+    #         logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+    #         print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+    #     except RuntimeError as e:
+    #         # Virtual devices must be set before GPUs have been initialized
+    #         print(e)
+
     train = EncoderTrain()
     print("\n \n \nPhase 1\nSTART")
-    # try:
-    #     with tf.device('/GPU:1'):
-    #         train.training_phase_1()
-    # except RuntimeError as e:
-    #     print(e)
+
     with tf.device('/device:CPU:0'):
         train.training_phase_1()
+
     print("Phase 1: COMPLETE")
     # print("\n \n \nPhase 2\n START")
     #
