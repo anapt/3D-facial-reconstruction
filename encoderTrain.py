@@ -8,6 +8,8 @@ import CollectBatchStats as batch_stats
 
 tf.compat.v1.enable_eager_execution()
 print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
+print("\n\n\n\n")
+
 
 class EncoderTrain:
     """ Main function for InverseFaceNet CNN"""
@@ -36,16 +38,17 @@ class EncoderTrain:
 
         self.inverseNet.compile()
         model = self.inverseNet.model
-
-        keras_ds = load_dataset_batches(_case='training')
-        keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(self.BATCH_SIZE).prefetch(buffer_size=
-                                                                                                       self.AUTOTUNE)
+        with tf.device('/device:CPU:0'):
+            keras_ds = load_dataset_batches(_case='training')
+            keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
+                self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
 
-        history_1 = model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch,
-                              callbacks=[self.batch_stats_callback, self.cp_callback])
+        with tf.device('/device:CPU:0'):
+            history_1 = model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch,
+                                  callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)
 
@@ -95,12 +98,19 @@ class EncoderTrain:
 
 
 def main():
-
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    # config = tf.ConfigProto()
+    # config.gpu_options.per_process_gpu_memory_fraction = 0.9
+    # tf.keras.backend.tensorflow_backend.set_session(tf.Session(config=config))
     train = EncoderTrain()
     print("\n \n \nPhase 1\nSTART")
-
-    train.training_phase_1()
-
+    # try:
+    #     with tf.device('/GPU:1'):
+    #         train.training_phase_1()
+    # except RuntimeError as e:
+    #     print(e)
+    with tf.device('/device:CPU:0'):
+        train.training_phase_1()
     print("Phase 1: COMPLETE")
     # print("\n \n \nPhase 2\n START")
     #

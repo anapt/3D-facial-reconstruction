@@ -119,36 +119,37 @@ class InverseFaceNetEncoder(object):
         # reflectance_var = std_reflectance
         # # weight
         # reflectance_var = tf.math.scalar_mul(1000, reflectance_var, name='reflectance_var')
-        shape = tf.constant(30, shape=(1,), dtype=tf.float32)
-        shape = K.tile(shape, 80)
+        with tf.device('/device:GPU:1'):
+            shape = tf.constant(30, shape=(1,), dtype=tf.float32)
+            shape = K.tile(shape, 80)
 
-        expression = tf.constant(4, shape=(1,), dtype=tf.float32)
-        # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
-        expression = K.tile(expression, 64)
-        # expression = tf.compat.v1.concat([expression, expression2], axis=0)
+            expression = tf.constant(4, shape=(1,), dtype=tf.float32)
+            # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
+            expression = K.tile(expression, 64)
+            # expression = tf.compat.v1.concat([expression, expression2], axis=0)
 
-        reflectance = tf.constant(170, shape=(1,), dtype=tf.float32)
-        reflectance = K.tile(reflectance, 80)
+            reflectance = tf.constant(170, shape=(1,), dtype=tf.float32)
+            reflectance = K.tile(reflectance, 80)
 
-        rotation = tf.constant(150, shape=(1,), dtype=tf.float32)
-        rotation = K.tile(rotation, 3)
+            rotation = tf.constant(150, shape=(1,), dtype=tf.float32)
+            rotation = K.tile(rotation, 3)
 
-        translation = tf.constant(3.5, shape=(1,), dtype=tf.float32)
-        translation = K.tile(translation, 3)
+            translation = tf.constant(3.5, shape=(1,), dtype=tf.float32)
+            translation = K.tile(translation, 3)
 
-        illumination = tf.constant(200, shape=(1,), dtype=tf.float32)
-        illumination = K.tile(illumination, 27)
+            illumination = tf.constant(200, shape=(1,), dtype=tf.float32)
+            illumination = K.tile(illumination, 27)
 
-        sigma = tf.compat.v1.concat([shape, expression, reflectance, rotation, translation, illumination],
-                                    axis=0)
+            sigma = tf.compat.v1.concat([shape, expression, reflectance, rotation, translation, illumination],
+                                        axis=0)
 
-        sigma = tf.linalg.tensor_diag(sigma)
+            sigma = tf.linalg.tensor_diag(sigma)
 
-        alpha = tf.linalg.matmul(sigma, y, transpose_b=True)
+            alpha = tf.linalg.matmul(sigma, y, transpose_b=True)
 
-        beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
+            beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
 
-        loss = K.mean(beta, axis=-1)
+            loss = K.mean(beta, axis=-1)
 
         return loss
 
@@ -160,11 +161,11 @@ class InverseFaceNetEncoder(object):
         model_space_loss = self.model_space_parameter_loss
 
         def custom_loss(y_true, y_pred):
+            with tf.device('/device:GPU:1'):
+                y = tf.math.subtract(y_pred, y_true, name='pred_minus_true')
 
-            y = tf.math.subtract(y_pred, y_true, name='pred_minus_true')
-
-            # Model Space Parameter Loss
-            model_loss = model_space_loss(y)
+                # Model Space Parameter Loss
+                model_loss = model_space_loss(y)
 
             return model_loss
 
