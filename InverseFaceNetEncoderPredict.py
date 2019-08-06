@@ -1,6 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
-from keras import backend as K
 from InverseFaceNetEncoder import InverseFaceNetEncoder
 from loadDataset import load_dataset_single_image, load_and_preprocess_image_4d
 import ImageFormationLayer as ifl
@@ -11,7 +10,7 @@ import matplotlib.pyplot as plt
 tf.compat.v1.enable_eager_execution()
 
 
-class InverseFaceNetPredict(object):
+class InverseFaceNetEncoderPredict(object):
     def __init__(self):
         self.checkpoint_dir = "/home/anapt/data/models/10_epochs_105/"
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
