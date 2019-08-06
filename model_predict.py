@@ -11,13 +11,11 @@ import matplotlib.pyplot as plt
 tf.compat.v1.enable_eager_execution()
 
 
-class InverseFaceNet(object):
+class InverseFaceNetPredict(object):
     def __init__(self):
-        self.PATH_DIR = './DATASET/model/'
-        self.PATH = self.PATH_DIR + 'model16im.h5'
-        self.checkpoint_dir = "./DATASET/training/"
+        self.checkpoint_dir = "/home/anapt/data/models/10_epochs_105/"
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        self.latest = './DATASET/training_end2end/cp-0060.ckpt'
+        print("Latest checkpoint: ", self.latest)
         self.encoder = InverseFaceNetEncoder()
         self.model = self.load_model()
 
@@ -66,13 +64,13 @@ class InverseFaceNet(object):
 
 
 def main():
-    net = InverseFaceNet()
+    net = InverseFaceNetPredict()
 
     # net.evaluate_model()
     image_path = './DATASET/images/over/image_{:06}.png'.format(0)
 
     x = net.model_predict(image_path)
-    np.savetxt("./x_pred.txt", x)
+    np.savetxt("./x_boot.txt", x)
 
     # image = net.calculate_decoder_output(x)
     #
@@ -82,4 +80,4 @@ def main():
     #     plt.show()
 
 
-main()
+# main()
