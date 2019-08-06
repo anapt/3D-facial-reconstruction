@@ -16,8 +16,8 @@ class InverseFaceNet(object):
         self.IMG_SIZE = 240
         self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, 3)
 
-        # self.WEIGHT_DECAY = 0.001
-        self.WEIGHT_DECAY = 0.0000001
+        self.WEIGHT_DECAY = 0.001
+        # self.WEIGHT_DECAY = 0.0000001
         self.BASE_LEARNING_RATE = 0.01
 
         self.BATCH_SIZE = 1
