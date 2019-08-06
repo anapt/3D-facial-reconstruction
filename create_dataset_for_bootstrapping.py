@@ -76,7 +76,7 @@ class PrepareImages():
 
 def main():
     # Number of images to read
-    N = 2
+    N = 4
     preprocess = PrepareImages()
 
     for n in range(0, N):

@@ -109,3 +109,28 @@ class LandmarkDetection:
                             ]], dtype=np.int32)
 
         return coords
+
+    def crop_image(self, image):
+        out_face = np.zeros_like(image)
+        height, width = image.shape[:2]
+        if height > width:
+            dim = int(width)
+        else:
+            dim = int(height)
+        # convert to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # detect faces in bw image
+        faces = self.detector(gray)
+        for face in faces:
+            landmarks = self.predictor(gray, face)
+            # print(landmarks)
+            shape = face_utils.shape_to_np(landmarks)
+            center = shape[33, :]
+            dim = int(np.ceil(dim/2))
+
+            crop = image[center[1] - dim:center[1] + dim, center[0] - dim:center[1] + dim]
+            crop = cv2.resize(crop, dsize=(400, 400))
+
+        return crop
+
