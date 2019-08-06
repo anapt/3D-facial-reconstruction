@@ -109,15 +109,18 @@ class ImageFormationLayer(object):
                                 translation     (3,)
                                 illumination    (27,)
         """
-        x = {
-            "shape": np.squeeze(vector[0:80, ]),
-            "expression": np.squeeze(vector[80:144, ]),
-            "reflectance": np.squeeze(vector[144:224, ]),
-            "rotation": np.squeeze(vector[224:227, ]),
-            "translation": np.squeeze(vector[227:230, ]),
-            "illumination": np.squeeze(vector[230:257, ])
-        }
-        return x
+        if isinstance(vector, dict):
+            return vector
+        else:
+            x = {
+                "shape": np.squeeze(vector[0:80, ]),
+                "expression": np.squeeze(vector[80:144, ]),
+                "reflectance": np.squeeze(vector[144:224, ]),
+                "rotation": np.squeeze(vector[224:227, ]),
+                "translation": np.squeeze(vector[227:230, ]),
+                "illumination": np.squeeze(vector[230:257, ])
+            }
+            return x
 
 
 def main():
