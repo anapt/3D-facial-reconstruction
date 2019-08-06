@@ -19,7 +19,7 @@ class EncoderTrain:
     def __init__(self):
         # Parameters
         self.checkpoint_dir = "./DATASET/training/"
-        self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
+        self.checkpoint_path = "./DATASET/training/cp-2-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
             self.checkpoint_path, verbose=1, save_weights_only=True,
@@ -49,6 +49,32 @@ class EncoderTrain:
 
         with tf.device('/device:CPU:0'):
             history_1 = model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch,
+                                  callbacks=[self.batch_stats_callback, self.cp_callback])
+
+        self.history_list.append(history_1)
+
+    def training_phase_12(self):
+        # Build and compile model:
+
+        # load weights trained on synthetic faces and start bootstrapping
+        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        print("\n \n \n\n checkpoint: ", latest)
+        print("\n\n\n\n\n\n")
+        model = self.inverseNet.model
+        model.load_weights(latest)
+
+        self.inverseNet.compile()
+
+        with tf.device('/device:CPU:0'):
+            keras_ds = load_dataset_batches(_case='training')
+            keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
+                self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
+
+        steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
+        print("Training with %d steps per epoch" % steps_per_epoch)
+
+        with tf.device('/device:CPU:0'):
+            history_1 = model.fit(keras_ds, epochs=9, steps_per_epoch=steps_per_epoch,
                                   callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)
@@ -100,7 +126,23 @@ class EncoderTrain:
 
 def main():
     gpus = tf.config.experimental.list_physical_devices('GPU')
-    tf.debugging.set_log_device_placement(True)
+    # tf.debugging.set_log_device_placement(True)
+    # gpus = tf.config.experimental.list_physical_devices('GPU')
+    # gpus = tf.config.experimental.list_physical_devices('GPU')
+    # if gpus:
+    #     # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
+    #     try:
+    #         tf.config.experimental.set_virtual_device_configuration(
+    #             gpus[0],
+    #             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024*4)])
+    #         tf.config.experimental.set_virtual_device_configuration(
+    #             gpus[1],
+    #             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024 * 4)])
+    #         logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+    #         print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+    #     except RuntimeError as e:
+    #         # Virtual devices must be set before GPUs have been initialized
+    #         print(e)
     if gpus:
         try:
             # Currently, memory growth needs to be the same across GPUs
@@ -111,20 +153,6 @@ def main():
         except RuntimeError as e:
             # Memory growth must be set before GPUs have been initialized
             print(e)
-    # if gpus:
-    #     # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
-    #     try:
-    #         tf.config.experimental.set_virtual_device_configuration(
-    #             gpus[1],
-    #             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024 * 8)])
-    #         tf.config.experimental.set_virtual_device_configuration(
-    #             gpus[0],
-    #             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024 * 8)])
-    #         logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-    #         print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-    #     except RuntimeError as e:
-    #         # Virtual devices must be set before GPUs have been initialized
-    #         print(e)
 
     train = EncoderTrain()
     print("\n \n \nPhase 1\nSTART")

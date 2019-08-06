@@ -119,6 +119,7 @@ class InverseFaceNetEncoder(object):
         # reflectance_var = std_reflectance
         # # weight
         # reflectance_var = tf.math.scalar_mul(1000, reflectance_var, name='reflectance_var')
+
         with tf.device('/device:GPU:1'):
             shape = tf.constant(30, shape=(1,), dtype=tf.float32)
             shape = K.tile(shape, 80)
@@ -131,7 +132,7 @@ class InverseFaceNetEncoder(object):
             reflectance = tf.constant(170, shape=(1,), dtype=tf.float32)
             reflectance = K.tile(reflectance, 80)
 
-            rotation = tf.constant(150, shape=(1,), dtype=tf.float32)
+            rotation = tf.constant(105, shape=(1,), dtype=tf.float32)
             rotation = K.tile(rotation, 3)
 
             translation = tf.constant(3.5, shape=(1,), dtype=tf.float32)
@@ -167,7 +168,7 @@ class InverseFaceNetEncoder(object):
                 # Model Space Parameter Loss
                 model_loss = model_space_loss(y)
 
-                return model_loss
+            return model_loss
 
         return custom_loss
 
