@@ -111,7 +111,7 @@ class SemanticCodeVector:
         g[0] = np.random.uniform(0.5, 1, 1)
 
         t = np.random.uniform(1.50, 3.50, 3)
-        t[2] = np.random.uniform(-0.20, 0.20, 1)
+        t[2] = np.random.uniform(-0.30, 0.30, 1)
 
         x = {
             "shape": a,
