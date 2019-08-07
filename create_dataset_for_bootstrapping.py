@@ -25,9 +25,9 @@ class PrepareImages():
                 "illumination": np.squeeze(vector[230:257, ])
             }
 
-        shape = vector['shape'] + np.random.normal(0, 0.005, 80)
+        shape = vector['shape'] + np.random.uniform(-0.5, 0.5, 80)
 
-        expression = vector['expression'] + np.random.normal(0, 1, 64)
+        expression = vector['expression'] + np.random.uniform(-2, 2, 64)
 
         reflectance = vector['reflectance'] + np.random.normal(0, 0.2, 80)
 
