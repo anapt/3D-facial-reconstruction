@@ -19,7 +19,7 @@ class EncoderTrain:
     def __init__(self):
         # Parameters
         self.checkpoint_dir = "./DATASET/training/"
-        self.checkpoint_path = "./DATASET/training/cp-2-{epoch:04d}.ckpt"
+        self.checkpoint_path = "./DATASET/training/cp-3-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
             self.checkpoint_path, verbose=1, save_weights_only=True,
@@ -48,7 +48,7 @@ class EncoderTrain:
         print("Training with %d steps per epoch" % steps_per_epoch)
 
         with tf.device('/device:CPU:0'):
-            history_1 = model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch,
+            history_1 = model.fit(keras_ds, epochs=24, steps_per_epoch=steps_per_epoch,
                                   callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)

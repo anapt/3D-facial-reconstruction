@@ -74,9 +74,6 @@ def load_dataset_batches(_case):
     all_image_paths = list(data_root.glob('*'))
     all_image_paths = [str(path) for path in all_image_paths]
 
-    image_count = len(all_image_paths)
-    print("Dataset containing %d pairs of Images and Vectors." % image_count)
-
     sem_root = pathlib.Path(sem_root)
 
     all_vector_paths = list(sem_root.glob('*'))
@@ -84,6 +81,13 @@ def load_dataset_batches(_case):
 
     all_image_paths.sort()
     all_vector_paths.sort()
+    all_image_paths = all_image_paths[0:20000]
+    all_vector_paths = all_vector_paths[0:20000]
+
+    image_count = len(all_image_paths)
+    print("Dataset containing %d pairs of Images and Vectors." % image_count)
+    vector_count = len(all_vector_paths)
+    print("Dataset containing %d pairs of Images and Vectors." % vector_count)
 
     path_ds = tf.data.Dataset.from_tensor_slices(all_image_paths)
     image_ds = path_ds.map(load_and_preprocess_image, num_parallel_calls=AUTOTUNE)
