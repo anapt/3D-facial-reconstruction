@@ -7,7 +7,7 @@ def main():
     N = 50000
     preprocess = image_preprocess.ImagePreprocess()
 
-    for n in range(21284, N):
+    for n in range(32300, N):
         start = time.time()
         preprocess.create_image_and_save(n)
         # print("Time passed:", time.time() - start)
