@@ -30,24 +30,24 @@ class SemanticCodeVector:
         # sdev = np.std(shape_pca, 0)
         #
         # shape_pca = np.multiply(shape_pca, np.transpose(sdev))
-        normalize(shape_pca, copy=False, norm='l1')
+        # normalize(shape_pca, copy=False, norm='l1')
 
         reflectance_pca = self.model['color']['model']['pcaBasis'][()]
         reflectance_pca = reflectance_pca[0:len(reflectance_pca), 0:80]
         sdev = np.std(reflectance_pca, 0)
         reflectance_pca = np.multiply(reflectance_pca, np.transpose(sdev))
-        normalize(reflectance_pca, copy=False, norm='l1')
+        # normalize(reflectance_pca, copy=False, norm='l1')
 
         expression_pca = self.model['expression']['model']['pcaBasis'][()]
         expression_pca = expression_pca[0:len(expression_pca), 0:64]
         # sdev = np.std(expression_pca, 0)
         # expression_pca = np.multiply(expression_pca, np.transpose(sdev))
-        normalize(expression_pca, copy=False, norm='l1')
+        # normalize(expression_pca, copy=False, norm='l1')
 
         average_shape = self.model['shape']['model']['mean'][()]
-
+        np.savetxt("./avg_shape.txt", average_shape)
         average_reflectance = self.model['color']['model']['mean'][()]
-
+        np.savetxt("./avg_reflectance.txt", average_reflectance)
         scv_pca_bases = {
             "shape_pca": shape_pca,
             "expression_pca": expression_pca,
@@ -95,65 +95,28 @@ class SemanticCodeVector:
                                 translation     (3,)
                                 illumination    (27,)
         """
-        a = np.random.normal(0, 1, 80)
+        # a = np.random.normal(0, 1, 80)
+        a = np.zeros(shape=(80,))
         # a = np.random.uniform(-2, 2, 80)
-        b = np.random.normal(0, 0.15, 80)
+        # b = np.random.normal(0, 0.15, 80)
+        b = np.zeros(shape=(80,))
 
         # d = np.random.normal(0, 1, 64)
-        d = np.random.uniform(-14, 14, 64)
-        d[0] = 10*d[0]
+        # d = np.random.uniform(-14, 14, 64)
+        # d[0] = 10*d[0]
+        d = np.zeros(shape=(64,))
 
-        rotmat = np.random.uniform(-15, 15, 3)
-        rotmat[2] = np.random.uniform(-10, 10, 1)
-
+        # rotmat = np.random.uniform(-15, 15, 3)
+        # rotmat[2] = np.random.uniform(-10, 10, 1)
+        rotmat = np.zeros(shape=(3,))
         # TODO range is smaller than the one used in the paper
-        g = np.random.uniform(0.2, 0.4, 27)
-        g[0] = np.random.uniform(0.5, 1, 1)
-
-        t = np.random.uniform(1.50, 3.50, 3)
-        t[2] = np.random.uniform(-0.30, 0.30, 1)
-
-        x = {
-            "shape": a,
-            "expression": d,
-            "reflectance": b,
-            "rotation": rotmat,
-            "translation": t,
-            "illumination": g
-        }
-
-        return x
-
-    @staticmethod
-    def sample_vector_for_bootstrapping():
-        """
-        Function that samples the semantic code vector
-
-        :return:
-        dictionary with keys    shape           (80,)
-                                expression      (64,)
-                                reflectance     (80,)
-                                rotation        (3,)
-                                translation     (3,)
-                                illumination    (27,)
-        """
-        a = np.random.normal(0, 1, 80)
-        # a = np.random.uniform(-2, 2, 80)
-        b = np.random.normal(0, 0.15, 80)
-
-        # d = np.random.normal(0, 1, 64)
-        d = np.random.uniform(-14, 14, 64)
-        d[0] = 10 * d[0]
-
-        rotmat = np.random.uniform(-20, 20, 3)
-        rotmat[2] = np.random.uniform(-15, 15, 1)
-
-        # TODO range is smaller than the one used in the paper
-        g = np.random.uniform(0.1, 0.5, 27)
-        g[0] = np.random.uniform(0.3, 1, 1)
-
-        t = np.random.uniform(1.30, 3.70, 3)
-        t[2] = np.random.uniform(-0.30, 0.30, 1)
+        # g = np.random.uniform(0.2, 0.4, 27)
+        # g[0] = np.random.uniform(0.5, 1, 1)
+        g = np.ones(shape=(27,))
+        t = np.ones(shape=(3,)) * 2.5
+        t[2] = -50
+        # t = np.random.uniform(1.50, 3.50, 3)
+        # t[2] = np.random.uniform(-0.30, 0.30, 1)
 
         x = {
             "shape": a,
@@ -179,7 +142,7 @@ class SemanticCodeVector:
         vertices = scv_pca_bases["average_shape"] + \
             np.dot(scv_pca_bases["shape_pca"], vector["shape"]) + \
             np.dot(scv_pca_bases["expression_pca"], vector["expression"])
-
+        print(vertices)
         return vertices
 
     def calculate_reflectance(self, vector):

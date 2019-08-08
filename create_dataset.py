@@ -4,10 +4,10 @@ import time
 
 def main():
     # Number of images to create
-    N = 50000
+    N = 0
     preprocess = image_preprocess.ImagePreprocess()
 
-    for n in range(32300, N):
+    for n in range(0, N+1):
         start = time.time()
         preprocess.create_image_and_save(n)
         # print("Time passed:", time.time() - start)

@@ -118,6 +118,15 @@ class ImagePreprocess(object):
 
         rotation_matrix = cv2.getRotationMatrix2D(center, angle180, scale)
         rotated180 = cv2.warpAffine(image, rotation_matrix, (w, w))
+
+        rotated180 = cv2.cvtColor(rotated180, cv2.COLOR_BGR2RGB)
+        cv2.imwrite("./rot.png", rotated180)
+        rotated180 = cv2.cvtColor(rotated180, cv2.COLOR_BGR2RGB)
+
+        # cv2.imshow("", rotated180)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+
         return rotated180
 
     def create_image_and_save(self, n):

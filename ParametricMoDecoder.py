@@ -29,7 +29,7 @@ class ParametricMoDecoder:
         """
         coords_2d = np.zeros((2, coords_3d.shape[1]), dtype=coords_3d.dtype)
         for i in range(0, coords_3d.shape[1]):
-            if (coords_3d[2, i]) > 1:
+            if (coords_3d[2, i]) >= 1:
                 inv_z = (1/coords_3d[2, i])
                 coords_2d[:, i] = ([coords_3d[0, i]*inv_z, coords_3d[1, i]*inv_z])
 
@@ -37,7 +37,7 @@ class ParametricMoDecoder:
                 coords_2d[:, i] = [0, 0]
 
         translate = preprocess.ImagePreprocess()
-        coords_2d = translate.translate(coords_2d, np.amin(coords_2d), np.amax(coords_2d), 0, 500)
+        coords_2d = translate.translate(coords_2d, np.amin(coords_2d), np.amax(coords_2d), 1, 500)
         return coords_2d
 
     @staticmethod
@@ -75,7 +75,7 @@ class ParametricMoDecoder:
         :return: coordinates in CCS with shape (3, 53149)
         """
         translate = preprocess.ImagePreprocess()
-        coords_ws = translate.translate(coords_ws, np.amin(coords_ws), np.amax(coords_ws), 0, 500)
+        coords_ws = translate.translate(coords_ws, np.amin(coords_ws), np.amax(coords_ws), 1, 500)
 
         coords_cs = np.matmul(inv_rotmat, np.transpose(np.transpose(coords_ws) - (100 * translation)))
 
@@ -302,12 +302,12 @@ class ParametricMoDecoder:
 
         # reshape illumination to nd.array with shape (3,9)
         illumination = np.reshape(self.x['illumination'], (3, 9), order='F')
-        color = self.get_color(reflectance, cs_normals, illumination)
-
+        # color = self.get_color(reflectance, cs_normals, illumination)
+        color = reflectance
         # Calculate projected coordinates
         cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
         projected = self.projection(cs_vertices)
-
+        print(color)
         formation = {
             "position": projected,
             "color": color
@@ -331,6 +331,6 @@ class ParametricMoDecoder:
         order = np.argsort(depth)
         cells_ordered = self.cells[:, order.astype(int)]
 
-        cells_ordered = cells_ordered[:, (cells_ordered.shape[1]-50000):]
+        # cells_ordered = cells_ordered[:, (cells_ordered.shape[1]-50000):]
 
         return cells_ordered
