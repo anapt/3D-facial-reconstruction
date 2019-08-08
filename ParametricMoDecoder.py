@@ -288,8 +288,9 @@ class ParametricMoDecoder:
                                         color       <class 'numpy.ndarray'> (3, 53149) (color of vertices)
         """
         ws_vertices = np.reshape(self.vertices, (3, int(self.vertices.size / 3)), order='F')
+        # print(ws_vertices)
         reflectance = np.reshape(self.reflectance, (3, int(self.reflectance.size / 3)), order='F')
-
+        print(np.ceil(reflectance*255))
         rotmatSO3 = self.create_rot_mat(self.x['rotation'][0], self.x['rotation'][1], self.x['rotation'][2])
         inv_rotmat = np.transpose(rotmatSO3)
 
@@ -307,7 +308,7 @@ class ParametricMoDecoder:
         # Calculate projected coordinates
         cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
         projected = self.projection(cs_vertices)
-        print(color)
+        # print(color)
         formation = {
             "position": projected,
             "color": color
