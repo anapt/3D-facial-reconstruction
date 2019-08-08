@@ -12,7 +12,7 @@ tf.compat.v1.enable_eager_execution()
 
 class InverseFaceNetEncoderPredict(object):
     def __init__(self):
-        self.checkpoint_dir = "/home/anapt/data/models/10_epochs_105/"
+        self.checkpoint_dir = "/home/anapt/data/training/trained_10_105/"
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
         print("Latest checkpoint: ", self.latest)
         self.encoder = InverseFaceNetEncoder()
@@ -63,20 +63,20 @@ class InverseFaceNetEncoderPredict(object):
 
 
 def main():
-    net = InverseFaceNetPredict()
+    net = InverseFaceNetEncoderPredict()
 
     # net.evaluate_model()
-    image_path = './DATASET/images/over/image_{:06}.png'.format(0)
+    image_path = './DATASET/images/validation/image_{:06}.png'.format(1)
 
     x = net.model_predict(image_path)
     np.savetxt("./x_boot.txt", x)
 
-    # image = net.calculate_decoder_output(x)
-    #
-    # show_result = True
-    # if show_result:
-    #     plt.imshow(image)
-    #     plt.show()
+    image = net.calculate_decoder_output(x)
+
+    show_result = True
+    if show_result:
+        plt.imshow(image)
+        plt.show()
 
 
-# main()
+main()

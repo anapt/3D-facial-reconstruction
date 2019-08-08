@@ -27,10 +27,10 @@ def vector2dict(vector):
 
 
 def main():
-    x_true = np.loadtxt('./DATASET/semantic/over/x_{:06}.txt'.format(0))
+    x_true = np.loadtxt('./DATASET/semantic/validation/x_{:06}.txt'.format(1))
     x_true = vector2dict(x_true)
 
-    x = np.loadtxt('./x_pred.txt')
+    x = np.loadtxt('./x_boot.txt')
     x = vector2dict(x)
 
     # x = x_true
