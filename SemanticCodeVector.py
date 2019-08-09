@@ -24,32 +24,40 @@ class SemanticCodeVector:
                                 average_shape           159447
                                 average_reflectance     159447
         """
+        average_shape = self.model['shape']['model']['mean'][()]
+
+        average_reflectance = self.model['color']['model']['mean'][()]
 
         shape_pca = self.model['shape']['model']['pcaBasis'][()]
         shape_pca = shape_pca[0:len(shape_pca), 0:80]
-        sdev = np.std(shape_pca, 0)
-        # print("sdev", sdev.shape)
-        mean = np.mean(shape_pca, 0)
-        # print("mean", mean.shape)
-        shape_pca = np.divide(shape_pca - np.transpose(mean), np.transpose(sdev))
-        # normalize(shape_pca, copy=False, norm='l1')
+
+        pca_variance = self.model['shape']['model']['pcaVariance'][()]
+        pca_variance = pca_variance[0:80]
+
+        sdev = np.sqrt(pca_variance)
+
+        shape_pca = np.multiply(shape_pca, np.transpose(sdev))
 
         reflectance_pca = self.model['color']['model']['pcaBasis'][()]
         reflectance_pca = reflectance_pca[0:len(reflectance_pca), 0:80]
-        sdev = np.std(reflectance_pca, 0)
-        # reflectance_pca = np.divide(reflectance_pca - np.transpose(np.mean(reflectance_pca, 0)), np.transpose(sdev))
-        # normalize(reflectance_pca, copy=False, norm='l1')
+
+        pca_variance = self.model['color']['model']['pcaVariance'][()]
+        pca_variance = pca_variance[0:80]
+
+        sdev = np.sqrt(pca_variance)
+
+        reflectance_pca = np.multiply(reflectance_pca, np.transpose(sdev))
 
         expression_pca = self.model['expression']['model']['pcaBasis'][()]
         expression_pca = expression_pca[0:len(expression_pca), 0:64]
-        sdev = np.std(expression_pca, 0)
-        expression_pca = np.divide(expression_pca - np.transpose(np.mean(expression_pca, 0)), np.transpose(sdev))
-        # normalize(expression_pca, copy=False, norm='l1')
 
-        average_shape = self.model['shape']['model']['mean'][()]
-        np.savetxt("./avg_shape.txt", average_shape)
-        average_reflectance = self.model['color']['model']['mean'][()]
-        np.savetxt("./avg_reflectance.txt", average_reflectance)
+        pca_variance = self.model['expression']['model']['pcaVariance'][()]
+        pca_variance = pca_variance[0:64]
+
+        sdev = np.sqrt(pca_variance)
+
+        expression_pca = np.multiply(expression_pca, np.transpose(sdev))
+
         scv_pca_bases = {
             "shape_pca": shape_pca,
             "expression_pca": expression_pca,
@@ -97,27 +105,19 @@ class SemanticCodeVector:
                                 translation     (3,)
                                 illumination    (27,)
         """
-        a = np.random.normal(0, 0.1, 80)
-        # a = np.zeros(shape=(80,))
+        a = np.random.normal(0, 1, 80)
 
-        # a = np.random.uniform(-4, 4, 80)
-        # a = 1000 * a
+        b = np.random.normal(0, 1, 80)
 
-        # b = np.random.normal(0, 0.1, 80)
-        b = np.zeros(shape=(80,))
-        # b[0:33] = 100
-        d = np.random.normal(0, 0.1, 64)
-        # d = np.random.uniform(-14, 14, 64)
-        # d[0] = 10*d[0]
-        # d = np.zeros(shape=(64,))
-        # d[0] = 1000
+        d = np.random.normal(0, 1, 64)
+
         # rotmat = np.random.uniform(-15, 15, 3)
         # rotmat[2] = np.random.uniform(-10, 10, 1)
         rotmat = np.zeros(shape=(3,))
         # TODO range is smaller than the one used in the paper
-        # g = np.random.uniform(0.2, 0.4, 27)
-        # g[0] = np.random.uniform(0.5, 1, 1)
-        g = np.ones(shape=(27,))
+        g = np.random.uniform(0.2, 0.4, 27)
+        g[0] = np.random.uniform(0.2, 0.6, 1)
+        # g = np.zeros(shape=(27,))
         t = np.ones(shape=(3,)) * 2.5
         t[2] = -50
         # t = np.random.uniform(1.50, 3.50, 3)
@@ -147,6 +147,8 @@ class SemanticCodeVector:
         vertices = scv_pca_bases["average_shape"] + \
             np.dot(scv_pca_bases["shape_pca"], vector["shape"]) + \
             np.dot(scv_pca_bases["expression_pca"], vector["expression"])
+        # vertices = np.dot(scv_pca_bases["shape_pca"], vector["shape"]) + \
+        #            np.dot(scv_pca_bases["expression_pca"], vector["expression"])
         # print(vertices)
         return vertices
 
