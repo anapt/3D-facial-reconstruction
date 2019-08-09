@@ -290,7 +290,7 @@ class ParametricMoDecoder:
         ws_vertices = np.reshape(self.vertices, (3, int(self.vertices.size / 3)), order='F')
         # print(ws_vertices)
         reflectance = np.reshape(self.reflectance, (3, int(self.reflectance.size / 3)), order='F')
-        print(np.ceil(reflectance*255))
+        # print(np.ceil(reflectance*255))
         rotmatSO3 = self.create_rot_mat(self.x['rotation'][0], self.x['rotation'][1], self.x['rotation'][2])
         inv_rotmat = np.transpose(rotmatSO3)
 

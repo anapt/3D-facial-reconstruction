@@ -119,10 +119,6 @@ class ImagePreprocess(object):
         rotation_matrix = cv2.getRotationMatrix2D(center, angle180, scale)
         rotated180 = cv2.warpAffine(image, rotation_matrix, (w, w))
 
-        rotated180 = cv2.cvtColor(rotated180, cv2.COLOR_BGR2RGB)
-        cv2.imwrite("./rot.png", rotated180)
-        rotated180 = cv2.cvtColor(rotated180, cv2.COLOR_BGR2RGB)
-
         # cv2.imshow("", rotated180)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
@@ -142,6 +138,10 @@ class ImagePreprocess(object):
 
         # create image
         image = self.patch(position, color, cells)
+
+        rotated180 = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        cv2.imwrite("./DATASET/images/no_crop/image_{:06}.png".format(n), rotated180)
+        image = cv2.cvtColor(rotated180, cv2.COLOR_BGR2RGB)
 
         # get face mask without mouth interior
         cut = ld.LandmarkDetection()
