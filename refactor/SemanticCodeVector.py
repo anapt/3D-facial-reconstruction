@@ -113,22 +113,14 @@ class SemanticCodeVector(Helpers):
         b = np.random.normal(0, 1, self.color_dim)
         d = np.random.normal(0, 1, self.expression_dim)
 
-        # TODO add rotation and translation
-        # rotmat = np.random.uniform(-15, 15, 3)
-        # rotmat[2] = np.random.uniform(-10, 10, 1)
-        rotmat = np.zeros(shape=(3,))
-
-        t = np.ones(shape=(3,)) * 2.5
-        t[2] = -50
-        # t = np.random.uniform(1.50, 3.50, 3)
-        # t[2] = np.random.uniform(-0.30, 0.30, 1)
+        rotmat = np.random.uniform(-1.5, 1.5, 3)
+        rotmat[0] = np.random.uniform(-1.0, 1.0, 1)
 
         x = {
             "shape": a,
             "expression": d,
             "color": b,
-            "rotation": rotmat,
-            "translation": t
+            "rotation": rotmat
         }
 
         return x

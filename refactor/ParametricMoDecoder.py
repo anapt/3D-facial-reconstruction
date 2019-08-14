@@ -11,7 +11,7 @@ class ParametricMoDecoder(Helpers):
         Class initializer
 
         :param vertices: <class 'numpy.ndarray'>    (159447,)
-        :param reflectance: <class 'numpy.ndarray'> (159447,)
+        :param color: <class 'numpy.ndarray'> (159447,)
         :param x: Semantic Code Vector              dictionary
         :param cells: <class 'numpy.ndarray'>       (3, 105694)
         """
@@ -21,7 +21,8 @@ class ParametricMoDecoder(Helpers):
         self.x = x
         self.cells = cells
 
-    def projection(self, coords_3d):
+    @staticmethod
+    def projection(coords_3d):
         """
         Projects coordinates from camera space to screen space
 
@@ -37,7 +38,7 @@ class ParametricMoDecoder(Helpers):
             else:
                 coords_2d[:, i] = [0, 0]
 
-        coords_2d = self.translate(coords_2d, np.amin(coords_2d), np.amax(coords_2d), 1, 500)
+        # np.savetxt("average_face_2d_coords", coords_2d)
         return coords_2d
 
     @staticmethod
@@ -45,21 +46,25 @@ class ParametricMoDecoder(Helpers):
         """
         Creates rotation matrix from yaw-pitch-roll angles
 
-        :param a: yaw angle (degrees)
-        :param b: pitch angle (degrees)
-        :param c: roll angle (degrees)
+        :param a: yaw angle - rotation around the x-axis (degrees)
+        :param b: pitch angle - rotation around the y-axis (degrees)
+        :param c: roll angle - rotation around the z-axis (degrees)
         :return: <class 'numpy.matrix'> with shape (3,3) (SO3 rotation matrix)
         """
-        c1 = math.cos(math.radians(c))
+        a = 10 * a
+        b = 10 * b
+        c = 10 * c
+
+        c1 = math.cos(math.radians(a))
         c2 = math.cos(math.radians(b))
-        c3 = math.cos(math.radians(a))
+        c3 = math.cos(math.radians(c))
 
-        s1 = math.sin(math.radians(c))
+        s1 = math.sin(math.radians(a))
         s2 = math.sin(math.radians(b))
-        s3 = math.sin(math.radians(a))
+        s3 = math.sin(math.radians(c))
 
-        rot_mat_so3 = np.matrix([[c1*c2, c1*s2*s3 - c3*s1, s1*s3 - c1*c3*s2],
-                                 [c2*s1, c1*c3 + s1*s2*s3, c3*s1*s2 - c1*s3],
+        rot_mat_so3 = np.matrix([[c1*c2, c1*s2*s3 - s1*c3, c1*s2*c3 + s1*s3],
+                                 [s1*c2, s1*s2*s3 + c1*c3, s1*s2*c3 - c1*s3],
                                  [-s2, c2*s3, c2*c3]])
 
         return rot_mat_so3
@@ -73,9 +78,12 @@ class ParametricMoDecoder(Helpers):
         :param translation: translation vector (part of the Semantic Code Vector)
         :return: coordinates in CCS with shape (3, 53149)
         """
-        coords_ws = self.translate(coords_ws, np.amin(coords_ws), np.amax(coords_ws), 1, 500)
+        # coords = self.translate(coords_ws, np.amin(coords_ws), np.amax(coords_ws), 1, 500)
+        coords = np.matmul(inv_rotmat, coords_ws)
+        # coords = self.translate(coords, np.amin(coords), np.amax(coords), 1, 500)
+        coords_cs = coords - np.reshape(np.transpose((10 * translation)), newshape=(3, 1))
 
-        coords_cs = np.matmul(inv_rotmat, np.transpose(np.transpose(coords_ws) - (100 * translation)))
+        # coords_cs = self.translate(coords_cs, np.amin(coords_cs), np.amax(coords_cs), 1, 500)
 
         return coords_cs
 
@@ -115,10 +123,10 @@ class ParametricMoDecoder(Helpers):
         # print(np.ceil(reflectance*255))
 
         rotmat_so3 = self.create_rot_mat(self.x['rotation'][0], self.x['rotation'][1], self.x['rotation'][2])
-        inv_rotmat = np.transpose(rotmat_so3)
 
         # Calculate projected coordinates
-        cs_vertices = self.transform_wcs2ccs(ws_vertices, inv_rotmat, self.x['translation'])
+        translation = np.array([0, 0, -500])
+        cs_vertices = self.transform_wcs2ccs(ws_vertices, rotmat_so3, translation)
         projected = self.projection(cs_vertices)
 
         formation = {

@@ -1,4 +1,6 @@
 import numpy as np
+import tensorflow as tf
+from CollectBatchStats import CollectBatchStats
 
 
 class FaceNet3D:
@@ -23,8 +25,7 @@ class FaceNet3D:
         # number of variables for translation
         self.translation_dim = 3
         # length of semantic code vector
-        self.scv_length = self.shape_dim + self.expression_dim + self.color_dim + self.rotation_dim + \
-            self.translation_dim
+        self.scv_length = self.shape_dim + self.expression_dim + self.color_dim + self.rotation_dim
         # path to save vectors
         self.vector_path = "/home/anapt/PycharmProjects/thesis/DATASET/semantic/training/x_{:06}.txt"
         # path to save full patch
@@ -35,6 +36,36 @@ class FaceNet3D:
         self.testing = True
         # Landmark predictor path
         self.predictor_path = "/home/anapt/PycharmProjects/thesis/DATASET/shape_predictor_68_face_landmarks.dat"
+        # specify whether in 'training' 'bootstrapping' or 'validation' phase
+        self._case = 'training'
+        # dataset root folders path
+        self.data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
+        self.sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
+
+        # DATASET AND NETWORK TRAINING OPTIONS
+        self.IMG_SIZE = 240
+        self.COLOR_CHANNELS = 3
+        self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS)
+
+        self.WEIGHT_DECAY = 0.001
+        self.BASE_LEARNING_RATE = 0.01
+
+        self.BATCH_SIZE = 1
+        self.BATCH_ITERATIONS = 75000
+
+        self.SHUFFLE_BUFFER_SIZE = 5
+
+        # TODO CHANGE
+        self.checkpoint_dir = "/home/anapt/PycharmProjects/thesis/DATASET/training_end2end/"
+        self.checkpoint_path = "/home/anapt/PycharmProjects/thesis/DATASET/training_end2end/cp-{epoch:04d}.ckpt"
+
+        self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
+            self.checkpoint_path, verbose=1, save_weights_only=True, period=10)
+
+        self.batch_stats_callback = CollectBatchStats()
+
+        # path to save training plots
+        self.plot_path = '/home/anapt/PycharmProjects/thesis/plots/'
 
     def vector2dict(self, vector):
         """
@@ -59,9 +90,9 @@ class FaceNet3D:
                                            self.shape_dim+self.expression_dim+self.color_dim, ]),
                 "rotation": np.squeeze(vector[self.shape_dim+self.expression_dim+self.color_dim:
                                               self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim, ]),
-                "translation": np.squeeze(vector[self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim:
-                                                 self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim +
-                                                 self.rotation_dim, ]),
+                # "translation": np.squeeze(vector[self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim:
+                #                                  self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim +
+                #                                  self.rotation_dim, ]),
             }
             return x
 
@@ -73,9 +104,9 @@ class FaceNet3D:
                self.shape_dim+self.expression_dim+self.color_dim, ] = x['color']
         vector[self.shape_dim+self.expression_dim+self.color_dim:
                self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim, ] = x['rotation']
-        vector[self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim:
-               self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim +
-               self.rotation_dim, ] = x['translation']
+        # vector[self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim:
+        #        self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim +
+        #        self.rotation_dim, ] = x['translation']
 
         return vector
 
