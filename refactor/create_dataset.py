@@ -4,7 +4,7 @@ import time
 
 def main():
     # Number of images to create
-    N = 10
+    N = 45
     preprocess = image_preprocess.ImagePreprocess()
 
     for n in range(0, N+1):
