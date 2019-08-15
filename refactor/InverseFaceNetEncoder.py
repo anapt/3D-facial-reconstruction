@@ -3,7 +3,7 @@ import tensorflow as tf
 from keras import backend as K
 from refactor.FaceNet3D import FaceNet3D as Helpers
 import numpy as np
-import SemanticCodeVector as scv
+from refactor.SemanticCodeVector import SemanticCodeVector
 
 tf.compat.v1.enable_eager_execution()
 
@@ -21,8 +21,8 @@ class InverseFaceNetEncoder(Helpers):
         # Loss Function
         self.loss_func = self.model_loss()
 
-        # self.data = scv.SemanticCodeVector('./DATASET/model2017-1_bfm_nomouth.h5')
-        # self.shape_sdev, self.reflectance_sdev, self.expression_sdev = self.data.get_parameters_dim_sdev()
+        self.data = SemanticCodeVector()
+        self.shape_std, self.color_std, self.expression_std = self.data.get_bases_std()
 
     def build_model(self):
         """
@@ -83,8 +83,7 @@ class InverseFaceNetEncoder(Helpers):
 
         return model_o
 
-    @staticmethod
-    def model_space_parameter_loss(y):
+    def model_space_parameter_loss(self, y):
         """
         Custom loss function that incorporates weights for each variable in the
         Semantic Code Vector
@@ -92,49 +91,43 @@ class InverseFaceNetEncoder(Helpers):
         :param y: Tensor, y_pred - y_true with shape (Batch_size, 257)
         :return: Float32, mean loss
         """
-        # std_shape = tf.constant(self.shape_sdev, dtype=tf.float32)
-        # std_shape = tf.compat.v1.reshape(std_shape, shape=(80,))
-        # # shape_var = K.tile(std_shape, self.BATCH_SIZE)
-        # shape_var = std_shape
+        std_shape = tf.constant(self.shape_std, dtype=tf.float32)
+        std_shape = tf.compat.v1.reshape(std_shape, shape=(self.shape_dim,))
+        # std_shape = K.tile(std_shape, self.BATCH_SIZE)
+
         # # weight
-        # shape_var = tf.math.scalar_mul(5000, shape_var, name='shape_var')
-        #
-        # std_expression = tf.constant(self.expression_sdev, dtype=tf.float32)
-        # std_expression = tf.compat.v1.reshape(std_expression, shape=(64,))
-        # # expression_var = K.tile(std_expression, self.BATCH_SIZE)
-        # expression_var = std_expression
+        shape = tf.math.scalar_mul(1.9, std_shape, name='shape_std')
+
+        std_expression = tf.constant(self.expression_std, dtype=tf.float32)
+        std_expression = tf.compat.v1.reshape(std_expression, shape=(self.expression_dim,))
+        # std_expression = K.tile(std_expression, self.BATCH_SIZE)
+
         # # weight
-        # expression_var = tf.math.scalar_mul(5000, expression_var, name='expression_var')
-        #
-        # std_reflectance = tf.constant(self.reflectance_sdev, dtype=tf.float32)
-        # std_reflectance = tf.compat.v1.reshape(std_reflectance, shape=(80,))
-        # # reflectance_var = K.tile(std_reflectance, self.BATCH_SIZE)
-        # reflectance_var = std_reflectance
-        # # weight
-        # reflectance_var = tf.math.scalar_mul(1000, reflectance_var, name='reflectance_var')
+        expression = tf.math.scalar_mul(3, std_expression, name='expression_std')
+
+        std_color = tf.constant(self.color_std, dtype=tf.float32)
+        std_color = tf.compat.v1.reshape(std_color, shape=(self.color_dim,))
+        # std_color = K.tile(std_color, self.BATCH_SIZE)
+
+        # weight
+        color = tf.math.scalar_mul(60, std_color, name='shape_std')
 
         # with tf.device('/device:GPU:1'):
-        shape = tf.constant(125, shape=(1,), dtype=tf.float32)
-        shape = K.tile(shape, 80)
+        # shape = tf.constant(125, shape=(1,), dtype=tf.float32)
+        # shape = K.tile(shape, 80)
 
-        expression = tf.constant(1, shape=(1,), dtype=tf.float32)
-        # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
-        expression = K.tile(expression, 64)
+        # expression = tf.constant(1, shape=(1,), dtype=tf.float32)
+        # # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
+        # expression = K.tile(expression, 64)
         # expression = tf.compat.v1.concat([expression, expression2], axis=0)
 
-        reflectance = tf.constant(5500, shape=(1,), dtype=tf.float32)
-        reflectance = K.tile(reflectance, 80)
+        # reflectance = tf.constant(5500, shape=(1,), dtype=tf.float32)
+        # reflectance = K.tile(reflectance, 80)
 
-        rotation = tf.constant(55, shape=(1,), dtype=tf.float32)
-        rotation = K.tile(rotation, 3)
+        rotation = tf.constant(4812, shape=(1,), dtype=tf.float32)
+        rotation = K.tile(rotation, self.rotation_dim)
 
-        translation = tf.constant(750, shape=(1,), dtype=tf.float32)
-        translation = K.tile(translation, 3)
-
-        illumination = tf.constant(3300, shape=(1,), dtype=tf.float32)
-        illumination = K.tile(illumination, 27)
-
-        sigma = tf.compat.v1.concat([shape, expression, reflectance, rotation, translation, illumination],
+        sigma = tf.compat.v1.concat([shape, expression, color, rotation],
                                     axis=0)
 
         sigma = tf.linalg.tensor_diag(sigma)
@@ -169,6 +162,6 @@ class InverseFaceNetEncoder(Helpers):
         """ Compiles the Keras model. Includes metrics to differentiate between the two main loss terms """
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
                                                                   rho=0.95, epsilon=None, decay=self.WEIGHT_DECAY),
-                           loss='mean_absolute_error',
+                           loss=self.loss_func,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')

@@ -67,7 +67,7 @@ def main():
     net = InverseFaceNetEncoderPredict()
 
     # net.evaluate_model()
-    image_path = net.data_root + 'training/image_{:06}.png'.format(1)
+    image_path = net.data_root + 'training/image_{:06}.png'.format(2)
 
     x = net.model_predict(image_path)
     np.savetxt("./x_boot.txt", x)

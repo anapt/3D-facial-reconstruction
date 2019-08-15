@@ -37,7 +37,7 @@ class FaceNet3D:
         # Landmark predictor path
         self.predictor_path = "/home/anapt/PycharmProjects/thesis/DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
-        self._case = 'training'
+        self._case = 'validation'
         # dataset root folders path
         self.data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
         self.sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
@@ -50,10 +50,10 @@ class FaceNet3D:
         self.WEIGHT_DECAY = 0.001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 1
+        self.BATCH_SIZE = 2
         self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 5
+        self.SHUFFLE_BUFFER_SIZE = 12
 
         # TODO CHANGE
         self.checkpoint_dir = "/home/anapt/PycharmProjects/thesis/DATASET/training_end2end/"
