@@ -1,4 +1,4 @@
-from refactor.FaceNet3D import FaceNet3D as Helpers
+from FaceNet3D import FaceNet3D as Helpers
 import cv2
 import numpy as np
 import dlib

@@ -1,7 +1,7 @@
-from refactor.FaceNet3D import FaceNet3D as Helpers
-from refactor.LandmarkDetection import LandmarkDetection
-from refactor.ParametricMoDecoder import ParametricMoDecoder
-from refactor.SemanticCodeVector import SemanticCodeVector
+from FaceNet3D import FaceNet3D as Helpers
+from LandmarkDetection import LandmarkDetection
+from ParametricMoDecoder import ParametricMoDecoder
+from SemanticCodeVector import SemanticCodeVector
 import numpy as np
 import cv2
 

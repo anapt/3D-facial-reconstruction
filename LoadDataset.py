@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
-from refactor.FaceNet3D import FaceNet3D as Helpers
+from FaceNet3D import FaceNet3D as Helpers
 import pathlib
 import numpy as np
 

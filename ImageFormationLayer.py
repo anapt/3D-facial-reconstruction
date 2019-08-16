@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from refactor.SemanticCodeVector import SemanticCodeVector
-from refactor.ParametricMoDecoder import ParametricMoDecoder
-from refactor.LandmarkDetection import LandmarkDetection
-from refactor.ImagePreprocess import ImagePreprocess
-from refactor.FaceNet3D import FaceNet3D as Helpers
+from SemanticCodeVector import SemanticCodeVector
+from ParametricMoDecoder import ParametricMoDecoder
+from LandmarkDetection import LandmarkDetection
+from ImagePreprocess import ImagePreprocess
+from FaceNet3D import FaceNet3D as Helpers
 
 
 class ImageFormationLayer(Helpers):

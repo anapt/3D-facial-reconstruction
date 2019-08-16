@@ -1,4 +1,4 @@
-import refactor.ImagePreprocess as image_preprocess
+import ImagePreprocess as image_preprocess
 import time
 
 

@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from refactor.FaceNet3D import FaceNet3D as Helpers
+from FaceNet3D import FaceNet3D as Helpers
 
 helper = Helpers()
 

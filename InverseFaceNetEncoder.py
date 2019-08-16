@@ -1,9 +1,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
 from keras import backend as K
-from refactor.FaceNet3D import FaceNet3D as Helpers
-import numpy as np
-from refactor.SemanticCodeVector import SemanticCodeVector
+from FaceNet3D import FaceNet3D as Helpers
+from SemanticCodeVector import SemanticCodeVector
 
 tf.compat.v1.enable_eager_execution()
 

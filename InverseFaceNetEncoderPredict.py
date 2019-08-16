@@ -1,12 +1,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
-from refactor.InverseFaceNetEncoder import InverseFaceNetEncoder
-from refactor.LoadDataset import LoadDataset
-from refactor.ImageFormationLayer import ImageFormationLayer
+from InverseFaceNetEncoder import InverseFaceNetEncoder
+from LoadDataset import LoadDataset
+from ImageFormationLayer import ImageFormationLayer
 import numpy as np
-from refactor.SemanticCodeVector import SemanticCodeVector
 import matplotlib.pyplot as plt
-from refactor.FaceNet3D import FaceNet3D as Helpers
+from FaceNet3D import FaceNet3D as Helpers
 
 tf.compat.v1.enable_eager_execution()
 
