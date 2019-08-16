@@ -1,7 +1,7 @@
 import pathlib
 import numpy as np
-from refactor.FaceNet3D import FaceNet3D as Helpers
-from refactor.SemanticCodeVector import SemanticCodeVector
+from FaceNet3D import FaceNet3D as Helpers
+from SemanticCodeVector import SemanticCodeVector
 helper = Helpers()
 
 sem_root = pathlib.Path(helper.sem_root + 'training/')

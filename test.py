@@ -1,3 +1,3 @@
-from refactor.SemanticCodeVector import SemanticCodeVector
+from SemanticCodeVector import SemanticCodeVector
 
 data = SemanticCodeVector()

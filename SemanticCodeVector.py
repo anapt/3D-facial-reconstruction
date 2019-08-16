@@ -1,6 +1,6 @@
 import h5py
 import numpy as np
-from refactor.FaceNet3D import FaceNet3D as Helpers
+from FaceNet3D import FaceNet3D as Helpers
 
 
 class SemanticCodeVector(Helpers):

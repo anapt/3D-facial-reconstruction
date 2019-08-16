@@ -2,11 +2,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from refactor.InverseFaceNetEncoder import InverseFaceNetEncoder
-from refactor.LoadDataset import LoadDataset
-import CollectBatchStats as batch_stats
-from keras import backend as K
-from refactor.FaceNet3D import FaceNet3D as Helpers
+from InverseFaceNetEncoder import InverseFaceNetEncoder
+from LoadDataset import LoadDataset
+from FaceNet3D import FaceNet3D as Helpers
 
 tf.compat.v1.enable_eager_execution()
 print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())

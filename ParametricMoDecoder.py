@@ -1,7 +1,6 @@
 import numpy as np
 import math as math
-from refactor.FaceNet3D import FaceNet3D as Helpers
-import time
+from FaceNet3D import FaceNet3D as Helpers
 
 
 class ParametricMoDecoder(Helpers):
