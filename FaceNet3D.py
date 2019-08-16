@@ -37,7 +37,7 @@ class FaceNet3D:
         # Landmark predictor path
         self.predictor_path = "/home/anapt/PycharmProjects/thesis/DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
-        self._case = 'validation'
+        self._case = 'training'
         # dataset root folders path
         self.data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
         self.sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
@@ -50,17 +50,16 @@ class FaceNet3D:
         self.WEIGHT_DECAY = 0.001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 2
+        self.BATCH_SIZE = 4
         self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 12
+        self.SHUFFLE_BUFFER_SIZE = 1000
 
-        # TODO CHANGE
-        self.checkpoint_dir = "/home/anapt/PycharmProjects/thesis/DATASET/training_end2end/"
-        self.checkpoint_path = "/home/anapt/PycharmProjects/thesis/DATASET/training_end2end/cp-{epoch:04d}.ckpt"
+        self.checkpoint_dir = "/home/anapt/PycharmProjects/thesis/DATASET/training/"
+        self.checkpoint_path = "/home/anapt/PycharmProjects/thesis/DATASET/training/cp-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
-            self.checkpoint_path, verbose=1, save_weights_only=True, period=10)
+            self.checkpoint_path, verbose=1, save_weights_only=True, period=30)
 
         self.batch_stats_callback = CollectBatchStats()
 

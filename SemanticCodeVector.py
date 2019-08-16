@@ -1,17 +1,13 @@
 import h5py
 import numpy as np
-from sklearn.preprocessing import normalize
+from refactor.FaceNet3D import FaceNet3D as Helpers
 
 
-class SemanticCodeVector:
+class SemanticCodeVector(Helpers):
 
-    def __init__(self, path):
-        """
-        Class initializer
-
-        :param path: path to Basel Face Model
-        """
-        self.model = h5py.File(path, 'r+')
+    def __init__(self):
+        super().__init__()
+        self.model = h5py.File(self.path, 'r+')
 
     def read_pca_bases(self):
         """
@@ -20,67 +16,76 @@ class SemanticCodeVector:
         :return:
         dictionary with keys    shape_pca               159447 80
                                 expression_pca          159447 64
-                                reflectance_pca         159447 80
+                                color_pca               159447 80
                                 average_shape           159447
-                                average_reflectance     159447
+                                average_color           159447
         """
         average_shape = self.model['shape']['model']['mean'][()]
 
-        average_reflectance = self.model['color']['model']['mean'][()]
+        average_color = self.model['color']['model']['mean'][()]
 
+        # read shape pca basis
         shape_pca = self.model['shape']['model']['pcaBasis'][()]
-        shape_pca = shape_pca[0:len(shape_pca), 0:80]
-
+        shape_pca = shape_pca[0:len(shape_pca), 0:self.shape_dim]
+        # read shape pca basis variance
         pca_variance = self.model['shape']['model']['pcaVariance'][()]
-        pca_variance = pca_variance[0:80]
+        pca_variance = pca_variance[0:self.shape_dim]
 
+        # scale basis
         sdev = np.sqrt(pca_variance)
-
         shape_pca = np.multiply(shape_pca, np.transpose(sdev))
 
-        reflectance_pca = self.model['color']['model']['pcaBasis'][()]
-        reflectance_pca = reflectance_pca[0:len(reflectance_pca), 0:80]
-
+        # read color pca basis
+        color_pca = self.model['color']['model']['pcaBasis'][()]
+        color_pca = color_pca[0:len(color_pca), 0:self.color_dim]
+        # read color pca basis variance
         pca_variance = self.model['color']['model']['pcaVariance'][()]
-        pca_variance = pca_variance[0:80]
+        pca_variance = pca_variance[0:self.color_dim]
 
+        # scale basis
         sdev = np.sqrt(pca_variance)
+        color_pca = np.multiply(color_pca, np.transpose(sdev))
 
-        reflectance_pca = np.multiply(reflectance_pca, np.transpose(sdev))
-
+        # read expression pca basis
         expression_pca = self.model['expression']['model']['pcaBasis'][()]
-        expression_pca = expression_pca[0:len(expression_pca), 0:64]
-
+        expression_pca = expression_pca[0:len(expression_pca), 0:self.expression_dim]
+        # read expression pca basis variance
         pca_variance = self.model['expression']['model']['pcaVariance'][()]
-        pca_variance = pca_variance[0:64]
+        pca_variance = pca_variance[0:self.expression_dim]
 
+        # scale basis
         sdev = np.sqrt(pca_variance)
-
         expression_pca = np.multiply(expression_pca, np.transpose(sdev))
 
         scv_pca_bases = {
             "shape_pca": shape_pca,
             "expression_pca": expression_pca,
-            "reflectance_pca": reflectance_pca,
+            "color_pca": color_pca,
             "average_shape": average_shape,
-            "average_reflectance": average_reflectance
+            "average_color": average_color
         }
         return scv_pca_bases
 
-    def get_parameters_dim_sdev(self):
-        shape_pca = self.model['shape']['model']['pcaBasis'][()]
-        shape_pca = shape_pca[0:len(shape_pca), 0:80]
-        shape_sdev = np.std(shape_pca, 0)
+    def get_bases_std(self):
+        # read shape pca basis variance
+        pca_variance = self.model['shape']['model']['pcaVariance'][()]
+        pca_variance = pca_variance[0:self.shape_dim]
 
-        reflectance_pca = self.model['color']['model']['pcaBasis'][()]
-        reflectance_pca = reflectance_pca[0:len(reflectance_pca), 0:80]
-        reflectance_sdev = np.std(reflectance_pca, 0)
+        shape_std = np.sqrt(pca_variance)
 
-        expression_pca = self.model['expression']['model']['pcaBasis'][()]
-        expression_pca = expression_pca[0:len(expression_pca), 0:64]
-        expression_sdev = np.std(expression_pca, 0)
+        # read color pca basis variance
+        pca_variance = self.model['color']['model']['pcaVariance'][()]
+        pca_variance = pca_variance[0:self.color_dim]
 
-        return shape_sdev, reflectance_sdev, expression_sdev
+        color_std = np.sqrt(pca_variance)
+
+        # read expression pca basis variance
+        pca_variance = self.model['expression']['model']['pcaVariance'][()]
+        pca_variance = pca_variance[0:self.expression_dim]
+
+        expression_std = np.sqrt(pca_variance)
+
+        return shape_std, color_std, expression_std
 
     def read_cells(self):
         """
@@ -92,8 +97,7 @@ class SemanticCodeVector:
         cells = self.model['shape']['representer']['cells'][()]
         return cells
 
-    @staticmethod
-    def sample_vector():
+    def sample_vector(self):
         """
         Function that samples the semantic code vector
 
@@ -105,36 +109,23 @@ class SemanticCodeVector:
                                 translation     (3,)
                                 illumination    (27,)
         """
-        a = np.random.normal(0, 1, 80)
+        a = np.random.normal(0, 1, self.shape_dim)
+        b = np.random.normal(0, 1, self.color_dim)
+        d = np.random.normal(0, 1, self.expression_dim)
 
-        b = np.random.normal(0, 1, 80)
-
-        d = np.random.normal(0, 1, 64)
-
-        # rotmat = np.random.uniform(-15, 15, 3)
-        # rotmat[2] = np.random.uniform(-10, 10, 1)
-        rotmat = np.zeros(shape=(3,))
-        # TODO range is smaller than the one used in the paper
-        g = np.random.uniform(0.2, 0.4, 27)
-        g[0] = np.random.uniform(0.2, 0.6, 1)
-        # g = np.zeros(shape=(27,))
-        t = np.ones(shape=(3,)) * 2.5
-        t[2] = -50
-        # t = np.random.uniform(1.50, 3.50, 3)
-        # t[2] = np.random.uniform(-0.30, 0.30, 1)
+        rotmat = np.random.uniform(-1.5, 1.5, 3)
+        rotmat[0] = np.random.uniform(-1.0, 1.0, 1)
 
         x = {
             "shape": a,
             "expression": d,
-            "reflectance": b,
-            "rotation": rotmat,
-            "translation": t,
-            "illumination": g
+            "color": b,
+            "rotation": rotmat
         }
 
         return x
 
-    def calculate_coords(self, vector):
+    def calculate_3d_vertices(self, vector):
         """
         Calculates the spatial embedding of the vertices based on the PCA bases for shape and expression
         and the average shape of a face and the parameters for shape and expression of the Semantic Code Vector
@@ -143,16 +134,14 @@ class SemanticCodeVector:
         :return: <class 'numpy.ndarray'> with shape (159447,)
         """
         scv_pca_bases = self.read_pca_bases()
-        # print(vector["shape"])
+
         vertices = scv_pca_bases["average_shape"] + \
             np.dot(scv_pca_bases["shape_pca"], vector["shape"]) + \
             np.dot(scv_pca_bases["expression_pca"], vector["expression"])
-        # vertices = np.dot(scv_pca_bases["shape_pca"], vector["shape"]) + \
-        #            np.dot(scv_pca_bases["expression_pca"], vector["expression"])
-        # print(vertices)
+
         return vertices
 
-    def calculate_reflectance(self, vector):
+    def calculate_color(self, vector):
         """
         Calculates the per vertex skin reflectance based on the PCA bases for skin reflectance and the
         average reflectance and the parameters for skin reflectance of the Semantic Code Vector
@@ -162,7 +151,7 @@ class SemanticCodeVector:
         """
         scv_pca_bases = self.read_pca_bases()
 
-        skin_reflectance = scv_pca_bases["average_reflectance"] +  \
-            np.dot(scv_pca_bases["reflectance_pca"], vector["reflectance"])
+        skin_color = scv_pca_bases["average_color"] +  \
+            np.dot(scv_pca_bases["color_pca"], vector["color"])
 
-        return skin_reflectance
+        return skin_color

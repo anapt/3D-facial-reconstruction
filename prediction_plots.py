@@ -1,37 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from refactor.FaceNet3D import FaceNet3D as Helpers
 
-
-def vector2dict(vector):
-    """
-    Method that transforms (257,) nd.array to dictionary
-
-    :param vector: <class 'numpy.ndarray'> with shape (257, ) : semantic code vector
-    :return:
-    dictionary with keys    shape           (80,)
-                            expression      (64,)
-                            reflectance     (80,)
-                            rotation        (3,)
-                            translation     (3,)
-                            illumination    (27,)
-    """
-    x = {
-        "shape": np.squeeze(vector[0:80, ]),
-        "expression": np.squeeze(vector[80:144, ]),
-        "reflectance": np.squeeze(vector[144:224, ]),
-        "rotation": np.squeeze(vector[224:227, ]),
-        "translation": np.squeeze(vector[227:230, ]),
-        "illumination": np.squeeze(vector[230:257, ])
-    }
-    return x
+helper = Helpers()
 
 
 def main():
-    x_true = np.loadtxt('./DATASET/semantic/validation/x_{:06}.txt'.format(1))
-    x_true = vector2dict(x_true)
+    x_true = np.loadtxt(helper.sem_root + 'training/x_{:06}.txt'.format(2))
+    x_true = helper.vector2dict(x_true)
 
-    x = np.loadtxt('./x_boot.txt')
-    x = vector2dict(x)
+    x = np.loadtxt('/home/anapt/PycharmProjects/thesis/refactor/x_boot.txt')
+    x = helper.vector2dict(x)
 
     # x = x_true
     # print(x['translation'])
@@ -62,10 +41,10 @@ def main():
     # plot shape, red dots are predicted values
     # blue crosses are ground truth
     plt.figure()
-    plt.title('Reflectance')
-    plt.plot(x['reflectance'], color='red', marker='h', linestyle='None', alpha=0.5)
-    plt.plot(x_true['reflectance'], color='blue', marker='H', linestyle='None', alpha=0.5)
-    plt.savefig('./tests/exp7/reflectance.png')
+    plt.title('Color')
+    plt.plot(x['color'], color='red', marker='h', linestyle='None', alpha=0.5)
+    plt.plot(x_true['color'], color='blue', marker='H', linestyle='None', alpha=0.5)
+    plt.savefig('./tests/exp7/color.png')
     plt.show()
 
     # plot shape, red dots are predicted values
@@ -75,20 +54,6 @@ def main():
     plt.plot(x['rotation'], color='red', marker='o', linestyle='None')
     plt.plot(x_true['rotation'], color='blue', marker='+', linestyle='None', alpha=1)
     plt.savefig('./tests/exp7/rotation.png')
-    plt.show()
-
-    plt.figure()
-    plt.title('Translation')
-    plt.plot(x['translation'], color='red', marker='o', linestyle='None')
-    plt.plot(x_true['translation'], color='blue', marker='+', linestyle='None', alpha=1)
-    plt.savefig('./tests/exp7/translation')
-    plt.show()
-
-    plt.figure()
-    plt.title('Illumination')
-    plt.plot(x['illumination'], color='red', marker='o', linestyle='None')
-    plt.plot(x_true['illumination'], color='blue', marker='+', linestyle='None', alpha=1)
-    plt.savefig('./tests/exp7/illumination.png')
     plt.show()
 
 

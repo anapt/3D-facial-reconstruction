@@ -1,18 +1,17 @@
-import LandmarkDetection as ld
-import FaceCropper as fc
-import ParametricMoDecoder as pmd
-import SemanticCodeVector as scv
+from refactor.FaceNet3D import FaceNet3D as Helpers
+from refactor.LandmarkDetection import LandmarkDetection
+from refactor.ParametricMoDecoder import ParametricMoDecoder
+from refactor.SemanticCodeVector import SemanticCodeVector
 import numpy as np
 import cv2
 
 
-class ImagePreprocess(object):
+class ImagePreprocess(Helpers):
 
     def __init__(self):
-        self.cut = ld.LandmarkDetection()
-        self.crop = fc.FaceCropper()
-        self.data = scv.SemanticCodeVector('./DATASET/model2017-1_bfm_nomouth.h5')
-        self.path = './DATASET/model2017-1_bfm_nomouth.h5'
+        super().__init__()
+        self.cut = LandmarkDetection()
+        self.data = SemanticCodeVector()
 
     def get_vectors(self, n):
         """
@@ -23,58 +22,26 @@ class ImagePreprocess(object):
         :return:    image formation (dictionary with keys position, color)
                     cell ordered with deepest one first
         """
-        data = scv.SemanticCodeVector(self.path)
-        cells = data.read_cells()
+
+        cells = self.data.read_cells()
 
         # x = data.sample_vector()
-        x = data.sample_vector()
+        x = self.data.sample_vector()
 
-        vector = np.zeros(257, dtype=float)
-        vector[0:80, ] = x['shape']
-        vector[80:144, ] = x['expression']
-        vector[144:224, ] = x['reflectance']
-        vector[224:227, ] = x['rotation']
-        vector[227:230, ] = x['translation']
-        vector[230:257, ] = x['illumination']
+        vector = self.dict2vector(x)
 
-        # np.savetxt("./DATASET/semantic/x_{:06}.txt".format(n), vector)
-        np.savetxt("./DATASET/semantic/training/x_{:06}.txt".format(n), vector)
+        np.savetxt(self.vector_path.format(n), vector)
 
-        vertices = data.calculate_coords(x)
-        reflectance = data.calculate_reflectance(x)
+        vertices = self.data.calculate_3d_vertices(x)
+        reflectance = self.data.calculate_color(x)
 
-        decoder = pmd.ParametricMoDecoder(vertices, reflectance, x, cells)
+        decoder = ParametricMoDecoder(vertices, reflectance, x, cells)
 
         formation = decoder.get_image_formation()
 
         cells_ordered = decoder.calculate_cell_depth()
 
         return formation, cells_ordered
-
-    @staticmethod
-    def translate(value, left_min, left_max, right_min=0, right_max=500):
-        """
-        Translates coordinates from range [left_min, left_max]
-        to range [right_min, right_max]
-
-        :param value:       value to translate
-        :param left_min:    float
-        :param left_max:    float
-        :param right_min:   float
-        :param right_max:   float
-        :return: same shape and type as value
-        """
-        # Figure out how 'wide' each range is
-        left_span = left_max - left_min
-        right_span = right_max - right_min
-
-        # Convert the left range into a 0-1 range (float)
-        # print(np.subtract(value, leftMin))
-        value_scaled = np.subtract(value, left_min) / float(left_span)
-
-        # Convert the 0-1 range into a value in the right range.
-        # print(right_min + (value_scaled * right_span))
-        return right_min + (value_scaled * right_span)
 
     def patch(self, position, color, cells):
         """
@@ -139,14 +106,15 @@ class ImagePreprocess(object):
         # create image
         image = self.patch(position, color, cells)
 
-        rotated180 = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        cv2.imwrite("./DATASET/images/no_crop/image_{:06}.png".format(n), rotated180)
-        image = cv2.cvtColor(rotated180, cv2.COLOR_BGR2RGB)
+        if self.testing:
+            rotated180 = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            cv2.imwrite(self.no_crop_path.format(n), rotated180)
+            image = cv2.cvtColor(rotated180, cv2.COLOR_BGR2RGB)
 
         # get face mask without mouth interior
-        cut = ld.LandmarkDetection()
+        cut = LandmarkDetection()
         # RGB image with face
-        out_face = cut.cutout_mask_array(np.uint8(image), n, True, False)
+        out_face = cut.cutout_mask_array(np.uint8(image), True)
 
-        cropped_image_path = ("./DATASET/images/training/image_{:06}.png".format(n))
+        cropped_image_path = (self.cropped_path.format(n))
         cv2.imwrite(cropped_image_path, out_face)

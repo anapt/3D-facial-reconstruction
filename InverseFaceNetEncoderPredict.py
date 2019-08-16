@@ -1,18 +1,19 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
-from InverseFaceNetEncoder import InverseFaceNetEncoder
-from loadDataset import load_dataset_single_image, load_and_preprocess_image_4d
-import ImageFormationLayer as ifl
+from refactor.InverseFaceNetEncoder import InverseFaceNetEncoder
+from refactor.LoadDataset import LoadDataset
+from refactor.ImageFormationLayer import ImageFormationLayer
 import numpy as np
-import SemanticCodeVector as scv
+from refactor.SemanticCodeVector import SemanticCodeVector
 import matplotlib.pyplot as plt
+from refactor.FaceNet3D import FaceNet3D as Helpers
 
 tf.compat.v1.enable_eager_execution()
 
 
-class InverseFaceNetEncoderPredict(object):
+class InverseFaceNetEncoderPredict(Helpers):
     def __init__(self):
-        self.checkpoint_dir = "/home/anapt/data/training/trained_10_105/"
+        super().__init__()
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
         print("Latest checkpoint: ", self.latest)
         self.encoder = InverseFaceNetEncoder()
@@ -35,14 +36,14 @@ class InverseFaceNetEncoderPredict(object):
 
     def evaluate_model(self):
         """ Evaluate model on validation data """
-        test_ds = load_dataset_single_image()
+        test_ds = LoadDataset().load_dataset_single_image()
         loss, mse, mae = self.model.evaluate(test_ds)
         print("\nRestored model, Loss: {0} \nMean Squared Error: {1}\n"
               "Mean Absolute Error: {2}\n".format(loss, mse, mae))
 
     def model_predict(self, image_path):
 
-        image = load_and_preprocess_image_4d(image_path)
+        image = LoadDataset().load_and_preprocess_image_4d(image_path)
         x = self.model.predict(image)
 
         return np.transpose(x)
@@ -55,7 +56,7 @@ class InverseFaceNetEncoderPredict(object):
         :param x: <class 'numpy.ndarray'> with shape (257, ) : semantic code vector
         :return: <class 'numpy.ndarray'> with shape (240, 240, 3)
         """
-        decoder = ifl.ImageFormationLayer(x)
+        decoder = ImageFormationLayer(x)
 
         image = decoder.get_reconstructed_image()
 
@@ -66,7 +67,7 @@ def main():
     net = InverseFaceNetEncoderPredict()
 
     # net.evaluate_model()
-    image_path = './DATASET/images/validation/image_{:06}.png'.format(1)
+    image_path = net.data_root + 'training/image_{:06}.png'.format(2)
 
     x = net.model_predict(image_path)
     np.savetxt("./x_boot.txt", x)

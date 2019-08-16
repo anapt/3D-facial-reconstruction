@@ -1,31 +1,17 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
 from keras import backend as K
-import SemanticCodeVector as scv
+from refactor.FaceNet3D import FaceNet3D as Helpers
+import numpy as np
+from refactor.SemanticCodeVector import SemanticCodeVector
 
 tf.compat.v1.enable_eager_execution()
 
 
-class InverseFaceNetEncoder(object):
+class InverseFaceNetEncoder(Helpers):
 
     def __init__(self):
-        # Parameters
-        self.IMG_SIZE = 240
-        self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, 3)
-
-        self.WEIGHT_DECAY = 0.001
-        # self.WEIGHT_DECAY = 0.0000001
-        self.BASE_LEARNING_RATE = 0.01
-
-        self.BATCH_SIZE = 32
-        self.BATCH_ITERATIONS = 75000
-
-        self.SHUFFLE_BUFFER_SIZE = 20000
-
-        # Parameters for Loss
-        self.PATH = './DATASET/model2017-1_bfm_nomouth.h5'
-        self.MAX_FEATURES = 500
-        self.GOOD_MATCH_PERCENT = 0.15
+        super().__init__()
 
         # Model
         self.model = self.build_model()
@@ -35,8 +21,8 @@ class InverseFaceNetEncoder(object):
         # Loss Function
         self.loss_func = self.model_loss()
 
-        # self.data = scv.SemanticCodeVector('./DATASET/model2017-1_bfm_nomouth.h5')
-        # self.shape_sdev, self.reflectance_sdev, self.expression_sdev = self.data.get_parameters_dim_sdev()
+        self.data = SemanticCodeVector()
+        self.shape_std, self.color_std, self.expression_std = self.data.get_bases_std()
 
     def build_model(self):
         """
@@ -57,6 +43,13 @@ class InverseFaceNetEncoder(object):
                                                        pooling='avg')
         base_model.trainable = False
         base_model.summary()
+        # TODO ADD CUSTOM INITIALIZER
+        # weights_init = np.zeros((self.scv_length,))
+        # weights_init[self.scv_length - self.translation_dim] = 2.5
+        # weights_init[self.scv_length - self.translation_dim + 1] = 2.5
+        # weights_init[self.scv_length - self.translation_dim + 2] = -50
+        #
+        # weights_init = tf.constant(weights_init, shape=(self.scv_length,), dtype=tf.float32)
         weights_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None)
 
         # Create global average pooling layer
@@ -64,8 +57,8 @@ class InverseFaceNetEncoder(object):
         # global_average_layer = tf.keras.layers.GlobalMaxPooling2D()
 
         # Create prediction layer
-        prediction_layer = tf.keras.layers.Dense(257, activation=None, use_bias=True,
-                                                 kernel_initializer=weights_init, bias_initializer='zeros',
+        prediction_layer = tf.keras.layers.Dense(self.scv_length, activation=None, use_bias=True,
+                                                 kernel_initializer=weights_init, bias_initializer='zeros'
                                                  # kernel_regularizer=tf.keras.regularizers.l2(self.WEIGHT_DECAY)
                                                  )
 
@@ -90,8 +83,7 @@ class InverseFaceNetEncoder(object):
 
         return model_o
 
-    @staticmethod
-    def model_space_parameter_loss(y):
+    def model_space_parameter_loss(self, y):
         """
         Custom loss function that incorporates weights for each variable in the
         Semantic Code Vector
@@ -99,49 +91,43 @@ class InverseFaceNetEncoder(object):
         :param y: Tensor, y_pred - y_true with shape (Batch_size, 257)
         :return: Float32, mean loss
         """
-        # std_shape = tf.constant(self.shape_sdev, dtype=tf.float32)
-        # std_shape = tf.compat.v1.reshape(std_shape, shape=(80,))
-        # # shape_var = K.tile(std_shape, self.BATCH_SIZE)
-        # shape_var = std_shape
+        std_shape = tf.constant(self.shape_std, dtype=tf.float32)
+        std_shape = tf.compat.v1.reshape(std_shape, shape=(self.shape_dim,))
+        # std_shape = K.tile(std_shape, self.BATCH_SIZE)
+
         # # weight
-        # shape_var = tf.math.scalar_mul(5000, shape_var, name='shape_var')
-        #
-        # std_expression = tf.constant(self.expression_sdev, dtype=tf.float32)
-        # std_expression = tf.compat.v1.reshape(std_expression, shape=(64,))
-        # # expression_var = K.tile(std_expression, self.BATCH_SIZE)
-        # expression_var = std_expression
+        shape = tf.math.scalar_mul(1.9, std_shape, name='shape_std')
+
+        std_expression = tf.constant(self.expression_std, dtype=tf.float32)
+        std_expression = tf.compat.v1.reshape(std_expression, shape=(self.expression_dim,))
+        # std_expression = K.tile(std_expression, self.BATCH_SIZE)
+
         # # weight
-        # expression_var = tf.math.scalar_mul(5000, expression_var, name='expression_var')
-        #
-        # std_reflectance = tf.constant(self.reflectance_sdev, dtype=tf.float32)
-        # std_reflectance = tf.compat.v1.reshape(std_reflectance, shape=(80,))
-        # # reflectance_var = K.tile(std_reflectance, self.BATCH_SIZE)
-        # reflectance_var = std_reflectance
-        # # weight
-        # reflectance_var = tf.math.scalar_mul(1000, reflectance_var, name='reflectance_var')
+        expression = tf.math.scalar_mul(3, std_expression, name='expression_std')
+
+        std_color = tf.constant(self.color_std, dtype=tf.float32)
+        std_color = tf.compat.v1.reshape(std_color, shape=(self.color_dim,))
+        # std_color = K.tile(std_color, self.BATCH_SIZE)
+
+        # weight
+        color = tf.math.scalar_mul(60, std_color, name='shape_std')
 
         # with tf.device('/device:GPU:1'):
-        shape = tf.constant(125, shape=(1,), dtype=tf.float32)
-        shape = K.tile(shape, 80)
+        # shape = tf.constant(125, shape=(1,), dtype=tf.float32)
+        # shape = K.tile(shape, 80)
 
-        expression = tf.constant(1, shape=(1,), dtype=tf.float32)
-        # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
-        expression = K.tile(expression, 64)
+        # expression = tf.constant(1, shape=(1,), dtype=tf.float32)
+        # # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
+        # expression = K.tile(expression, 64)
         # expression = tf.compat.v1.concat([expression, expression2], axis=0)
 
-        reflectance = tf.constant(5500, shape=(1,), dtype=tf.float32)
-        reflectance = K.tile(reflectance, 80)
+        # reflectance = tf.constant(5500, shape=(1,), dtype=tf.float32)
+        # reflectance = K.tile(reflectance, 80)
 
-        rotation = tf.constant(55, shape=(1,), dtype=tf.float32)
-        rotation = K.tile(rotation, 3)
+        rotation = tf.constant(4812, shape=(1,), dtype=tf.float32)
+        rotation = K.tile(rotation, self.rotation_dim)
 
-        translation = tf.constant(750, shape=(1,), dtype=tf.float32)
-        translation = K.tile(translation, 3)
-
-        illumination = tf.constant(3300, shape=(1,), dtype=tf.float32)
-        illumination = K.tile(illumination, 27)
-
-        sigma = tf.compat.v1.concat([shape, expression, reflectance, rotation, translation, illumination],
+        sigma = tf.compat.v1.concat([shape, expression, color, rotation],
                                     axis=0)
 
         sigma = tf.linalg.tensor_diag(sigma)

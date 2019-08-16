@@ -2,37 +2,26 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from InverseFaceNetEncoder import InverseFaceNetEncoder
-from loadDataset import load_dataset_batches
+from refactor.InverseFaceNetEncoder import InverseFaceNetEncoder
+from refactor.LoadDataset import LoadDataset
 import CollectBatchStats as batch_stats
 from keras import backend as K
+from refactor.FaceNet3D import FaceNet3D as Helpers
 
 tf.compat.v1.enable_eager_execution()
 print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
 print("\n\n\n\n")
 
 
-class EncoderTrain:
+class EncoderTrain(Helpers):
     """ Main function for InverseFaceNet CNN"""
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
     def __init__(self):
-        # Parameters
-        self.checkpoint_dir = "./DATASET/training/"
-        self.checkpoint_path = "./DATASET/training/cp-3-{epoch:04d}.ckpt"
-
-        self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
-            self.checkpoint_path, verbose=1, save_weights_only=True,
-            # Save weights, every 5-epochs.
-            period=24)
-
-        self.batch_stats_callback = batch_stats.CollectBatchStats()
+        super().__init__()
 
         self.history_list = list()
-
         self.inverseNet = InverseFaceNetEncoder()
-        self.BATCH_SIZE = self.inverseNet.BATCH_SIZE
-        self.SHUFFLE_BUFFER_SIZE = self.inverseNet.SHUFFLE_BUFFER_SIZE
 
     def training_phase_1(self):
         # Build and compile model:
@@ -40,15 +29,14 @@ class EncoderTrain:
         self.inverseNet.compile()
         model = self.inverseNet.model
         with tf.device('/device:CPU:0'):
-            keras_ds = load_dataset_batches(_case='validation')
+            keras_ds = LoadDataset().load_dataset_batches(_case=self._case)
             keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
                 self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
-        steps_per_epoch = 10
         with tf.device('/device:CPU:0'):
-            history_1 = model.fit(keras_ds, epochs=50, steps_per_epoch=steps_per_epoch,
+            history_1 = model.fit(keras_ds, epochs=120, steps_per_epoch=steps_per_epoch,
                                   callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)
@@ -106,22 +94,22 @@ class EncoderTrain:
             plt.ylabel("Custom Loss, phase % d" % i)
             plt.xlabel("Training Steps")
             plt.plot(self.batch_stats_callback.batch_losses)
-            plt.savefig('./plots/batch_stats_%d.pdf' % i)
+            plt.savefig(self.plot_path + 'batch_stats_%d.pdf' % i)
 
             plt.figure()
             plt.title('Mean Squared Error, phase %d' % i)
             plt.plot(self.history_list[i].history['mean_squared_error'])
-            plt.savefig('./plots/mse%d.pdf' % i)
+            plt.savefig(self.plot_path + 'mse%d.pdf' % i)
 
             plt.figure()
             plt.title('Mean Absolute Error, phase %d' % i)
             plt.plot(self.history_list[i].history['mean_absolute_error'])
-            plt.savefig('./plots/mae%d.pdf' % i)
+            plt.savefig(self.plot_path + 'mae%d.pdf' % i)
 
             plt.figure()
             plt.title('Loss, phase %d' % i)
             plt.plot(self.history_list[i].history['loss'])
-            plt.savefig('./plots/loss%d.pdf' % i)
+            plt.savefig(self.plot_path + 'loss%d.pdf' % i)
 
 
 def main():
