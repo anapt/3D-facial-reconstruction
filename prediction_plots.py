@@ -6,10 +6,10 @@ helper = Helpers()
 
 
 def main():
-    x_true = np.loadtxt(helper.sem_root + 'training/x_{:06}.txt'.format(2))
+    x_true = np.loadtxt(helper.sem_root + 'training/x_{:06}.txt'.format(1))
     x_true = helper.vector2dict(x_true)
 
-    x = np.loadtxt('/home/anapt/PycharmProjects/thesis/refactor/x_boot.txt')
+    x = np.loadtxt('./x_boot.txt')
     x = helper.vector2dict(x)
 
     # x = x_true

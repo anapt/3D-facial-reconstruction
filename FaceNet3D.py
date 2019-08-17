@@ -6,17 +6,17 @@ from CollectBatchStats import CollectBatchStats
 class FaceNet3D:
     def __init__(self):
         # path to Basel Model
-        self.path = '/home/anapt/PycharmProjects/thesis/DATASET/model2017-1_bfm_nomouth.h5'
+        self.path = './DATASET/model2017-1_bfm_nomouth.h5'
         # number of vertices
         self.num_of_vertices = 53149
         # number of cells
         self.num_of_cells = 105694
         # number of variables for shape
         # can be increased up to 199
-        self.shape_dim = 80
+        self.shape_dim = 64
         # number of variables for expression
         # can be increased up to 100
-        self.expression_dim = 70
+        self.expression_dim = 64
         # number of variables for color
         # can be increased up to 199
         self.color_dim = 100
@@ -27,20 +27,20 @@ class FaceNet3D:
         # length of semantic code vector
         self.scv_length = self.shape_dim + self.expression_dim + self.color_dim + self.rotation_dim
         # path to save vectors
-        self.vector_path = "/home/anapt/PycharmProjects/thesis/DATASET/semantic/training/x_{:06}.txt"
+        self.vector_path = "./DATASET/semantic/training/x_{:06}.txt"
         # path to save full patch
-        self.no_crop_path = "/home/anapt/PycharmProjects/thesis/DATASET/images/no_crop/image_{:06}.png"
+        self.no_crop_path = "./DATASET/images/no_crop/image_{:06}.png"
         # path to save cropped image
-        self.cropped_path = "/home/anapt/PycharmProjects/thesis/DATASET/images/training/image_{:06}.png"
+        self.cropped_path = "./DATASET/images/training/image_{:06}.png"
         # if script is used for testing set variable to True
-        self.testing = True
+        self.testing = False
         # Landmark predictor path
-        self.predictor_path = "/home/anapt/PycharmProjects/thesis/DATASET/shape_predictor_68_face_landmarks.dat"
+        self.predictor_path = "./DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
         self._case = 'training'
         # dataset root folders path
-        self.data_root = '/home/anapt/PycharmProjects/thesis/DATASET/images/'
-        self.sem_root = '/home/anapt/PycharmProjects/thesis/DATASET/semantic/'
+        self.data_root = './DATASET/images/'
+        self.sem_root = './DATASET/semantic/'
 
         # DATASET AND NETWORK TRAINING OPTIONS
         self.IMG_SIZE = 240
@@ -50,21 +50,21 @@ class FaceNet3D:
         self.WEIGHT_DECAY = 0.001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 4
+        self.BATCH_SIZE = 1
         self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 1000
+        self.SHUFFLE_BUFFER_SIZE = 1500
 
-        self.checkpoint_dir = "/home/anapt/PycharmProjects/thesis/DATASET/training/"
-        self.checkpoint_path = "/home/anapt/PycharmProjects/thesis/DATASET/training/cp-{epoch:04d}.ckpt"
+        self.checkpoint_dir = "./DATASET/training/"
+        self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
-            self.checkpoint_path, verbose=1, save_weights_only=True, period=30)
+            self.checkpoint_path, verbose=1, save_weights_only=True, period=10)
 
         self.batch_stats_callback = CollectBatchStats()
 
         # path to save training plots
-        self.plot_path = '/home/anapt/PycharmProjects/thesis/plots/'
+        self.plot_path = './plots/'
 
     def vector2dict(self, vector):
         """

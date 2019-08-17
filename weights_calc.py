@@ -9,7 +9,7 @@ sem_root = pathlib.Path(helper.sem_root + 'training/')
 all_vector_paths = list(sem_root.glob('*'))
 all_vector_paths = [str(path) for path in all_vector_paths]
 
-all_vector_paths = np.random.choice(all_vector_paths, 32)
+all_vector_paths = np.random.choice(all_vector_paths, 4)
 # print(a)
 
 vectors = np.zeros((helper.scv_length, len(all_vector_paths)))
@@ -51,7 +51,7 @@ avg_expression = (sum_expression/32)
 avg_color = (sum_color/32)
 avg_rotation = (sum_rotation/32)
 
-constant = 10000
+constant = 1000
 w_shape = constant / avg_shape                      # 1.57      1.46    1.39    1.6
 w_expression = constant / avg_expression            # 2.33      2.19    2.29
 w_color = constant / avg_color                      # 48.71     45.73   50.04

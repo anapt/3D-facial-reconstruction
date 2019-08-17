@@ -95,21 +95,21 @@ class InverseFaceNetEncoder(Helpers):
         # std_shape = K.tile(std_shape, self.BATCH_SIZE)
 
         # # weight
-        shape = tf.math.scalar_mul(1.9, std_shape, name='shape_std')
+        shape = tf.math.scalar_mul(1.4, std_shape, name='shape_std')
 
         std_expression = tf.constant(self.expression_std, dtype=tf.float32)
         std_expression = tf.compat.v1.reshape(std_expression, shape=(self.expression_dim,))
         # std_expression = K.tile(std_expression, self.BATCH_SIZE)
 
         # # weight
-        expression = tf.math.scalar_mul(3, std_expression, name='expression_std')
+        expression = tf.math.scalar_mul(2.4, std_expression, name='expression_std')
 
         std_color = tf.constant(self.color_std, dtype=tf.float32)
         std_color = tf.compat.v1.reshape(std_color, shape=(self.color_dim,))
         # std_color = K.tile(std_color, self.BATCH_SIZE)
 
         # weight
-        color = tf.math.scalar_mul(60, std_color, name='shape_std')
+        color = tf.math.scalar_mul(50, std_color, name='shape_std')
 
         # with tf.device('/device:GPU:1'):
         # shape = tf.constant(125, shape=(1,), dtype=tf.float32)
@@ -123,7 +123,7 @@ class InverseFaceNetEncoder(Helpers):
         # reflectance = tf.constant(5500, shape=(1,), dtype=tf.float32)
         # reflectance = K.tile(reflectance, 80)
 
-        rotation = tf.constant(4812, shape=(1,), dtype=tf.float32)
+        rotation = tf.constant(5500, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, self.rotation_dim)
 
         sigma = tf.compat.v1.concat([shape, expression, color, rotation],
@@ -162,5 +162,6 @@ class InverseFaceNetEncoder(Helpers):
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
                                                                   rho=0.95, epsilon=None, decay=self.WEIGHT_DECAY),
                            loss=self.loss_func,
+                           # loss=tf.keras.losses.mean_squared_error,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')
