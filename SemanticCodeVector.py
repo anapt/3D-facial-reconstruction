@@ -110,11 +110,15 @@ class SemanticCodeVector(Helpers):
                                 illumination    (27,)
         """
         a = np.random.normal(0, 1, self.shape_dim)
+        # a = np.zeros((self.shape_dim,))
         b = np.random.normal(0, 1, self.color_dim)
+        # b = np.zeros((self.color_dim,))
         d = np.random.normal(0, 1, self.expression_dim)
+        # d = np.ones((self.expression_dim,))
 
         rotmat = np.random.uniform(-1.5, 1.5, 3)
         rotmat[0] = np.random.uniform(-1.0, 1.0, 1)
+        # rotmat = np.array([0, 0, 0])
 
         x = {
             "shape": a,

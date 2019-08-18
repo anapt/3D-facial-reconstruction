@@ -30,14 +30,13 @@ class ParametricMoDecoder(Helpers):
         """
         coords_2d = np.zeros((2, coords_3d.shape[1]), dtype=coords_3d.dtype)
         for i in range(0, coords_3d.shape[1]):
-            if (coords_3d[2, i]) >= 1:
+            if (coords_3d[2, i]) > 0:
                 inv_z = (1/coords_3d[2, i])
                 coords_2d[:, i] = ([coords_3d[0, i]*inv_z, coords_3d[1, i]*inv_z])
 
             else:
                 coords_2d[:, i] = [0, 0]
 
-        # np.savetxt("average_face_2d_coords", coords_2d)
         return coords_2d
 
     @staticmethod
@@ -77,29 +76,8 @@ class ParametricMoDecoder(Helpers):
         :param translation: translation vector (part of the Semantic Code Vector)
         :return: coordinates in CCS with shape (3, 53149)
         """
-        # coords = self.translate(coords_ws, np.amin(coords_ws), np.amax(coords_ws), 1, 500)
         coords = np.matmul(inv_rotmat, coords_ws)
-        # coords = self.translate(coords, np.amin(coords), np.amax(coords), 1, 500)
-        coords_cs = coords - np.reshape(np.transpose((10 * translation)), newshape=(3, 1))
-
-        # coords_cs = self.translate(coords_cs, np.amin(coords_cs), np.amax(coords_cs), 1, 500)
-
-        return coords_cs
-
-    @staticmethod
-    def transform_wcs2ccs_vectors(coords_ws, inv_rotmat, translation):
-        """
-        Affine transformation from World Space Coordinate to Camera Space Coordinates
-
-        :param coords_ws: coordinates in WCS with shape (3, 53149)
-        :param inv_rotmat: inverse of rotation matrix
-        :param translation: translation vector (part of the Semantic Code Vector)
-        :return: coordinates in CCS with shape (3, 53149)
-        """
-        coords_cs = np.zeros(coords_ws.shape, dtype=coords_ws.dtype)
-
-        for i in range(0, coords_ws.shape[1]):
-            coords_cs[::, i] = np.dot(inv_rotmat, (coords_ws[::, i] - (10 * translation)))
+        coords_cs = coords - np.reshape(np.transpose(translation), newshape=(3, 1))
 
         return coords_cs
 
@@ -124,8 +102,8 @@ class ParametricMoDecoder(Helpers):
         rotmat_so3 = self.create_rot_mat(self.x['rotation'][0], self.x['rotation'][1], self.x['rotation'][2])
 
         # Calculate projected coordinates
-        translation = np.array([0, 0, -500])
-        cs_vertices = self.transform_wcs2ccs(ws_vertices, rotmat_so3, translation)
+        translation = np.array([0, 0, -5000])
+        cs_vertices = self.transform_wcs2ccs(ws_vertices, np.linalg.inv(rotmat_so3), translation)
         projected = self.projection(cs_vertices)
 
         formation = {

@@ -84,8 +84,8 @@ class LoadDataset(Helpers):
 
         all_image_paths.sort()
         all_vector_paths.sort()
-        all_image_paths = all_image_paths[0:250]
-        all_vector_paths = all_vector_paths[0:250]
+        all_image_paths = all_image_paths[0:10000]
+        all_vector_paths = all_vector_paths[0:10000]
 
         image_count = len(all_image_paths)
         print("Dataset containing %d pairs of Images and Vectors." % image_count)

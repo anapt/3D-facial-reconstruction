@@ -90,40 +90,40 @@ class InverseFaceNetEncoder(Helpers):
         :param y: Tensor, y_pred - y_true with shape (Batch_size, 257)
         :return: Float32, mean loss
         """
-        std_shape = tf.constant(self.shape_std, dtype=tf.float32)
-        std_shape = tf.compat.v1.reshape(std_shape, shape=(self.shape_dim,))
-        # std_shape = K.tile(std_shape, self.BATCH_SIZE)
-
+        # std_shape = tf.constant(self.shape_std, dtype=tf.float32)
+        # std_shape = tf.compat.v1.reshape(std_shape, shape=(self.shape_dim,))
+        # # std_shape = K.tile(std_shape, self.BATCH_SIZE)
+        #
+        # # # weight
+        # shape = tf.math.scalar_mul(1.4, std_shape, name='shape_std')
+        #
+        # std_expression = tf.constant(self.expression_std, dtype=tf.float32)
+        # std_expression = tf.compat.v1.reshape(std_expression, shape=(self.expression_dim,))
+        # # std_expression = K.tile(std_expression, self.BATCH_SIZE)
+        #
+        # # # weight
+        # expression = tf.math.scalar_mul(2.4, std_expression, name='expression_std')
+        #
+        # std_color = tf.constant(self.color_std, dtype=tf.float32)
+        # std_color = tf.compat.v1.reshape(std_color, shape=(self.color_dim,))
+        # # std_color = K.tile(std_color, self.BATCH_SIZE)
+        #
         # # weight
-        shape = tf.math.scalar_mul(1.4, std_shape, name='shape_std')
-
-        std_expression = tf.constant(self.expression_std, dtype=tf.float32)
-        std_expression = tf.compat.v1.reshape(std_expression, shape=(self.expression_dim,))
-        # std_expression = K.tile(std_expression, self.BATCH_SIZE)
-
-        # # weight
-        expression = tf.math.scalar_mul(2.4, std_expression, name='expression_std')
-
-        std_color = tf.constant(self.color_std, dtype=tf.float32)
-        std_color = tf.compat.v1.reshape(std_color, shape=(self.color_dim,))
-        # std_color = K.tile(std_color, self.BATCH_SIZE)
-
-        # weight
-        color = tf.math.scalar_mul(50, std_color, name='shape_std')
+        # color = tf.math.scalar_mul(50, std_color, name='shape_std')
 
         # with tf.device('/device:GPU:1'):
-        # shape = tf.constant(125, shape=(1,), dtype=tf.float32)
-        # shape = K.tile(shape, 80)
+        shape = tf.constant(1, shape=(1,), dtype=tf.float32)
+        shape = K.tile(shape, self.shape_dim)
 
-        # expression = tf.constant(1, shape=(1,), dtype=tf.float32)
-        # # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
-        # expression = K.tile(expression, 64)
-        # expression = tf.compat.v1.concat([expression, expression2], axis=0)
+        expression = tf.constant(1, shape=(1,), dtype=tf.float32)
+        # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
+        expression = K.tile(expression, self.expression_dim)
+        expression = tf.compat.v1.concat(expression, axis=0)
 
-        # reflectance = tf.constant(5500, shape=(1,), dtype=tf.float32)
-        # reflectance = K.tile(reflectance, 80)
+        color = tf.constant(1, shape=(1,), dtype=tf.float32)
+        color = K.tile(color, self.color_dim)
 
-        rotation = tf.constant(5500, shape=(1,), dtype=tf.float32)
+        rotation = tf.constant(1, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, self.rotation_dim)
 
         sigma = tf.compat.v1.concat([shape, expression, color, rotation],

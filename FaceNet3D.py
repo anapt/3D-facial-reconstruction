@@ -33,7 +33,7 @@ class FaceNet3D:
         # path to save cropped image
         self.cropped_path = "./DATASET/images/training/image_{:06}.png"
         # if script is used for testing set variable to True
-        self.testing = False
+        self.testing = True
         # Landmark predictor path
         self.predictor_path = "./DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
@@ -50,10 +50,10 @@ class FaceNet3D:
         self.WEIGHT_DECAY = 0.001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 1
+        self.BATCH_SIZE = 16
         self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 1500
+        self.SHUFFLE_BUFFER_SIZE = 15000
 
         self.checkpoint_dir = "./DATASET/training/"
         self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
