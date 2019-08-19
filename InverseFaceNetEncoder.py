@@ -112,18 +112,17 @@ class InverseFaceNetEncoder(Helpers):
         # color = tf.math.scalar_mul(50, std_color, name='shape_std')
 
         # with tf.device('/device:GPU:1'):
-        shape = tf.constant(1, shape=(1,), dtype=tf.float32)
+        shape = tf.constant(15, shape=(1,), dtype=tf.float32)
         shape = K.tile(shape, self.shape_dim)
 
-        expression = tf.constant(1, shape=(1,), dtype=tf.float32)
+        expression = tf.constant(15, shape=(1,), dtype=tf.float32)
         # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
         expression = K.tile(expression, self.expression_dim)
-        expression = tf.compat.v1.concat(expression, axis=0)
 
-        color = tf.constant(1, shape=(1,), dtype=tf.float32)
+        color = tf.constant(10, shape=(1,), dtype=tf.float32)
         color = K.tile(color, self.color_dim)
 
-        rotation = tf.constant(1, shape=(1,), dtype=tf.float32)
+        rotation = tf.constant(500, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, self.rotation_dim)
 
         sigma = tf.compat.v1.concat([shape, expression, color, rotation],

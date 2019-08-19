@@ -47,13 +47,14 @@ class FaceNet3D:
         self.COLOR_CHANNELS = 3
         self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS)
 
-        self.WEIGHT_DECAY = 0.001
+        # self.WEIGHT_DECAY = 0.001
+        self.WEIGHT_DECAY = 0.000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 16
-        self.BATCH_ITERATIONS = 75000
+        self.BATCH_SIZE = 2
+        self.BATCH_ITERATIONS = 7500
 
-        self.SHUFFLE_BUFFER_SIZE = 15000
+        self.SHUFFLE_BUFFER_SIZE = 7500
 
         self.checkpoint_dir = "./DATASET/training/"
         self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"

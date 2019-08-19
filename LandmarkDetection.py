@@ -52,6 +52,13 @@ class LandmarkDetection(Helpers):
             shape = face_utils.shape_to_np(landmarks)
             center = shape[33, :]
 
+            # for (x, y) in shape:
+            #     cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
+            #
+            # cv2.imshow("", image)
+            # cv2.waitKey(0)
+            # out_face = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            # cv2.imwrite("./landmarks_openmout.png", out_face)
             # initialize mask array
             feature_mask = np.zeros((image.shape[0], image.shape[1]))
 

@@ -35,12 +35,13 @@
   N = 53149;
   n_cells = 105694;
   % dataset options
-  basepath = './DATASET/';
+  basepath = '/home/anapt/PycharmProjects/thesis/';
 
   %% READ TXT FILES
   % COLOR
-  filename = sprintf('color_%d', n);
-  f = [basepath 'color' filesep filename '.txt'];
+%   filename = sprintf('color_%d', n);
+%   f = [basepath 'color' filesep filename '.txt'];
+  f = [basepath 'color.txt']
   fileID = fopen(f,'r');
   A = fscanf(fileID, '%f');
 
@@ -51,8 +52,9 @@
   color(3,:) = A((2*N)+1:(3*N));
 
   % POSITION
-  filename = sprintf('position_%d', n);
-  f = [basepath 'position' filesep filename '.txt'];
+%   filename = sprintf('position_%d', n);
+%   f = [basepath 'position' filesep filename '.txt'];
+  f = [basepath 'position.txt']
   fileID = fopen(f,'r');
   A = fscanf(fileID, '%f');
 
@@ -62,8 +64,9 @@
   position(2,:) = A(N+1:2*N);
 
   % CELLS
-  filename = sprintf('cells_%d', n);
-  f = [basepath 'cells' filesep filename '.txt'];
+%   filename = sprintf('cells_%d', n);
+%   f = [basepath 'cells' filesep filename '.txt'];
+  f = [basepath 'cells.txt']
   fileID = fopen(f,'r');
   A = fscanf(fileID, '%f');
 
