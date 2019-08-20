@@ -6,6 +6,7 @@ from ImageFormationLayer import ImageFormationLayer
 import numpy as np
 import matplotlib.pyplot as plt
 from FaceNet3D import FaceNet3D as Helpers
+from prediction_plots import prediction_plots
 
 tf.compat.v1.enable_eager_execution()
 
@@ -14,6 +15,7 @@ class InverseFaceNetEncoderPredict(Helpers):
     def __init__(self):
         super().__init__()
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        self.latest = "./DATASET/training/cp-0014.ckpt"
         print("Latest checkpoint: ", self.latest)
         self.encoder = InverseFaceNetEncoder()
         self.model = self.load_model()
@@ -64,12 +66,15 @@ class InverseFaceNetEncoderPredict(Helpers):
 
 def main():
     net = InverseFaceNetEncoderPredict()
-
+    n = 0
     # net.evaluate_model()
-    image_path = net.data_root + 'training/image_{:06}.png'.format(1)
+    image_path = net.data_root + 'validation/image_{:06}.png'.format(n)
 
     x = net.model_predict(image_path)
-    np.savetxt("./x_boot.txt", x)
+    x = net.vector2dict(x)
+    x_true = np.loadtxt(net.sem_root + 'validation/x_{:06}.txt'.format(n))
+    x_true = net.vector2dict(x_true)
+    prediction_plots(x_true, x, True)
 
     image = net.calculate_decoder_output(x)
 
