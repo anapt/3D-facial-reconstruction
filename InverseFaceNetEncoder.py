@@ -41,13 +41,8 @@ class InverseFaceNetEncoder(Helpers):
                                                        input_shape=self.IMG_SHAPE,
                                                        pooling='avg')
         base_model.trainable = False
-        base_model.summary()
-        # TODO ADD CUSTOM INITIALIZER
-        # weights_init = np.zeros((self.scv_length,))
-        # weights_init[self.scv_length - self.translation_dim] = 2.5
-        # weights_init[self.scv_length - self.translation_dim + 1] = 2.5
-        # weights_init[self.scv_length - self.translation_dim + 2] = -50
-        #
+        # base_model.summary()
+
         # weights_init = tf.constant(weights_init, shape=(self.scv_length,), dtype=tf.float32)
         weights_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None)
 
