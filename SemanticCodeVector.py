@@ -72,18 +72,21 @@ class SemanticCodeVector(Helpers):
         pca_variance = pca_variance[0:self.shape_dim]
 
         shape_std = np.sqrt(pca_variance)
+        shape_std = shape_std / np.amax(shape_std)
 
         # read color pca basis variance
         pca_variance = self.model['color']['model']['pcaVariance'][()]
         pca_variance = pca_variance[0:self.color_dim]
 
         color_std = np.sqrt(pca_variance)
+        color_std = color_std / np.amax(color_std)
 
         # read expression pca basis variance
         pca_variance = self.model['expression']['model']['pcaVariance'][()]
         pca_variance = pca_variance[0:self.expression_dim]
 
         expression_std = np.sqrt(pca_variance)
+        expression_std = expression_std / np.amax(expression_std)
 
         return shape_std, color_std, expression_std
 
