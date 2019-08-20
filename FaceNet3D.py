@@ -37,7 +37,7 @@ class FaceNet3D:
         # Landmark predictor path
         self.predictor_path = "./DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
-        self._case = 'validation'
+        self._case = 'training'
         # dataset root folders path
         self.data_root = './DATASET/images/'
         self.sem_root = './DATASET/semantic/'
@@ -51,10 +51,10 @@ class FaceNet3D:
         # self.WEIGHT_DECAY = 0.000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 1
-        self.BATCH_ITERATIONS = 32500
+        self.BATCH_SIZE = 32
+        self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 100
+        self.SHUFFLE_BUFFER_SIZE = 20000
 
         self.checkpoint_dir = "./DATASET/training/"
         self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"

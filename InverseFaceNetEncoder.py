@@ -90,39 +90,39 @@ class InverseFaceNetEncoder(Helpers):
         :param y: Tensor, y_pred - y_true with shape (Batch_size, 257)
         :return: Float32, mean loss
         """
-        # std_shape = tf.constant(self.shape_std, dtype=tf.float32)
-        # std_shape = tf.compat.v1.reshape(std_shape, shape=(self.shape_dim,))
-        # # std_shape = K.tile(std_shape, self.BATCH_SIZE)
-        #
-        # # # weight
-        # shape = tf.math.scalar_mul(1.4, std_shape, name='shape_std')
-        #
-        # std_expression = tf.constant(self.expression_std, dtype=tf.float32)
-        # std_expression = tf.compat.v1.reshape(std_expression, shape=(self.expression_dim,))
-        # # std_expression = K.tile(std_expression, self.BATCH_SIZE)
-        #
-        # # # weight
-        # expression = tf.math.scalar_mul(2.4, std_expression, name='expression_std')
-        #
-        # std_color = tf.constant(self.color_std, dtype=tf.float32)
-        # std_color = tf.compat.v1.reshape(std_color, shape=(self.color_dim,))
-        # # std_color = K.tile(std_color, self.BATCH_SIZE)
-        #
+        std_shape = tf.constant(self.shape_std, dtype=tf.float32)
+        std_shape = tf.compat.v1.reshape(std_shape, shape=(self.shape_dim,))
+        # std_shape = K.tile(std_shape, self.BATCH_SIZE)
+
         # # weight
-        # color = tf.math.scalar_mul(50, std_color, name='shape_std')
+        shape = tf.math.scalar_mul(14.4, std_shape, name='shape_std')
+
+        std_expression = tf.constant(self.expression_std, dtype=tf.float32)
+        std_expression = tf.compat.v1.reshape(std_expression, shape=(self.expression_dim,))
+        # std_expression = K.tile(std_expression, self.BATCH_SIZE)
+
+        # # weight
+        expression = tf.math.scalar_mul(7.84, std_expression, name='expression_std')
+
+        std_color = tf.constant(self.color_std, dtype=tf.float32)
+        std_color = tf.compat.v1.reshape(std_color, shape=(self.color_dim,))
+        # std_color = K.tile(std_color, self.BATCH_SIZE)
+
+        # weight
+        color = tf.math.scalar_mul(8.13, std_color, name='shape_std')
 
         # with tf.device('/device:GPU:1'):
-        shape = tf.constant(15, shape=(1,), dtype=tf.float32)
-        shape = K.tile(shape, self.shape_dim)
-
-        expression = tf.constant(15, shape=(1,), dtype=tf.float32)
-        # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
-        expression = K.tile(expression, self.expression_dim)
-
-        color = tf.constant(10, shape=(1,), dtype=tf.float32)
-        color = K.tile(color, self.color_dim)
-
-        rotation = tf.constant(500, shape=(1,), dtype=tf.float32)
+        # shape = tf.constant(15, shape=(1,), dtype=tf.float32)
+        # shape = K.tile(shape, self.shape_dim)
+        #
+        # expression = tf.constant(15, shape=(1,), dtype=tf.float32)
+        # # expression2 = tf.constant(0, shape=(1,), dtype=tf.float32)
+        # expression = K.tile(expression, self.expression_dim)
+        #
+        # color = tf.constant(10, shape=(1,), dtype=tf.float32)
+        # color = K.tile(color, self.color_dim)
+        #
+        rotation = tf.constant(52.5, shape=(1,), dtype=tf.float32)
         rotation = K.tile(rotation, self.rotation_dim)
 
         sigma = tf.compat.v1.concat([shape, expression, color, rotation],
@@ -147,7 +147,7 @@ class InverseFaceNetEncoder(Helpers):
 
         def custom_loss(y_true, y_pred):
             # with tf.device('/device:GPU:1'):
-            y = tf.math.subtract(y_pred, y_true, name='pred_minus_true')
+            y = tf.math.abs(tf.math.subtract(y_pred, y_true, name='pred_minus_true'))
 
             # Model Space Parameter Loss
             model_loss = model_space_loss(y)
@@ -160,7 +160,7 @@ class InverseFaceNetEncoder(Helpers):
         """ Compiles the Keras model. Includes metrics to differentiate between the two main loss terms """
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
                                                                   rho=0.95, epsilon=None, decay=self.WEIGHT_DECAY),
-                           # loss=self.loss_func,
-                           loss=tf.keras.losses.mean_absolute_error,
+                           loss=self.loss_func,
+                           # loss=tf.keras.losses.mean_absolute_error,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')
