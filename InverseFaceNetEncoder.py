@@ -134,9 +134,9 @@ class InverseFaceNetEncoder(Helpers):
 
         beta = tf.linalg.matmul(alpha, alpha, transpose_a=True)
 
-        loss = K.mean(beta, axis=-1)
+        # loss = K.mean(beta, axis=-1)
 
-        return loss
+        return beta
 
     def model_loss(self):
         """" Wrapper function which calculates auxiliary values for the complete loss function.
@@ -160,7 +160,7 @@ class InverseFaceNetEncoder(Helpers):
         """ Compiles the Keras model. Includes metrics to differentiate between the two main loss terms """
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
                                                                   rho=0.95, epsilon=None, decay=self.WEIGHT_DECAY),
-                           loss=self.loss_func,
-                           # loss=tf.keras.losses.mean_squared_error,
+                           # loss=self.loss_func,
+                           loss=tf.keras.losses.mean_absolute_error,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')

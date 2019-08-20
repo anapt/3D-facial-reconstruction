@@ -33,11 +33,36 @@ class EncoderTrain(Helpers):
                 self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
-        steps_per_epoch = self.BATCH_ITERATIONS
         print("Training with %d steps per epoch" % steps_per_epoch)
         # with tf.device('/device:CPU:0'):
-        history_1 = model.fit(keras_ds, epochs=5, steps_per_epoch=steps_per_epoch,
+        history_1 = model.fit(keras_ds, epochs=14, steps_per_epoch=steps_per_epoch,
                               callbacks=[self.batch_stats_callback, self.cp_callback])
+
+        self.history_list.append(history_1)
+
+    def training_phase_12(self):
+        # Build and compile model:
+
+        # load weights trained on synthetic faces and start bootstrapping
+        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        print("\n \n \n\n checkpoint: ", latest)
+        print("\n\n\n\n\n\n")
+        model = self.inverseNet.model
+        model.load_weights(latest)
+
+        self.inverseNet.compile()
+
+        with tf.device('/device:CPU:0'):
+            keras_ds = LoadDataset().load_dataset_batches(_case=self._case)
+            keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
+                self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
+
+        steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
+        print("Training with %d steps per epoch" % steps_per_epoch)
+
+        with tf.device('/device:CPU:0'):
+            history_1 = model.fit(keras_ds, epochs=12, steps_per_epoch=steps_per_epoch,
+                                  callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)
 
@@ -81,7 +106,7 @@ def main():
     train = EncoderTrain()
     print("\n\n\n\n\n\n\n\n")
     print("Batch size: %d" % train.BATCH_SIZE)
-    print("Batch iterations, per epoch: %d" % train.SHUFFLE_BUFFER_SIZE)
+
     print("\n \n \nPhase 1\nSTART")
 
     with tf.device('/device:CPU:0'):

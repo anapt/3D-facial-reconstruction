@@ -33,11 +33,11 @@ class FaceNet3D:
         # path to save cropped image
         self.cropped_path = "./DATASET/images/training/image_{:06}.png"
         # if script is used for testing set variable to True
-        self.testing = True
+        self.testing = False
         # Landmark predictor path
         self.predictor_path = "./DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
-        self._case = 'training'
+        self._case = 'validation'
         # dataset root folders path
         self.data_root = './DATASET/images/'
         self.sem_root = './DATASET/semantic/'
@@ -47,20 +47,20 @@ class FaceNet3D:
         self.COLOR_CHANNELS = 3
         self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS)
 
-        # self.WEIGHT_DECAY = 0.001
-        self.WEIGHT_DECAY = 0.000001
+        self.WEIGHT_DECAY = 0.001
+        # self.WEIGHT_DECAY = 0.000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 2
-        self.BATCH_ITERATIONS = 7500
+        self.BATCH_SIZE = 1
+        self.BATCH_ITERATIONS = 32500
 
-        self.SHUFFLE_BUFFER_SIZE = 7500
+        self.SHUFFLE_BUFFER_SIZE = 100
 
         self.checkpoint_dir = "./DATASET/training/"
         self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
-            self.checkpoint_path, verbose=1, save_weights_only=True, period=10)
+            self.checkpoint_path, verbose=1, save_weights_only=True, period=2)
 
         self.batch_stats_callback = CollectBatchStats()
 
