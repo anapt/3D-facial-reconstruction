@@ -72,7 +72,7 @@ def main():
 
     x = net.model_predict(image_path)
     x = net.vector2dict(x)
-    x_true = np.loadtxt(net.sem_root + 'validation/x_{:06}.txt'.format(n))
+    x_true = np.loadtxt(net.sem_root + 'validation/x_{:06}.txt'.format(0))
     x_true = net.vector2dict(x_true)
     prediction_plots(x_true, x, True)
 
