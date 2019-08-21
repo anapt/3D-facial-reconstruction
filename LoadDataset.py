@@ -24,10 +24,11 @@ class LoadDataset(Helpers):
         image = tf.image.decode_image(image, channels=self.COLOR_CHANNELS, dtype=tf.dtypes.float32)
         # print(image.shape)
         # image = tf.cast(image, dtype=tf.float32)
-        image = image/255.0
+        image = image/255.0 - 0.5
 
         if test_dataset:
-            image = tf.reshape(image, shape=[1, self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS])
+            # image = tf.reshape(image, shape=[1, self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS])
+            image = tf.reshape(image, shape=[1, 224, 224, self.COLOR_CHANNELS])
 
         return image
 
@@ -84,8 +85,10 @@ class LoadDataset(Helpers):
 
         all_image_paths.sort()
         all_vector_paths.sort()
-        all_image_paths = all_image_paths[0:20000]
-        all_vector_paths = all_vector_paths[0:20000]
+        all_image_paths = all_image_paths[0:1]
+        all_vector_paths = all_vector_paths[0:1]
+        print(all_vector_paths[0])
+        print(all_image_paths[0])
 
         image_count = len(all_image_paths)
         print("Dataset containing %d pairs of Images and Vectors." % image_count)
