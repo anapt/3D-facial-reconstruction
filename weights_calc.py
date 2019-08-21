@@ -11,7 +11,7 @@ all_vector_paths = [str(path) for path in all_vector_paths]
 
 # all_vector_paths = np.random.choice(all_vector_paths, 32)
 # print(a)
-
+all_vector_paths = all_vector_paths[0:1]
 vectors = np.zeros((helper.scv_length, len(all_vector_paths)))
 for n, path in enumerate(all_vector_paths):
     v = np.loadtxt(path)
@@ -72,13 +72,18 @@ for i in range(0, vectors.shape[1]):
 # avg_color = (sum_color/32)
 # avg_rotation = (sum_rotation/32)
 
-avg_shape = (sum_shape/vectors.shape[1])
-avg_expression = (sum_expression/vectors.shape[1])
-avg_color = (sum_color/vectors.shape[1])
-avg_rotation = (sum_rotation/vectors.shape[1])
+# avg_shape = (sum_shape/vectors.shape[1])
+# avg_expression = (sum_expression/vectors.shape[1])
+# avg_color = (sum_color/vectors.shape[1])
+# avg_rotation = (sum_rotation/vectors.shape[1])
 # print("avg_rot", avg_rotation)
 
-constant = 100
+avg_shape = (sum_shape)
+avg_expression = (sum_expression)
+avg_color = (sum_color)
+avg_rotation = (sum_rotation)
+
+constant = 1000
 w_shape = constant / avg_shape
 w_expression = constant / avg_expression
 w_color = constant / avg_color
