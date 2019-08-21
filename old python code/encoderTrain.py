@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from InverseFaceNetEncoder import InverseFaceNetEncoder
+from old_encoder import InverseFaceNetEncoder
 from loadDataset import load_dataset_batches
 import CollectBatchStats as batch_stats
 from keras import backend as K

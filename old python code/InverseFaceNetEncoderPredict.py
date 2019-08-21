@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
-from InverseFaceNetEncoder import InverseFaceNetEncoder
+from old_encoder import InverseFaceNetEncoder
 from loadDataset import load_dataset_single_image, load_and_preprocess_image_4d
 import ImageFormationLayer as ifl
 import numpy as np
