@@ -77,7 +77,7 @@ class LandmarkDetection(Helpers):
 
             out_face[feature_mask] = image[feature_mask]
 
-            out_face = out_face[center[1] - 120:center[1] + 120, center[0] - 120:center[0] + 120]
+            out_face = out_face[center[1] - 112:center[1] + 112, center[0] - 112:center[0] + 112]
 
             if flip_rgb:
                 out_face = cv2.cvtColor(out_face, cv2.COLOR_BGR2RGB)
