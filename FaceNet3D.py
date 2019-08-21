@@ -43,7 +43,7 @@ class FaceNet3D:
         self.sem_root = './DATASET/semantic/'
 
         # DATASET AND NETWORK TRAINING OPTIONS
-        self.IMG_SIZE = 240
+        self.IMG_SIZE = 224
         self.COLOR_CHANNELS = 3
         self.IMG_SHAPE = (self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS)
 
@@ -51,16 +51,17 @@ class FaceNet3D:
         # self.WEIGHT_DECAY = 0.000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 32
+        self.BATCH_SIZE = 1
         self.BATCH_ITERATIONS = 75000
 
-        self.SHUFFLE_BUFFER_SIZE = 20000
+        self.SHUFFLE_BUFFER_SIZE = 10
 
         self.checkpoint_dir = "./DATASET/training/"
         self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
 
-        self.cp_callback = tf.keras.callbacks.ModelCheckpoint(
-            self.checkpoint_path, verbose=1, save_weights_only=True, period=2)
+        self.cp_callback = tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path, monitor='loss',
+                                                              verbose=0, save_best_only=True,
+                                                              save_weights_only=True, mode='min', period=1)
 
         self.batch_stats_callback = CollectBatchStats()
 
