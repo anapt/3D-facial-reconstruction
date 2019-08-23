@@ -166,10 +166,3 @@ class InverseFaceNetEncoder(Helpers):
                            # loss=tf.keras.losses.mean_squared_error,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')
-
-
-def main():
-    net = InverseFaceNetEncoder().compile()
-
-
-# main()
