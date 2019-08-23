@@ -15,7 +15,7 @@ class InverseFaceNetEncoderPredict(Helpers):
     def __init__(self):
         super().__init__()
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        # self.latest = "./DATASET/training/cp-0040.ckpt"
+        self.latest = "./DATASET/training/cp-0005.ckpt"
         print("Latest checkpoint: ", self.latest)
         self.encoder = InverseFaceNetEncoder()
         self.model = self.load_model()
@@ -66,13 +66,13 @@ class InverseFaceNetEncoderPredict(Helpers):
 
 def main():
     net = InverseFaceNetEncoderPredict()
-    n = 0
+    n = 1
     # net.evaluate_model()
     image_path = net.data_root + 'training/image_{:06}.png'.format(n)
 
     x = net.model_predict(image_path)
     x = net.vector2dict(x)
-    x_true = np.loadtxt(net.sem_root + 'training/x_{:06}.txt'.format(0))
+    x_true = np.loadtxt(net.sem_root + 'training/x_{:06}.txt'.format(n))
     x_true = net.vector2dict(x_true)
     prediction_plots(x_true, x, save_figs=False)
 
