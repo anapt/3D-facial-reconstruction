@@ -18,14 +18,14 @@ class FaceCropper(object):
         :param n: number of iteration, used when save_image is True
         :return: type <class 'numpy.ndarray'> with shape (240, 240, 3)
         """
-        faces = self.face_cascade.detectMultiScale(img, 1.1, 3, minSize=(100, 100))
+        faces = self.face_cascade.detectMultiScale(img, 1.1, 3, minSize=(224, 224))
         if faces is None:
             print('Failed to detect face')
             return 0
-        elif len(faces) >= 1:
-            print("here")
+        elif len(faces) == 1:
             for (x, y, w, h) in faces:
                 r = max(w, h) / 2
+                r = 400
                 centerx = x + w / 2
                 centery = y + h / 2
                 nx = int(centerx - r)
@@ -33,14 +33,14 @@ class FaceCropper(object):
                 nr = int(r * 2)
 
                 faceimg = img[ny:ny + nr, nx:nx + nr]
-                lastimg = cv2.resize(faceimg, (200, 200))
+                try:
+                    lastimg = cv2.resize(faceimg, (300, 300))
 
-            if save_image:
-                cropped_image_path = ("./DATASET/images/image_%d.png" % n)
-                cv2.imwrite(cropped_image_path, lastimg)
+                    if save_image:
+                        cropped_image_path = ("/home/anapt/Documents/MUG/cropped/{:06}.png".format(n))
+                        cv2.imwrite(cropped_image_path, lastimg)
 
-            cv2.imshow("", lastimg)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+                    return lastimg
 
-            return lastimg
+                except Exception as e:
+                    print(str(e))
