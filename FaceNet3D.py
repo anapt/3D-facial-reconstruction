@@ -52,7 +52,7 @@ class FaceNet3D:
         self.BASE_LEARNING_RATE = 0.01
 
         self.BATCH_SIZE = 32
-        self.BATCH_ITERATIONS = 75000
+        self.BATCH_ITERATIONS = 7500
 
         self.SHUFFLE_BUFFER_SIZE = 20000
 
