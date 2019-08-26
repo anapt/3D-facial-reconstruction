@@ -51,7 +51,7 @@ class FaceNet3D:
         # self.WEIGHT_DECAY = 0.000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 32
+        self.BATCH_SIZE = 16
         self.BATCH_ITERATIONS = 7500
 
         self.SHUFFLE_BUFFER_SIZE = 20000
@@ -62,6 +62,8 @@ class FaceNet3D:
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path, monitor='loss',
                                                               verbose=0, save_best_only=True,
                                                               save_weights_only=True, mode='min', period=1)
+
+        self.trained_models_dir = "./DATASET/trained_models/"
 
         self.batch_stats_callback = CollectBatchStats()
 
