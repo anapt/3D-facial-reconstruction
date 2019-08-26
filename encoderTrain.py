@@ -111,7 +111,7 @@ def main():
     print("\nPhase 1\nSTART")
 
     with tf.device('/device:CPU:0'):
-        train.training_phase_1()
+        train.training_phase_12()
 
     print("Phase 1: COMPLETE")
     # print("\n \n \nPhase 2\n START")
