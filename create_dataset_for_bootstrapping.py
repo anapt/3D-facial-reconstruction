@@ -1,63 +1,50 @@
 import numpy as np
-import ImageFormationLayer as ifl
+from ImageFormationLayer import ImageFormationLayer
 import matplotlib.pyplot as plt
-import InverseFaceNetEncoderPredict as net_predict
+import pathlib
+from InverseFaceNetEncoderPredict import InverseFaceNetEncoderPredict
+from FaceNet3D import FaceNet3D as Helpers
 import cv2
 import time
+from prediction_plots import prediction_plots
 
 
-class PrepareImages():
+class PrepareImages(Helpers):
+
     def __init__(self):
-        self.image_dir = './DATASET/face_db/'
-        self.net = net_predict.InverseFaceNetEncoderPredict()
+        super().__init__()
+        self.image_dir = '/home/anapt/Documents/MUG/cropped/'
+        self.net = InverseFaceNetEncoderPredict()
 
-    @staticmethod
-    def vector_resampling(vector):
-        if isinstance(vector, dict):
-            pass
-        else:
-            vector = {
-                "shape": np.squeeze(vector[0:80, ]),
-                "expression": np.squeeze(vector[80:144, ]),
-                "reflectance": np.squeeze(vector[144:224, ]),
-                "rotation": np.squeeze(vector[224:227, ]),
-                "translation": np.squeeze(vector[227:230, ]),
-                "illumination": np.squeeze(vector[230:257, ])
-            }
+    def vector_resampling(self, vector):
+        vector = self.vector2dict(vector)
 
-        shape = vector['shape'] + np.random.uniform(-0.5, 0.5, 80)
+        shape = vector['shape'] + np.random.normal(0, 0.05, self.shape_dim)
 
-        expression = vector['expression'] + np.random.uniform(-2, 2, 64)
+        expression = vector['expression'] + np.random.normal(0, 0.1, self.expression_dim)
 
-        reflectance = vector['reflectance'] + np.random.normal(0, 0.2, 80)
+        color = vector['color'] + np.random.normal(0, 0.1, self.color_dim)
 
-        rotation = vector['rotation'] + np.random.uniform(-5, 5, 3)
-
-        translation = np.random.uniform(-0.2, 0.2, 3)
-        translation[2] = np.random.normal(0, 0.02, 1)
-        translation = vector['translation'] + translation
-
-        illumination = vector['illumination'] + np.random.normal(0, 0.02, 27)
+        rotation = vector['rotation'] + np.random.uniform(-0.5, 0.5, 3)
 
         x = {
             "shape": shape,
             "expression": expression,
-            "reflectance": reflectance,
+            "color": color,
             "rotation": rotation,
-            "translation": translation,
-            "illumination": illumination
         }
 
         return x
 
     def get_prediction(self, image_path):
         vector = self.net.model_predict(image_path=image_path)
+        # prediction_plots(self.vector2dict(vector), self.vector2dict(np.zeros(231, )), save_figs=False)
         return vector
 
     def create_image_and_save(self, vector, n):
         # create first image with variation
         x_new = self.vector_resampling(vector)
-        formation = ifl.ImageFormationLayer(x_new)
+        formation = ImageFormationLayer(x_new)
         image = formation.get_reconstructed_image()
         # change RGB to BGR
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -66,7 +53,7 @@ class PrepareImages():
 
         # create second image with variation
         x_new = self.vector_resampling(vector)
-        formation = ifl.ImageFormationLayer(x_new)
+        formation = ImageFormationLayer(x_new)
         image = formation.get_reconstructed_image()
         # change RGB to BGR
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -77,13 +64,21 @@ class PrepareImages():
 def main():
     # Number of images to read
     N = 4
-    preprocess = PrepareImages()
+    path = "/home/anapt/Documents/MUG/cropped/"
 
-    for n in range(0, N):
+    data_root = pathlib.Path(path)
+    all_image_paths = list(data_root.glob('*.png'))
+    all_image_paths = [str(path) for path in all_image_paths]
+    all_image_paths.sort()
+    print(all_image_paths)
+    all_image_paths = all_image_paths[0:8]
+
+    preprocess = PrepareImages()
+    #
+    for n, path in enumerate(all_image_paths):
         start = time.time()
-        image_path = preprocess.image_dir + '{}.png'.format(n)
-        print(image_path)
-        vector = preprocess.get_prediction(image_path)
+        print(path)
+        vector = preprocess.get_prediction(path)
         preprocess.create_image_and_save(vector, 2*n)
         print("Time passed:", time.time() - start)
         print(n)

@@ -14,8 +14,8 @@ tf.compat.v1.enable_eager_execution()
 class InverseFaceNetEncoderPredict(Helpers):
     def __init__(self):
         super().__init__()
-        self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        self.latest = "./DATASET/training/cp-0005.ckpt"
+        self.latest = self.trained_models_dir + "cp-0012.ckpt"
+        # self.latest = self.checkpoint_dir + "cp-7500.ckpt"
         print("Latest checkpoint: ", self.latest)
         self.encoder = InverseFaceNetEncoder()
         self.model = self.load_model()
@@ -66,7 +66,7 @@ class InverseFaceNetEncoderPredict(Helpers):
 
 def main():
     net = InverseFaceNetEncoderPredict()
-    n = 1
+    n = 9
     # net.evaluate_model()
     image_path = net.data_root + 'training/image_{:06}.png'.format(n)
 
@@ -74,14 +74,16 @@ def main():
     x = net.vector2dict(x)
     x_true = np.loadtxt(net.sem_root + 'training/x_{:06}.txt'.format(n))
     x_true = net.vector2dict(x_true)
-    prediction_plots(x_true, x, save_figs=False)
+    # prediction_plots(x_true, x, save_figs=False)
 
-    image = net.calculate_decoder_output(x)
+    loss = np.power(net.dict2vector(x) - net.dict2vector(x_true), 2)
+    print("Loss: {}".format(np.mean(loss)))
+    # image = net.calculate_decoder_output(x)
 
-    show_result = True
-    if show_result:
-        plt.imshow(image)
-        plt.show()
+    # show_result = True
+    # if show_result:
+    #     plt.imshow(image)
+    #     plt.show()
 
 
-main()
+# main()
