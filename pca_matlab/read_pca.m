@@ -12,7 +12,7 @@ bar(shape_var(2:64))
 
 sum(shape_var(1:64))/sum(shape_var)
 
-
+shape_var(64)/sum(shape_var)*100
 expression_var = hdf5read(hinfo.GroupHierarchy.Groups(3).Groups(1).Datasets(4));
 
 figure(3)
