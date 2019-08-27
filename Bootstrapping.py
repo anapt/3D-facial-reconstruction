@@ -32,7 +32,7 @@ class Bootstrapping(Helpers):
 
         all_image_paths = list(data_root.glob('*.jpg'))
         all_image_paths = [str(path) for path in all_image_paths]
-        all_image_paths = np.random.choice(all_image_paths, 5100)
+        all_image_paths = np.random.choice(all_image_paths, 5100, replace=False)
         print(all_image_paths)
         for i, path in enumerate(all_image_paths):
             img = cv2.imread(path, 1)
