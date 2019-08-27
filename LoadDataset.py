@@ -64,8 +64,8 @@ class LoadDataset(Helpers):
             data_root = self.data_root + 'training/'
             sem_root = self.sem_root + 'training/'
         elif _case == 'bootstrapping':
-            data_root = self.data_root + 'bootstrapping/'
-            sem_root = self.sem_root + 'bootstrapping/'
+            data_root = self.bootstrapping_path + 'images/'
+            sem_root = self.bootstrapping_path + 'semantic/'
         elif _case == 'validation':
             data_root = self.data_root + 'validation/'
             sem_root = self.sem_root + 'validation/'

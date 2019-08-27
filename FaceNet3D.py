@@ -41,6 +41,7 @@ class FaceNet3D:
         # dataset root folders path
         self.data_root = './DATASET/images/'
         self.sem_root = './DATASET/semantic/'
+        self.bootstrapping_path = './DATASET/'
 
         # DATASET AND NETWORK TRAINING OPTIONS
         self.IMG_SIZE = 224
