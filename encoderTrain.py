@@ -46,8 +46,9 @@ class EncoderTrain(Helpers):
 
         # load weights trained on synthetic faces and start bootstrapping
         latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        print("\n \n \n\n checkpoint: ", latest)
-        print("\n\n\n\n\n\n")
+        latest = self.trained_models_dir + "cp-0012.ckpt"
+        print("\ncheckpoint: ", latest)
+
         model = self.inverseNet.model
         model.load_weights(latest)
 
@@ -62,7 +63,7 @@ class EncoderTrain(Helpers):
         print("Training with %d steps per epoch" % steps_per_epoch)
 
         with tf.device('/device:CPU:0'):
-            history_1 = model.fit(keras_ds, epochs=10, steps_per_epoch=steps_per_epoch,
+            history_1 = model.fit(keras_ds, epochs=12, steps_per_epoch=steps_per_epoch,
                                   callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)

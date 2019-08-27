@@ -51,7 +51,7 @@ class FaceNet3D:
         # self.WEIGHT_DECAY = 0.000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 16
+        self.BATCH_SIZE = 32
         self.BATCH_ITERATIONS = 7500
 
         self.SHUFFLE_BUFFER_SIZE = 20000

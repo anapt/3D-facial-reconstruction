@@ -43,31 +43,6 @@ class InverseFaceNetEncoder(Helpers):
                                                              # input_shape=self.IMG_SHAPE,
                                                              pooling='avg')
 
-        # for layer in base_model.layers[:]:
-        #     layer.trainable = True
-        """
-        
-        
-        
-        # Freeze the layers which you don't want to train. Here I am freezing the first 5 layers.
-        
-        
-        #Adding custom Layers 
-        x = model.output
-        x = Flatten()(x)
-        x = Dense(1024, activation="relu")(x)
-        x = Dropout(0.5)(x)
-        x = Dense(1024, activation="relu")(x)
-        predictions = Dense(16, activation="softmax")(x)
-        
-        # creating the final model 
-        model_final = Model(input = model.input, output = predictions)
-        
-        # compile the model 
-        model_final.compile(loss = "categorical_crossentropy", optimizer = optimizers.SGD(lr=0.0001, momentum=0.9), metrics=["accuracy"])
-        
-                """
-
         base_model.trainable = True
         # base_model.summary()
 
@@ -75,9 +50,7 @@ class InverseFaceNetEncoder(Helpers):
 
         # Create prediction layer
         prediction_layer = tf.keras.layers.Dense(self.scv_length, activation=None, use_bias=True,
-                                                 kernel_initializer=weights_init, bias_initializer='zeros'
-                                                 # kernel_regularizer=tf.keras.regularizers.l2(self.WEIGHT_DECAY)
-                                                 )
+                                                 kernel_initializer=weights_init, bias_initializer='zeros')
 
         # Stack model layers
         model_o = tf.keras.Sequential([
@@ -98,7 +71,7 @@ class InverseFaceNetEncoder(Helpers):
         Non - trainable params: 53,120 (from resnet50)
         _________________________________________________________________
         """
-        model_o.summary()
+        # model_o.summary()
         return model_o
 
     def model_space_parameter_loss(self, y):
@@ -110,8 +83,9 @@ class InverseFaceNetEncoder(Helpers):
         :return: Float32, mean loss
         """
         std_shape = tf.constant(self.shape_std, dtype=tf.float32)
+        print(std_shape)
         std_shape = tf.compat.v1.reshape(std_shape, shape=(self.shape_dim,))
-
+        print(std_shape)
         # weight
         shape = tf.math.scalar_mul(self.scale_shape, std_shape, name='shape_std')
 
@@ -148,7 +122,6 @@ class InverseFaceNetEncoder(Helpers):
 
         def custom_loss(y_true, y_pred):
             # with tf.device('/device:GPU:1'):
-            # y = tf.math.abs(tf.math.subtract(y_pred, y_true, name='pred_minus_true'))
             y = K.square(y_pred - y_true)
 
             # Model Space Parameter Loss
@@ -162,7 +135,6 @@ class InverseFaceNetEncoder(Helpers):
         """ Compiles the Keras model. Includes metrics to differentiate between the two main loss terms """
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
                                                                   rho=0.95, epsilon=None, decay=self.WEIGHT_DECAY),
-                           # loss=self.loss_func,
-                           loss=tf.keras.losses.mean_squared_error,
+                           loss=self.loss_func,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')
