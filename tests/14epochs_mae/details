@@ -1,7 +1,0 @@
-14 epochs
-100 steps per epoch
-batch size 1
-shuffle buffer size = 100
-dataset size = 1
-loss = mae
-

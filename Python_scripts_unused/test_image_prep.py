@@ -23,5 +23,5 @@ for i, path in enumerate(all_image_paths):
         continue
     img = LandmarkDetection().cutout_mask_array(img, flip_rgb=False)
 
-    cropped_image_path = ("/home/anapt/Documents/MUG/cropped/{:06}.png".format(i))
+    cropped_image_path = (".DATASET/bootstrapping/MUG/cropped/{:06}.png".format(i))
     cv2.imwrite(cropped_image_path, img)

@@ -13,7 +13,7 @@ class PrepareImages(Helpers):
 
     def __init__(self):
         super().__init__()
-        self.image_dir = '/home/anapt/Documents/MUG/cropped/'
+        self.image_dir = './DATASET/MUG/'
         self.net = InverseFaceNetEncoderPredict()
 
     def vector_resampling(self, vector):
@@ -44,6 +44,8 @@ class PrepareImages(Helpers):
     def create_image_and_save(self, vector, n):
         # create first image with variation
         x_new = self.vector_resampling(vector)
+        vector_path = './DATASET/semantic/bootstrapping/x_{:06}.png'.format(n)
+        np.savetxt(vector_path, self.dict2vector(x_new))
         formation = ImageFormationLayer(x_new)
         image = formation.get_reconstructed_image()
         # change RGB to BGR
@@ -53,6 +55,8 @@ class PrepareImages(Helpers):
 
         # create second image with variation
         x_new = self.vector_resampling(vector)
+        vector_path = './DATASET/semantic/bootstrapping/x_{:06}.png'.format(n+1)
+        np.savetxt(vector_path, self.dict2vector(x_new))
         formation = ImageFormationLayer(x_new)
         image = formation.get_reconstructed_image()
         # change RGB to BGR
@@ -62,9 +66,7 @@ class PrepareImages(Helpers):
 
 
 def main():
-    # Number of images to read
-    N = 4
-    path = "/home/anapt/Documents/MUG/cropped/"
+    path = "./DATASET/images/MUG/"
 
     data_root = pathlib.Path(path)
     all_image_paths = list(data_root.glob('*.png'))
