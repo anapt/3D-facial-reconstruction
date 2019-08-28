@@ -41,12 +41,12 @@ class EncoderTrain(Helpers):
 
         self.history_list.append(history_1)
 
-    def training_phase_12(self):
+    def training_phase_2(self):
         # Build and compile model:
 
         # load weights trained on synthetic faces and start bootstrapping
-        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        latest = self.trained_models_dir + "cp-0012.ckpt"
+        # latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        latest = self.trained_models_dir + "cp-15000.ckpt"
         print("\ncheckpoint: ", latest)
 
         model = self.inverseNet.model
@@ -63,7 +63,34 @@ class EncoderTrain(Helpers):
         print("Training with %d steps per epoch" % steps_per_epoch)
 
         with tf.device('/device:CPU:0'):
-            history_1 = model.fit(keras_ds, epochs=12, steps_per_epoch=steps_per_epoch,
+            history_1 = model.fit(keras_ds, epochs=28, steps_per_epoch=steps_per_epoch,
+                                  callbacks=[self.batch_stats_callback, self.cp_callback])
+
+        self.history_list.append(history_1)
+
+    def training_phase_21(self):
+        # Build and compile model:
+
+        # load weights trained on synthetic faces and start bootstrapping
+        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        # latest = self.trained_models_dir + "cp-15000.ckpt"
+        print("\ncheckpoint: ", latest)
+
+        model = self.inverseNet.model
+        model.load_weights(latest)
+
+        self.inverseNet.compile()
+
+        with tf.device('/device:CPU:0'):
+            keras_ds = LoadDataset().load_dataset_batches(_case=self._case)
+            keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
+                self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
+
+        steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
+        print("Training with %d steps per epoch" % steps_per_epoch)
+
+        with tf.device('/device:CPU:0'):
+            history_1 = model.fit(keras_ds, epochs=28, steps_per_epoch=steps_per_epoch,
                                   callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)
@@ -112,7 +139,7 @@ def main():
     print("\nPhase 1\nSTART")
 
     with tf.device('/device:CPU:0'):
-        train.training_phase_12()
+        train.training_phase_1()
 
     print("Phase 1: COMPLETE")
     # print("\n \n \nPhase 2\n START")
