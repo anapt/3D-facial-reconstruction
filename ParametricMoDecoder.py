@@ -103,7 +103,7 @@ class ParametricMoDecoder(Helpers):
 
         # Calculate projected coordinates
         translation = np.array([0, 0, -5000])
-        cs_vertices = self.transform_wcs2ccs(ws_vertices, np.linalg.inv(rotmat_so3), translation)
+        cs_vertices = self.transform_wcs2ccs(ws_vertices, (rotmat_so3), translation)
         projected = self.projection(cs_vertices)
 
         formation = {
