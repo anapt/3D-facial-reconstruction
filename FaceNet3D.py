@@ -37,11 +37,11 @@ class FaceNet3D:
         # Landmark predictor path
         self.predictor_path = "./DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
-        self._case = 'training'
+        self._case = 'bootstrapping'
         # dataset root folders path
         self.data_root = './DATASET/images/'
         self.sem_root = './DATASET/semantic/'
-        self.bootstrapping_path = './DATASET/'
+        self.bootstrapping_path = './DATASET/bootstrapping/'
 
         # DATASET AND NETWORK TRAINING OPTIONS
         self.IMG_SIZE = 224
@@ -93,10 +93,7 @@ class FaceNet3D:
                 "color": np.squeeze(vector[self.shape_dim+self.expression_dim:
                                            self.shape_dim+self.expression_dim+self.color_dim, ]),
                 "rotation": np.squeeze(vector[self.shape_dim+self.expression_dim+self.color_dim:
-                                              self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim, ]),
-                # "translation": np.squeeze(vector[self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim:
-                #                                  self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim +
-                #                                  self.rotation_dim, ]),
+                                              self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim, ])
             }
             return x
 
