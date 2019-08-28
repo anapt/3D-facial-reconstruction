@@ -7,6 +7,13 @@ from LandmarkDetection import LandmarkDetection
 from InverseFaceNetEncoderPredict import InverseFaceNetEncoderPredict
 from ImageFormationLayer import ImageFormationLayer
 import time
+import tensorflow as tf
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+TF_FORCE_GPU_ALLOW_GROWTH = True
+tf.compat.v1.enable_eager_execution()
+print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
+print("\n\n\n\n")
 
 
 class Bootstrapping(Helpers):
@@ -41,12 +48,14 @@ class Bootstrapping(Helpers):
             if img is None:
                 continue
             img = LandmarkDetection().cutout_mask_array(img, flip_rgb=False)
+            if img is None:
+                continue
             if img.shape != self.IMG_SHAPE:
                 continue
 
             img = self.fix_color(img)
 
-            cv2.imwrite(self.path_mild_images.format(i), img)
+            cv2.imwrite(self.path_mild_images.format(1038+i), img)
 
     @staticmethod
     def read_average_color():
@@ -99,7 +108,7 @@ class Bootstrapping(Helpers):
     def vector_resampling(self, vector):
         vector = self.vector2dict(vector)
 
-        shape = vector['shape'] + np.random.normal(0, 0.05, self.shape_dim)
+        shape = vector['shape'] + np.random.normal(0, 0.1, self.shape_dim)
 
         expression = vector['expression'] + np.random.normal(0, 0.1, self.expression_dim)
 
@@ -143,26 +152,39 @@ class Bootstrapping(Helpers):
 
 def main():
     boot = Bootstrapping()
-    phase_1 = True
+    phase_1 = False
 
     if phase_1:
         boot.prepare_images()
 
     if not phase_1:
-        path = "./DATASET/bootstrapping/MUG/"
-        data_root = pathlib.Path(path)
-        all_image_paths = list(data_root.glob('*.png'))
-        all_image_paths = [str(path) for path in all_image_paths]
-        all_image_paths.sort()
-        print(all_image_paths)
-        # all_image_paths = all_image_paths[0:5000]
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        print(len(gpus), "Physical GPUs")
+        if gpus:
+            # Restrict TensorFlow to only use the first GPU
+            try:
+                # tf.config.experimental.set_visible_devices(gpus[1], 'GPU')
+                logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+                print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPU")
+            except RuntimeError as e:
+                # Visible devices must be set before GPUs have been initialized
+                print(e)
 
-        for n, path in enumerate(all_image_paths):
-            start = time.time()
-            print(path)
-            vector = boot.get_prediction(path)
-            boot.create_image_and_save(vector, 2 * n)
-            # print("Time passed:", time.time() - start)
-            print(n)
+        with tf.device('/device:CPU:0'):
+            path = "./DATASET/bootstrapping/MUG/"
+            data_root = pathlib.Path(path)
+            all_image_paths = list(data_root.glob('*.png'))
+            all_image_paths = [str(path) for path in all_image_paths]
+            all_image_paths.sort()
+            # print(all_image_paths)
+            # all_image_paths = all_image_paths[0:5]
+
+            for n, path in enumerate(all_image_paths):
+                start = time.time()
+                # print(path)
+                vector = boot.get_prediction(path)
+                boot.create_image_and_save(vector, 2 * n)
+                # print("Time passed:", time.time() - start)
+                print(n)
 
 main()
