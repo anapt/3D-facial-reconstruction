@@ -63,7 +63,7 @@ class EncoderTrain(Helpers):
         print("Training with %d steps per epoch" % steps_per_epoch)
 
         with tf.device('/device:CPU:0'):
-            history_1 = model.fit(keras_ds, epochs=28, steps_per_epoch=steps_per_epoch,
+            history_1 = model.fit(keras_ds, epochs=24, steps_per_epoch=steps_per_epoch,
                                   callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)
@@ -90,7 +90,7 @@ class EncoderTrain(Helpers):
         print("Training with %d steps per epoch" % steps_per_epoch)
 
         with tf.device('/device:CPU:0'):
-            history_1 = model.fit(keras_ds, epochs=28, steps_per_epoch=steps_per_epoch,
+            history_1 = model.fit(keras_ds, epochs=24, steps_per_epoch=steps_per_epoch,
                                   callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)
@@ -139,7 +139,7 @@ def main():
     print("\nPhase 1\nSTART")
 
     with tf.device('/device:CPU:0'):
-        train.training_phase_1()
+        train.training_phase_2()
 
     print("Phase 1: COMPLETE")
     # print("\n \n \nPhase 2\n START")
