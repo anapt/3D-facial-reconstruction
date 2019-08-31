@@ -33,9 +33,9 @@ class ImagePreprocess(Helpers):
         np.savetxt(self.vector_path.format(n), vector)
 
         vertices = self.data.calculate_3d_vertices(x)
-        reflectance = self.data.calculate_color(x)
+        color = self.data.calculate_color(x)
 
-        decoder = ParametricMoDecoder(vertices, reflectance, x, cells)
+        decoder = ParametricMoDecoder(vertices, color, x, cells)
 
         formation = decoder.get_image_formation()
 
