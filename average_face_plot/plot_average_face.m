@@ -6,6 +6,10 @@ fileID = fopen('./avg_reflectance.txt','r');
 A = fscanf(fileID,"%f",3*53149);
 reflectance = reshape(A, [3,53149]);
 
+fileID = fopen('./cells.txt','r');
+A = fscanf(fileID,"%f",3*105694);
+cells = reshape(A, [3,105694]);
+
 figure(1)
 hold on
 axis equal
