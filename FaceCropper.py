@@ -24,8 +24,13 @@ class FaceCropper(object):
             return 0
         elif len(faces) == 1:
             for (x, y, w, h) in faces:
-                r = max(w, h) / 2
-                r = 400
+                # w = h = 512
+                # x = 0
+                # y = y - 50
+                # r = max(w, h) / 2
+                # print(x, y, w, h, r)
+                r = 400     # for MUG
+
                 centerx = x + w / 2
                 centery = y + h / 2
                 nx = int(centerx - r)

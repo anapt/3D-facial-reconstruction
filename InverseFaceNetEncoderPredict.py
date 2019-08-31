@@ -15,7 +15,7 @@ tf.compat.v1.enable_eager_execution()
 class InverseFaceNetEncoderPredict(Helpers):
     def __init__(self):
         super().__init__()
-        self.latest = self.trained_models_dir + "cp-15000.ckpt"
+        self.latest = self.trained_models_dir + "cp-0024.ckpt"
         # self.latest = self.checkpoint_dir + "cp-7500.ckpt"
         print("Latest checkpoint: ", self.latest)
         self.encoder = InverseFaceNetEncoder()
@@ -36,12 +36,13 @@ class InverseFaceNetEncoderPredict(Helpers):
 
         return model
 
-    # def evaluate_model(self):
-    #     """ Evaluate model on validation data """
-    #     test_ds = LoadDataset().load_dataset_single_image()
-    #     loss, mse, mae = self.model.evaluate(test_ds)
-    #     print("\nRestored model, Loss: {0} \nMean Squared Error: {1}\n"
-    #           "Mean Absolute Error: {2}\n".format(loss, mse, mae))
+    def evaluate_model(self):
+        """ Evaluate model on validation data """
+        with tf.device('/device:CPU:0'):
+            test_ds = LoadDataset().load_dataset_single_image(self._case)
+            loss, mse, mae = self.model.evaluate(test_ds)
+            print("\nRestored model, Loss: {0} \nMean Squared Error: {1}\n"
+                  "Mean Absolute Error: {2}\n".format(loss, mse, mae))
 
     def model_predict(self, image_path):
 
@@ -74,7 +75,7 @@ def main():
     # all_image_paths = [str(path) for path in all_image_paths]
     # all_image_paths.sort()
     # print(all_image_paths)
-    # all_image_paths = all_image_paths[5:16]
+    # all_image_paths = all_image_paths[0:20]
     # for n, path in enumerate(all_image_paths):
     #
     #     # net.evaluate_model()
@@ -91,15 +92,16 @@ def main():
     #     # print("Loss: {}".format(np.mean(loss)))
     #     image = net.calculate_decoder_output(x)
     #     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    #     cv2.imwrite(net.bootstrapping_path + 'images/image0_{:06}.png'.format(n), image)
-    x = np.loadtxt("/home/anapt/data/semantic/x_{:06}.txt".format(8))
+    #     cv2.imwrite(net.bootstrapping_path + 'images/image1_{:06}.png'.format(n), image)
+    # x = np.loadtxt("/home/anapt/data/semantic/x_{:06}.txt".format(8))
     # x = np.loadtxt("./DATASET/semantic/training/x_{:06}.txt".format(1))
-    x = net.vector2dict(x)
-    image = net.calculate_decoder_output(x)
-    show_result = True
-    if show_result:
-        plt.imshow(image)
-        plt.show()
+    # x = net.vector2dict(x)
+    # image = net.calculate_decoder_output(x)
+    # show_result = True
+    # if show_result:
+    #     plt.imshow(image)
+    #     plt.show()
+    net.evaluate_model()
 
 
-# main()
+main()

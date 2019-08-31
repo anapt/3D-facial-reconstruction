@@ -9,12 +9,6 @@ from ImageFormationLayer import ImageFormationLayer
 import time
 import tensorflow as tf
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-TF_FORCE_GPU_ALLOW_GROWTH = True
-tf.compat.v1.enable_eager_execution()
-print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
-print("\n\n\n\n")
-
 
 class Bootstrapping(Helpers):
 
@@ -42,13 +36,13 @@ class Bootstrapping(Helpers):
 
         all_image_paths = list(data_root.glob('*.jpg'))
         all_image_paths = [str(path) for path in all_image_paths]
-        all_image_paths = np.random.choice(all_image_paths, 2500, replace=False)
+        all_image_paths = np.random.choice(all_image_paths, 5, replace=False)
         # print(all_image_paths)
         # all_image_paths = all_image_paths[0:10]
         # print("here", all_image_paths)
         for i, path in enumerate(all_image_paths):
             img = cv2.imread(path, 1)
-
+            cv2.imwrite("/home/anapt/predictions/original_image_{:06}.png".format(i), img)
             img = FaceCropper().generate(img, save_image=False, n=None)
             # cv2.imshow("", img)
             # cv2.waitKey(0)
@@ -59,10 +53,12 @@ class Bootstrapping(Helpers):
                 continue
             if img.shape != self.IMG_SHAPE:
                 continue
-
+            cv2.imwrite("/home/anapt/predictions/after_preprocess_{:06}.png".format(i), img)
             img = self.fix_color(img)
 
-            cv2.imwrite(self.path_mild_images.format(2983+i), img)
+            # cv2.imwrite(self.path_mild_images.format(2983+i), img)
+            cv2.imwrite("/home/anapt/predictions/after_color_fix_{:06}.png".format(i), img)
+
 
     @staticmethod
     def read_average_color():
@@ -138,60 +134,32 @@ class Bootstrapping(Helpers):
 
     def create_image_and_save(self, vector, n):
         # create first image with variation
-        x_new = self.vector_resampling(vector)
-        np.savetxt(self.vector_path.format(n), self.dict2vector(x_new))
-        formation = ImageFormationLayer(x_new)
+
+        formation = ImageFormationLayer(vector)
         image = formation.get_reconstructed_image()
         # change RGB to BGR
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        cv2.imwrite(self.image_path.format(n), image)
+        cv2.imwrite("/home/anapt/predictions/prediction_after_color_fix_{:06}.png".format(n), image)
 
-        # create second image with variation
-        x_new = self.vector_resampling(vector)
-        np.savetxt(self.vector_path.format(n+1), self.dict2vector(x_new))
-
-        formation = ImageFormationLayer(x_new)
-        image = formation.get_reconstructed_image()
-        # change RGB to BGR
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        cv2.imwrite(self.image_path.format(n+1), image)
 
 
 def main():
     boot = Bootstrapping()
-    phase_1 = True
+    phase_1 = False
 
     if phase_1:
         boot.prepare_images()
 
     if not phase_1:
-        gpus = tf.config.experimental.list_physical_devices('GPU')
-        print(len(gpus), "Physical GPUs")
-        if gpus:
-            # Restrict TensorFlow to only use the first GPU
-            try:
-                # tf.config.experimental.set_visible_devices(gpus[1], 'GPU')
-                logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-                print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPU")
-            except RuntimeError as e:
-                # Visible devices must be set before GPUs have been initialized
-                print(e)
-
         with tf.device('/device:CPU:0'):
-            path = "./DATASET/bootstrapping/MUG/"
-            data_root = pathlib.Path(path)
-            all_image_paths = list(data_root.glob('*.png'))
-            all_image_paths = [str(path) for path in all_image_paths]
-            all_image_paths.sort()
-            # print(all_image_paths)
-            # all_image_paths = all_image_paths[0:5]
+            path = "/home/anapt/predictions/"
 
-            for n, path in enumerate(all_image_paths):
-                start = time.time()
-                # print(path)
-                vector = boot.get_prediction(path)
-                boot.create_image_and_save(vector, 2 * n)
+            for i in range(0, 5):
+                print(path+'after_color_fix_{:06}.png'.format(i))
+                if os.path.exists(path+'after_color_fix_{:06}.png'.format(i)):    # True
+                    vector = boot.get_prediction(path+'after_color_fix_{:06}.png'.format(i))
+                    boot.create_image_and_save(vector, i)
                 # print("Time passed:", time.time() - start)
-                print(n)
+                print(i)
 
 main()
