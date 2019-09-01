@@ -1,27 +1,24 @@
 import numpy as np
 import time
 import cv2
+from FaceNet3D import FaceNet3D as Helpers
+from ImageFormationLayer import ImageFormationLayer
+from LandmarkDetection import LandmarkDetection
+from ImagePreprocess import ImagePreprocess
+from FaceNet3D import FaceNet3D as Helpers
 
-import ImageFormationLayer as ifl
-import LandmarkDetection as ld
-# from unused.patchImage import translate
-import ImagePreprocess as preprocess
 
-
-class LossLayer:
+class LossLayer(Helpers):
     PATH = './DATASET/model2017-1_bfm_nomouth.h5'
     MAX_FEATURES = 500
     GOOD_MATCH_PERCENT = 0.15
 
     def __init__(self, vector):
-        self.x = {
-            "shape": vector[0:80, ],
-            "expression": vector[80:144, ],
-            "reflectance": vector[144:224, ],
-            "rotation": vector[224:227, ],
-            "translation": vector[227:230, ],
-            "illumination": vector[230:257, ]
-            }
+        """
+                Class initializer
+                """
+        super().__init__()
+        self.x = self.vector2dict(vector)
         self.num_of_vertices = 13000
 
     def statistical_regularization_term(self):
@@ -36,16 +33,14 @@ class LossLayer:
 
     def dense_photometric_alignment(self, original_image):
 
-        formation = ifl.ImageFormationLayer(self.x)
+        formation = ImageFormationLayer(self.x)
         new_image, indices, position = formation.get_reconstructed_image_for_loss()
-        position = preprocess.ImagePreprocess.translate(position, position.min(), position.max(),
-                                                        right_min=0, right_max=240)
+        position = self.translate(position, position.min(), position.max(),
+                                  right_min=0, right_max=240)
 
         new_image_aligned = self.align_images(new_image, original_image)
         photo_term = 0
 
-        # print(original_image[np.int(position[0, indices[1]]), np.int(position[1, indices[1]])])
-        # print(new_image_aligned[np.int(position[0, indices[1]]), np.int(position[1, indices[1]])])
         for i in range(0, indices.shape[0]):
             photo_term = photo_term + np.linalg.norm(
                 original_image[np.int(position[0, indices[i]]), np.int(position[1, indices[i]])] -
@@ -53,22 +48,18 @@ class LossLayer:
 
         photo_term = photo_term / indices.shape[0]
 
-        # print("photo term", photo_term)
-
         return new_image_aligned, photo_term
 
     @staticmethod
     def sparse_landmark_alignment(original_image, new_image):
 
-        detector = ld.LandmarkDetection()
+        detector = LandmarkDetection()
         # original image landmarks
         landmarks_original = detector.detect_landmarks_for_loss(original_image)
         # reconstructed image landmarks
         landmarks_reconstructed = detector.detect_landmarks_for_loss(new_image)
 
         alignment_term = (1/46) * pow(np.linalg.norm(landmarks_original - landmarks_reconstructed), 2)
-
-        # print("alignment term", alignment_term)
 
         return alignment_term
 
@@ -85,8 +76,6 @@ class LossLayer:
         loss = weight_photo * photo_term + \
             weight_reg * self.statistical_regularization_term() + \
             weight_land * alignment_term
-
-        # print("loss", loss)
 
         return loss
 

@@ -9,10 +9,10 @@ class ParametricMoDecoder(Helpers):
         """
         Class initializer
 
-        :param vertices: <class 'numpy.ndarray'>    (159447,)
-        :param color: <class 'numpy.ndarray'> (159447,)
+        :param vertices: <class 'numpy.ndarray'>    (3*self.num_of_vertices,)
+        :param color: <class 'numpy.ndarray'>       (3*self.num_of_vertices,)
         :param x: Semantic Code Vector              dictionary
-        :param cells: <class 'numpy.ndarray'>       (3, 105694)
+        :param cells: <class 'numpy.ndarray'>       (3, self.num_of_cells)
         """
         super().__init__()
         self.vertices = vertices
@@ -25,8 +25,8 @@ class ParametricMoDecoder(Helpers):
         """
         Projects coordinates from camera space to screen space
 
-        :param coords_3d: 3D coordinates in CCS shape : (3, 53149)
-        :return: 2D coordinates in Screen space with shape (2, 53149)
+        :param coords_3d: 3D coordinates in CCS shape : (3, self.num_of_vertices)
+        :return: 2D coordinates in Screen space with shape (2, self.num_of_vertices)
         """
         coords_2d = np.zeros((2, coords_3d.shape[1]), dtype=coords_3d.dtype)
         for i in range(0, coords_3d.shape[1]):
@@ -67,14 +67,15 @@ class ParametricMoDecoder(Helpers):
 
         return rot_mat_so3
 
-    def transform_wcs2ccs(self, coords_ws, inv_rotmat, translation):
+    @staticmethod
+    def transform_wcs2ccs(coords_ws, inv_rotmat, translation):
         """
         Affine transformation from World Space Coordinate to Camera Space Coordinates
 
-        :param coords_ws: coordinates in WCS with shape (3, 53149)
+        :param coords_ws: coordinates in WCS with shape (3, self.num_of_vertices)
         :param inv_rotmat: inverse of rotation matrix
         :param translation: translation vector (part of the Semantic Code Vector)
-        :return: coordinates in CCS with shape (3, 53149)
+        :return: coordinates in CCS with shape (3, self.num_of_vertices)
         """
         coords = np.matmul(inv_rotmat, coords_ws)
         coords_cs = coords - np.reshape(np.transpose(translation), newshape=(3, 1))
@@ -92,18 +93,19 @@ class ParametricMoDecoder(Helpers):
                         transforms vertices coordinates from WCS to CCS
                         projects CCS coordinates to screen space
 
-        :return: dictionary with keys   position    <class 'numpy.ndarray'> (2, 53149) (projected vertices coordinates)
-                                        color       <class 'numpy.ndarray'> (3, 53149) (color of vertices)
+        :return: dictionary with keys   position    <class 'numpy.ndarray'> (2, self.num_of_vertices)
+                                                    (projected vertices coordinates)
+                                        color       <class 'numpy.ndarray'> (3, self.num_of_vertices)
+                                                    (color of vertices)
         """
         ws_vertices = np.reshape(self.vertices, (3, int(self.vertices.size / 3)), order='F')
         color = np.reshape(self.color, (3, int(self.color.size / 3)), order='F')
-        # print(np.ceil(reflectance*255))
 
         rotmat_so3 = self.create_rot_mat(self.x['rotation'][0], self.x['rotation'][1], self.x['rotation'][2])
 
         # Calculate projected coordinates
         translation = np.array([0, 0, -5000])
-        cs_vertices = self.transform_wcs2ccs(ws_vertices, (rotmat_so3), translation)
+        cs_vertices = self.transform_wcs2ccs(ws_vertices, rotmat_so3, translation)
         projected = self.projection(cs_vertices)
 
         formation = {
@@ -115,9 +117,9 @@ class ParametricMoDecoder(Helpers):
 
     def calculate_cell_depth(self):
         """
-        Calculates depth of each triangle and returns the 50000 triangles with smallest depth
+        Calculates depth of each triangle and returns the triangles with deepest one first
 
-        :return: <class 'numpy.ndarray'> with shape (3, 50000)
+        :return: <class 'numpy.ndarray'> with shape (3, self.num_of_cells)
         """
         vertices = np.reshape(self.vertices, (3, int(self.vertices.size / 3)), order='F')
         depth = np.zeros(self.cells.shape[1], dtype=self.cells.dtype)

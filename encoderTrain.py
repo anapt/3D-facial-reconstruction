@@ -32,7 +32,7 @@ class EncoderTrain(Helpers):
         self.inverseNet.compile()
         model = self.inverseNet.model
         with tf.device('/device:CPU:0'):
-            keras_ds = LoadDataset().load_dataset_batches(_case=self._case)
+            keras_ds = LoadDataset().load_dataset_batches()
             keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
                 self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
@@ -58,7 +58,7 @@ class EncoderTrain(Helpers):
         self.inverseNet.compile()
 
         with tf.device('/device:CPU:0'):
-            keras_ds = LoadDataset().load_dataset_batches(_case=self._case)
+            keras_ds = LoadDataset().load_dataset_batches()
             keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
                 self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
@@ -82,7 +82,7 @@ class EncoderTrain(Helpers):
         self.inverseNet.compile()
 
         with tf.device('/device:CPU:0'):
-            keras_ds = LoadDataset().load_dataset_batches(_case=self._case)
+            keras_ds = LoadDataset().load_dataset_batches()
             keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
                 self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
