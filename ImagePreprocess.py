@@ -9,6 +9,9 @@ import cv2
 class ImagePreprocess(Helpers):
 
     def __init__(self):
+        """
+        Class initializer
+        """
         super().__init__()
         self.cut = LandmarkDetection()
         self.data = SemanticCodeVector()
@@ -25,7 +28,6 @@ class ImagePreprocess(Helpers):
 
         cells = self.data.read_cells()
 
-        # x = data.sample_vector()
         x = self.data.sample_vector()
 
         vector = self.dict2vector(x)
@@ -48,11 +50,11 @@ class ImagePreprocess(Helpers):
         Drawing function
 
         :param position:    projected coordinates of the vertices
-                            <class 'numpy.ndarray'> with shape (2, 53149)
+                            <class 'numpy.ndarray'> with shape (2, self.num_of_vertices)
         :param color:       color of the vertices
-                            <class 'numpy.ndarray'> with shape (3, 53149)
+                            <class 'numpy.ndarray'> with shape (3, self.num_of_vertices)
         :param cells:       array containing the connections between vertices
-                            <class 'numpy.ndarray'> with shape (3, 50000)
+                            <class 'numpy.ndarray'> with shape (3, self.num_of_cells)
         :return:            drawn image
                             <class 'numpy.ndarray'> with shape (500, 500, 3)
         """
@@ -85,10 +87,6 @@ class ImagePreprocess(Helpers):
 
         rotation_matrix = cv2.getRotationMatrix2D(center, angle180, scale)
         rotated180 = cv2.warpAffine(image, rotation_matrix, (w, w))
-
-        # cv2.imshow("", rotated180)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
 
         return rotated180
 

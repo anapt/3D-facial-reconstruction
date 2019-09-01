@@ -52,13 +52,6 @@ class LandmarkDetection(Helpers):
             shape = face_utils.shape_to_np(landmarks)
             center = shape[33, :]
 
-            # for (x, y) in shape[:]:
-            #     cv2.circle(image, (x, y), 1, (0, 0, 255), -1)
-            # out_face = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            # cv2.imwrite("./landmarks_all.png", out_face)
-            # cv2.imshow("", image)
-            # cv2.waitKey(0)
-
             # initialize mask array
             feature_mask = np.zeros((image.shape[0], image.shape[1]))
 
@@ -88,7 +81,7 @@ class LandmarkDetection(Helpers):
         """
         Function that returns Landmark coordinates for original Loss Layer
 
-        :param image:   <class 'numpy.ndarray'> with shape (240, 240, 3)
+        :param image:   <class 'numpy.ndarray'> with shape self.IMG_SHAPE
         :return:        <class 'numpy.ndarray'> with shape (46, 2)
         """
         gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -111,28 +104,3 @@ class LandmarkDetection(Helpers):
                             ]], dtype=np.int32)
 
         return coords
-
-    def crop_image(self, image):
-        out_face = np.zeros_like(image)
-        height, width = image.shape[:2]
-        if height > width:
-            dim = int(width)
-        else:
-            dim = int(height)
-        # convert to grayscale
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-        # detect faces in bw image
-        faces = self.detector(gray)
-        for face in faces:
-            landmarks = self.predictor(gray, face)
-            # print(landmarks)
-            shape = face_utils.shape_to_np(landmarks)
-            center = shape[33, :]
-            dim = int(np.ceil(dim/2))
-
-            crop = image[center[1] - dim:center[1] + dim, center[0] - dim:center[1] + dim]
-            crop = cv2.resize(crop, dsize=(400, 400))
-
-        return crop
-

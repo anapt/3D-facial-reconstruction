@@ -22,13 +22,10 @@ class LoadDataset(Helpers):
         :return: Tensor("truediv:0", dtype=float32)
         """
         image = tf.image.decode_image(image, channels=self.COLOR_CHANNELS, dtype=tf.dtypes.float32)
-        # print(image.shape)
-        # image = tf.cast(image, dtype=tf.float32)
         image = image/255.0 - 0.5
 
         if test_dataset:
-            # image = tf.reshape(image, shape=[1, self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS])
-            image = tf.reshape(image, shape=[1, 224, 224, self.COLOR_CHANNELS])
+            image = tf.reshape(image, shape=[1, self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS])
 
         return image
 
@@ -45,6 +42,7 @@ class LoadDataset(Helpers):
     def load_and_preprocess_image_4d(self, path):
         """
         Reads string path into image string and calls preprocess function to cast into image tensor
+        Used for model evaluation.
 
         :param path: Tensor("args_0:0", shape=(), dtype=string)
         :return: Tensor("truediv:0", dtype=float32)
@@ -52,7 +50,7 @@ class LoadDataset(Helpers):
         image = tf.io.read_file(path)
         return self.preprocess_image(image, True)
 
-    def load_dataset_batches(self, _case):
+    def load_dataset_batches(self):
         """
         Read images and vectors (from txt files) and zips them together in a Tensorflow Dataset
         Images and vectors should be in different directories
@@ -85,13 +83,17 @@ class LoadDataset(Helpers):
 
         all_image_paths.sort()
         all_vector_paths.sort()
+
         # all_image_paths = all_image_paths[0:20000]
         # all_vector_paths = all_vector_paths[0:20000]
 
         image_count = len(all_image_paths)
         print("Dataset containing %d pairs of Images and Vectors." % image_count)
         vector_count = len(all_vector_paths)
-        print("Dataset containing %d pairs of Images and Vectors." % vector_count)
+        # print("Dataset containing %d pairs of Images and Vectors." % vector_count)
+        if image_count != vector_count:
+            print("Dataset not compatible")
+            quit()
 
         path_ds = tf.data.Dataset.from_tensor_slices(all_image_paths)
         image_ds = path_ds.map(self.load_and_preprocess_image, num_parallel_calls=self.AUTOTUNE)
@@ -110,6 +112,7 @@ class LoadDataset(Helpers):
         """
         Read images and vectors (from txt files) and zips them together in a Tensorflow Dataset
         Images and vectors should be in different directories
+        Used for model evaluation.
 
         :return: tf.data.Dataset with pairs (Image, Semantic Code Vector)
         """
@@ -139,13 +142,14 @@ class LoadDataset(Helpers):
 
         all_image_paths.sort()
         all_vector_paths.sort()
-        # all_image_paths = all_image_paths[0:20000]
-        # all_vector_paths = all_vector_paths[0:20000]
 
         image_count = len(all_image_paths)
         print("Dataset containing %d pairs of Images and Vectors." % image_count)
         vector_count = len(all_vector_paths)
-        print("Dataset containing %d pairs of Images and Vectors." % vector_count)
+        # print("Dataset containing %d pairs of Images and Vectors." % vector_count)
+        if image_count != vector_count:
+            print("Dataset not compatible")
+            quit()
 
         path_ds = tf.data.Dataset.from_tensor_slices(all_image_paths)
         image_ds = path_ds.map(self.load_and_preprocess_image_4d, num_parallel_calls=self.AUTOTUNE)
