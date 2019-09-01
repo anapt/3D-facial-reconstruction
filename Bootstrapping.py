@@ -37,21 +37,23 @@ class Bootstrapping(Helpers):
         self.mean_average_color = self.read_average_color()
         self.net = InverseFaceNetEncoderPredict()
 
-    def prepare_images(self):
+    def prepare_images(self, fix_color=True):
+        """
+        Randomly select 5k images, detect faces, detect landmarks and crop
+        If necessary, fix color.
+        :return: cropped image (224, 224, 3)
+        """
         data_root = pathlib.Path(self.path_wild_images)
 
         all_image_paths = list(data_root.glob('*.jpg'))
         all_image_paths = [str(path) for path in all_image_paths]
-        all_image_paths = np.random.choice(all_image_paths, 2500, replace=False)
-        # print(all_image_paths)
-        # all_image_paths = all_image_paths[0:10]
-        # print("here", all_image_paths)
+        all_image_paths = np.random.choice(all_image_paths, 5000, replace=False)
+
         for i, path in enumerate(all_image_paths):
             img = cv2.imread(path, 1)
 
             img = FaceCropper().generate(img, save_image=False, n=None)
-            # cv2.imshow("", img)
-            # cv2.waitKey(0)
+
             if img is None:
                 continue
             img = LandmarkDetection().cutout_mask_array(img, flip_rgb=False)
@@ -59,13 +61,18 @@ class Bootstrapping(Helpers):
                 continue
             if img.shape != self.IMG_SHAPE:
                 continue
+            if fix_color:
+                img = self.fix_color(img)
 
-            img = self.fix_color(img)
-
-            cv2.imwrite(self.path_mild_images.format(2983+i), img)
+            cv2.imwrite(self.path_mild_images.format(i), img)
 
     @staticmethod
     def read_average_color():
+        """
+        Read image with "average color" and find that image's histogram mean
+        Exclude black parts of the images.
+        :return: (3, ) average color
+        """
         average_color = cv2.imread("./DATASET/bootstrapping/average_color.png", 1)
         color = np.array([0, 0, 0])
         counter = 0
@@ -80,6 +87,12 @@ class Bootstrapping(Helpers):
         return mean_average_color
 
     def fix_color(self, source_color):
+        """
+        Calculate distance between source_color average color and mean_average_color
+        Move source histogram by that distance.
+        :param source_color: Original image array (224, 224, 3)
+        :return: <class 'numpy.ndarray'> with shape (224, 224, 3)
+        """
         color = np.array([0, 0, 0])
         counter = 0
         for i in range(0, source_color.shape[0]):
@@ -113,6 +126,12 @@ class Bootstrapping(Helpers):
         return source_color
 
     def vector_resampling(self, vector):
+        """
+        Re-sample vector for bootstrapping
+        This function adds gaussian noise to the vector to better fit real world images
+        :param vector: code vector (231,)
+        :return: re-sampled code vector (231,)
+        """
         vector = self.vector2dict(vector)
 
         shape = vector['shape'] + np.random.normal(0, 0.1, self.shape_dim)
@@ -133,10 +152,21 @@ class Bootstrapping(Helpers):
         return x
 
     def get_prediction(self, image_path):
+        """
+        Use trained model to predict code vector
+        :param image_path: path to image
+        :return: code vector
+        """
         vector = self.net.model_predict(image_path=image_path)
         return vector
 
     def create_image_and_save(self, vector, n):
+        """
+        Perform resampling, save new code vector, reconstruct 2d image. save image. Repeat 2 times.
+        :param vector: code vector (231,)
+        :param n: serial number
+        :return:
+        """
         # create first image with variation
         x_new = self.vector_resampling(vector)
         np.savetxt(self.vector_path.format(n), self.dict2vector(x_new))
@@ -149,7 +179,6 @@ class Bootstrapping(Helpers):
         # create second image with variation
         x_new = self.vector_resampling(vector)
         np.savetxt(self.vector_path.format(n+1), self.dict2vector(x_new))
-
         formation = ImageFormationLayer(x_new)
         image = formation.get_reconstructed_image()
         # change RGB to BGR

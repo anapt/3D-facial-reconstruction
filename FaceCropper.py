@@ -16,7 +16,7 @@ class FaceCropper(object):
         :param img: input image containing a single face in black background
         :param save_image: boolean if True save image
         :param n: number of iteration, used when save_image is True
-        :return: type <class 'numpy.ndarray'> with shape (240, 240, 3)
+        :return: type <class 'numpy.ndarray'> with shape (224, 224, 3) (or self.IMG_SHAPE)
         """
         faces = self.face_cascade.detectMultiScale(img, 1.1, 3, minSize=(224, 224))
         if faces is None:
@@ -24,12 +24,13 @@ class FaceCropper(object):
             return 0
         elif len(faces) == 1:
             for (x, y, w, h) in faces:
+                # for MUG dataset
+                r = 400
+                # for ColorFERET dataset
                 # w = h = 512
                 # x = 0
                 # y = y - 50
                 # r = max(w, h) / 2
-                # print(x, y, w, h, r)
-                r = 400     # for MUG
 
                 centerx = x + w / 2
                 centery = y + h / 2

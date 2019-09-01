@@ -5,6 +5,10 @@ from CollectBatchStats import CollectBatchStats
 
 class FaceNet3D:
     def __init__(self):
+        """
+        Class initializer
+        Parent class, includes all constants and paths used throughout the project
+        """
         # path to Basel Model
         self.path = './DATASET/model2017-1_bfm_nomouth.h5'
         # number of vertices
@@ -32,7 +36,7 @@ class FaceNet3D:
         self.no_crop_path = "./DATASET/images/no_crop/image_{:06}.png"
         # path to save cropped image
         self.cropped_path = "./DATASET/images/validation/image_{:06}.png"
-        # if script is used for testing set variable to True
+        # if script is used for testing (aka images with no crop are needed) set variable to True
         self.testing = False
         # Landmark predictor path
         self.predictor_path = "./DATASET/shape_predictor_68_face_landmarks.dat"
@@ -73,16 +77,14 @@ class FaceNet3D:
 
     def vector2dict(self, vector):
         """
-        Method that transforms (257,) nd.array to dictionary
+        Method that transforms (self.scv_length,) nd.array to dictionary
 
-        :param vector: <class 'numpy.ndarray'> with shape (257, ) : semantic code vector
+        :param vector: <class 'numpy.ndarray'> with shape (self.scv_length, ) : semantic code vector
         :return:
-        dictionary with keys    shape           (80,)
-                                expression      (64,)
-                                reflectance     (80,)
-                                rotation        (3,)
-                                translation     (3,)
-                                illumination    (27,)
+        dictionary with keys    shape           (self.shape_dim,)
+                                expression      (self.expression_dim,)
+                                color           (self.color_dim,)
+                                rotation        (self.rotation_dim,)
         """
         if isinstance(vector, dict):
             return vector
@@ -98,6 +100,16 @@ class FaceNet3D:
             return x
 
     def dict2vector(self, x):
+        """
+        Method that transforms (self.scv_length,) nd.array to dictionary
+
+        :param x: dictionary with keys      shape           (self.shape_dim,)
+                                            expression      (self.expression_dim,)
+                                            color           (self.color_dim,)
+                                            rotation        (self.rotation_dim,)
+        :return: <class 'numpy.ndarray'> with shape (self.scv_length, ) : semantic code vector
+
+        """
         vector = np.zeros(self.scv_length, dtype=float)
         vector[0:self.shape_dim, ] = x['shape']
         vector[self.shape_dim:self.shape_dim+self.expression_dim, ] = x['expression']
@@ -105,9 +117,6 @@ class FaceNet3D:
                self.shape_dim+self.expression_dim+self.color_dim, ] = x['color']
         vector[self.shape_dim+self.expression_dim+self.color_dim:
                self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim, ] = x['rotation']
-        # vector[self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim:
-        #        self.shape_dim+self.expression_dim+self.color_dim+self.rotation_dim +
-        #        self.rotation_dim, ] = x['translation']
 
         return vector
 
@@ -129,9 +138,7 @@ class FaceNet3D:
         right_span = right_max - right_min
 
         # Convert the left range into a 0-1 range (float)
-        # print(np.subtract(value, leftMin))
         value_scaled = np.subtract(value, left_min) / float(left_span)
 
         # Convert the 0-1 range into a value in the right range.
-        # print(right_min + (value_scaled * right_span))
         return right_min + (value_scaled * right_span)

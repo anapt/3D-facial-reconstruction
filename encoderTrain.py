@@ -1,7 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
 import matplotlib.pyplot as plt
-# from InverseFaceNetEncoder import InverseFaceNetEncoder
 from InverseFaceNetEncoder import InverseFaceNetEncoder
 from LoadDataset import LoadDataset
 from FaceNet3D import FaceNet3D as Helpers
@@ -14,18 +13,22 @@ print("\n\n\n\n")
 
 
 class EncoderTrain(Helpers):
-    """ Main function for InverseFaceNet CNN"""
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
     def __init__(self):
+        """
+        Class initializer
+        """
         super().__init__()
 
         self.history_list = list()
         self.inverseNet = InverseFaceNetEncoder()
 
     def training_phase_1(self):
+        """
+        Start training with ImageNet weights on the SyntheticDataset
+        """
         # Build and compile model:
-
         self.inverseNet.compile()
         model = self.inverseNet.model
         with tf.device('/device:CPU:0'):
@@ -35,20 +38,20 @@ class EncoderTrain(Helpers):
 
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
-        # with tf.device('/device:CPU:0'):
-        history_1 = model.fit(keras_ds, epochs=12, steps_per_epoch=steps_per_epoch,
-                              callbacks=[self.batch_stats_callback, self.cp_callback])
+        with tf.device('/device:CPU:0'):
+            history_1 = model.fit(keras_ds, epochs=12, steps_per_epoch=steps_per_epoch,
+                                  callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)
 
     def training_phase_2(self):
-        # Build and compile model:
+        """
+        Bootstrap training.
+        """
 
-        # load weights trained on synthetic faces and start bootstrapping
-        # latest = tf.train.latest_checkpoint(self.checkpoint_dir)
         latest = self.trained_models_dir + "cp-15000.ckpt"
         print("\ncheckpoint: ", latest)
-
+        # Build and compile model:
         model = self.inverseNet.model
         model.load_weights(latest)
 
@@ -69,13 +72,10 @@ class EncoderTrain(Helpers):
         self.history_list.append(history_1)
 
     def training_phase_21(self):
-        # Build and compile model:
-
-        # load weights trained on synthetic faces and start bootstrapping
+        # load latest checkpoint and continue training
         latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        # latest = self.trained_models_dir + "cp-15000.ckpt"
         print("\ncheckpoint: ", latest)
-
+        # Build and compile model:
         model = self.inverseNet.model
         model.load_weights(latest)
 

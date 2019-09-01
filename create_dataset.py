@@ -3,6 +3,9 @@ import time
 
 
 def main():
+    """
+    Script used to create the synthetic dataset
+    """
     # Number of images to create
     N = 20000
     preprocess = image_preprocess.ImagePreprocess()
