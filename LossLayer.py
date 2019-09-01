@@ -1,15 +1,14 @@
 import numpy as np
 import time
 import cv2
-from FaceNet3D import FaceNet3D as Helpers
 from ImageFormationLayer import ImageFormationLayer
 from LandmarkDetection import LandmarkDetection
 from ImagePreprocess import ImagePreprocess
 from FaceNet3D import FaceNet3D as Helpers
+import pathlib
 
 
 class LossLayer(Helpers):
-    PATH = './DATASET/model2017-1_bfm_nomouth.h5'
     MAX_FEATURES = 500
     GOOD_MATCH_PERCENT = 0.15
 
@@ -25,7 +24,7 @@ class LossLayer(Helpers):
         weight_expression = 0.8
         weight_reflectance = 1.7e-3
         sr_term = sum(pow(self.x['shape'], 2)) + weight_expression * sum(pow(self.x['expression'], 2)) + \
-            weight_reflectance * sum(pow(self.x['reflectance'], 2))
+            weight_reflectance * sum(pow(self.x['color'], 2))
 
         # print("statistical reg term", sr_term)
 
@@ -36,7 +35,7 @@ class LossLayer(Helpers):
         formation = ImageFormationLayer(self.x)
         new_image, indices, position = formation.get_reconstructed_image_for_loss()
         position = self.translate(position, position.min(), position.max(),
-                                  right_min=0, right_max=240)
+                                  right_min=0, right_max=self.IMG_SIZE-1)
 
         new_image_aligned = self.align_images(new_image, original_image)
         photo_term = 0
@@ -124,22 +123,49 @@ class LossLayer(Helpers):
 
 def main():
     n = 1
+    path = Helpers().bootstrapping_path + 'test_loss/'
+    data_root = pathlib.Path(path)
 
-    vector_path = ("./DATASET/semantic/x_{:06}.txt".format(n))
-    image_path = ("./DATASET/images/image_{:06}.png".format(n))
+    all_image_paths = list(data_root.glob('*.png'))
+    all_image_paths = [str(path) for path in all_image_paths]
+    all_image_paths.sort()
+    print(all_image_paths[0:10])
+    all_image_paths = all_image_paths[0:10]
 
-    vector = np.loadtxt(vector_path)
+    all_vector_paths = list(data_root.glob('*.txt'))
+    all_vector_paths = [str(path) for path in all_vector_paths]
+    all_vector_paths.sort()
+    print(all_vector_paths[0:10])
+    all_vector_paths = all_vector_paths[0:10]
 
-    ll = LossLayer(vector)
+    for n, path in enumerate(all_image_paths):
+        vector = np.loadtxt(all_vector_paths[n])
+        ll = LossLayer(vector)
 
-    original_image = cv2.imread(image_path, 1)
-    # RGB TO BGR
-    original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+        original_image = cv2.imread(path, 1)
+        # RGB TO BGR
+        original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
 
-    start = time.time()
-    loss = ll.get_loss(original_image)
-    print("Time elapsed: %f " % (time.time() - start))
-    print("Loss: %f" % loss)
+        start = time.time()
+        loss = ll.get_loss(original_image)
+        print("Time elapsed: %f " % (time.time() - start))
+        print("Loss: %f" % loss)
+
+    # vector_path = (Helpers().bootstrapping_path + "test_loss/{:06}.txt".format(n))
+    # image_path = (Helpers().bootstrapping_path + "test_loss/{:06}.png".format(n))
+    #
+    # vector = np.loadtxt(vector_path)
+    #
+    # ll = LossLayer(vector)
+    #
+    # original_image = cv2.imread(image_path, 1)
+    # # RGB TO BGR
+    # original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+    #
+    # start = time.time()
+    # loss = ll.get_loss(original_image)
+    # print("Time elapsed: %f " % (time.time() - start))
+    # print("Loss: %f" % loss)
 
 
-# main()
+main()
