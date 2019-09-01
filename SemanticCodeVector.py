@@ -12,13 +12,14 @@ class SemanticCodeVector(Helpers):
     def read_pca_bases(self):
         """
         Function that reads vectors from .h5py file located in self.path
+        Scales PCA bases with standard deviation.
 
         :return:
-        dictionary with keys    shape_pca               159447 80
-                                expression_pca          159447 64
-                                color_pca               159447 80
-                                average_shape           159447
-                                average_color           159447
+        dictionary with keys    shape_pca               (3*self.num_of_vertices, self.shape_dim)
+                                expression_pca          (3*self.num_of_vertices, self.expression_dim)
+                                color_pca               (3*self.num_of_vertices, self.color_dim)
+                                average_shape           3*self.num_of_vertices,
+                                average_color           3*self.num_of_vertices,
         """
         average_shape = self.model['shape']['model']['mean'][()]
 
@@ -67,6 +68,12 @@ class SemanticCodeVector(Helpers):
         return scv_pca_bases
 
     def get_bases_std(self):
+        """
+        Read PCA Variance, get standard devation, scale to belong in (0,1]
+        :return:    shape_std               (3*self.num_of_vertices, )
+                    expression_std          (3*self.num_of_vertices, )
+                    color_std               (3*self.num_of_vertices, )
+        """
         # read shape pca basis variance
         pca_variance = self.model['shape']['model']['pcaVariance'][()]
         pca_variance = pca_variance[0:self.shape_dim]
@@ -95,7 +102,7 @@ class SemanticCodeVector(Helpers):
         Function that reads vector from .h5py file located in self.path
 
         :return:
-        <class 'numpy.ndarray'> with shape (3, 105694)
+        <class 'numpy.ndarray'> with shape (3, self.num_of_cells)
         """
         cells = self.model['shape']['representer']['cells'][()]
         return cells
@@ -104,13 +111,10 @@ class SemanticCodeVector(Helpers):
         """
         Function that samples the semantic code vector
 
-        :return:
-        dictionary with keys    shape           (80,)
-                                expression      (64,)
-                                reflectance     (80,)
-                                rotation        (3,)
-                                translation     (3,)
-                                illumination    (27,)
+        :return: dictionary with keys       shape           (self.shape_dim,)
+                                            expression      (self.expression_dim,)
+                                            color           (self.color_dim,)
+                                            rotation        (self.rotation_dim,)
         """
         a = np.random.normal(0, 1, self.shape_dim)
         # a = np.zeros((self.shape_dim,))
@@ -137,7 +141,7 @@ class SemanticCodeVector(Helpers):
         and the average shape of a face and the parameters for shape and expression of the Semantic Code Vector
 
         :param vector: Semantic Code Vector - only shape and expression parameters are used
-        :return: <class 'numpy.ndarray'> with shape (159447,)
+        :return: <class 'numpy.ndarray'> with shape (3*self.num_of_vertices,)
         """
         scv_pca_bases = self.read_pca_bases()
 
@@ -153,7 +157,7 @@ class SemanticCodeVector(Helpers):
         average reflectance and the parameters for skin reflectance of the Semantic Code Vector
 
         :param vector: Semantic Code Vector - only the parameters for reflectance are used
-        :return: <class 'numpy.ndarray'> with shape (159447,)
+        :return: <class 'numpy.ndarray'> with shape (3*self.num_of_vertices,)
         """
         scv_pca_bases = self.read_pca_bases()
 
