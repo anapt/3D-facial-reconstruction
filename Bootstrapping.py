@@ -9,7 +9,7 @@ from ImageFormationLayer import ImageFormationLayer
 import time
 import tensorflow as tf
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 TF_FORCE_GPU_ALLOW_GROWTH = True
 tf.compat.v1.enable_eager_execution()
 print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
@@ -138,7 +138,7 @@ class Bootstrapping(Helpers):
 
         expression = vector['expression'] + np.random.normal(0, 0.1, self.expression_dim)
 
-        color = vector['color'] + np.random.normal(0, 1, self.color_dim)
+        color = vector['color'] + np.random.normal(0, 0.5, self.color_dim)
 
         rotation = vector['rotation'] + np.random.uniform(-0.5, 0.5, 3)
 
@@ -185,14 +185,31 @@ class Bootstrapping(Helpers):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         cv2.imwrite(self.image_path.format(n+1), image)
 
+    def data_augmentation(self):
+        data_root = pathlib.Path(self.bootstrapping_path + 'MUG/')
+
+        all_image_paths = list(data_root.glob('*.png'))
+        all_image_paths = [str(path) for path in all_image_paths]
+        # all_image_paths = np.random.choice(all_image_paths, 10, replace=False)
+
+        for i, path in enumerate(all_image_paths):
+            img = cv2.imread(path, 1)
+            img = cv2.flip(img, 1)
+
+            angle = np.random.uniform(-5, 5, 1)
+            M = cv2.getRotationMatrix2D((self.IMG_SIZE / 2, self.IMG_SIZE / 2), angle, 1.0)
+            dst = cv2.warpAffine(img, M, (self.IMG_SIZE, self.IMG_SIZE))
+
+            cv2.imwrite(self.path_mild_images.format(i), dst)
+
 
 def main():
     boot = Bootstrapping()
-    phase_1 = True
+    phase_1 = False
 
     if phase_1:
         boot.prepare_images()
-
+        # boot.data_augmentation()
     if not phase_1:
         gpus = tf.config.experimental.list_physical_devices('GPU')
         print(len(gpus), "Physical GPUs")
@@ -213,7 +230,7 @@ def main():
             all_image_paths = [str(path) for path in all_image_paths]
             all_image_paths.sort()
             # print(all_image_paths)
-            # all_image_paths = all_image_paths[0:5]
+            all_image_paths = all_image_paths[0:5]
 
             for n, path in enumerate(all_image_paths):
                 start = time.time()

@@ -5,7 +5,7 @@ from InverseFaceNetEncoder import InverseFaceNetEncoder
 from LoadDataset import LoadDataset
 from FaceNet3D import FaceNet3D as Helpers
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 TF_FORCE_GPU_ALLOW_GROWTH = True
 tf.compat.v1.enable_eager_execution()
 print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
@@ -49,7 +49,7 @@ class EncoderTrain(Helpers):
         Bootstrap training.
         """
 
-        latest = self.trained_models_dir + "cp-15000.ckpt"
+        latest = self.trained_models_dir + "cp-0024.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.inverseNet.model

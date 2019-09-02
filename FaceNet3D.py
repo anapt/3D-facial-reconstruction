@@ -31,17 +31,19 @@ class FaceNet3D:
         # length of semantic code vector
         self.scv_length = self.shape_dim + self.expression_dim + self.color_dim + self.rotation_dim
         # path to save vectors
-        self.vector_path = "./DATASET/semantic/validation/x_{:06}.txt"
+        # self.vector_path = "./DATASET/semantic/validation/x_{:06}.txt"
+        self.vector_path = "./DATASET/bootstrapping/semantic/x_{:06}.txt"
         # path to save full patch
         self.no_crop_path = "./DATASET/images/no_crop/image_{:06}.png"
         # path to save cropped image
-        self.cropped_path = "./DATASET/images/validation/image_{:06}.png"
+        # self.cropped_path = "./DATASET/images/validation/image_{:06}.png"
+        self.cropped_path = "./DATASET/bootstrapping/images/image_{:06}.png"
         # if script is used for testing (aka images with no crop are needed) set variable to True
         self.testing = False
         # Landmark predictor path
         self.predictor_path = "./DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
-        self._case = 'validation'
+        self._case = 'bootstrapping'
         # dataset root folders path
         self.data_root = './DATASET/images/'
         self.sem_root = './DATASET/semantic/'

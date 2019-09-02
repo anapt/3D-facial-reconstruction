@@ -7,10 +7,10 @@ def main():
     Script used to create the synthetic dataset
     """
     # Number of images to create
-    N = 20000
+    N = 10000
     preprocess = image_preprocess.ImagePreprocess()
 
-    for n in range(0, 50):
+    for n in range(8000, N):
         start = time.time()
         preprocess.create_image_and_save(n)
         # print("Time passed:", time.time() - start)
