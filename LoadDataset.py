@@ -23,6 +23,7 @@ class LoadDataset(Helpers):
         """
         image = tf.image.decode_image(image, channels=self.COLOR_CHANNELS, dtype=tf.dtypes.float32)
         image = image/255.0 - 0.5
+        image = tf.reshape(image, shape=[self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS])
 
         if test_dataset:
             image = tf.reshape(image, shape=[1, self.IMG_SIZE, self.IMG_SIZE, self.COLOR_CHANNELS])
@@ -84,8 +85,8 @@ class LoadDataset(Helpers):
         all_image_paths.sort()
         all_vector_paths.sort()
 
-        # all_image_paths = all_image_paths[0:20000]
-        # all_vector_paths = all_vector_paths[0:20000]
+        all_image_paths = all_image_paths[0:20000]
+        all_vector_paths = all_vector_paths[0:20000]
 
         image_count = len(all_image_paths)
         print("Dataset containing %d pairs of Images and Vectors." % image_count)
@@ -96,7 +97,7 @@ class LoadDataset(Helpers):
             quit()
 
         path_ds = tf.data.Dataset.from_tensor_slices(all_image_paths)
-        image_ds = path_ds.map(self.load_and_preprocess_image, num_parallel_calls=self.AUTOTUNE)
+        image_ds = path_ds.map(self.load_and_preprocess_image, num_parallel_calls=64)
 
         vectors = np.zeros((self.scv_length, len(all_vector_paths)))
         for n, path in enumerate(all_vector_paths):

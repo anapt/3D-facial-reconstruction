@@ -18,7 +18,7 @@ class InverseFaceNetEncoderPredict(Helpers):
         Class initializer
         """
         super().__init__()
-        self.latest = self.trained_models_dir + "cp-0024.ckpt"
+        self.latest = self.trained_models_dir + "cp-0120.ckpt"
         # self.latest = self.checkpoint_dir + "cp-7500.ckpt"
         print("Latest checkpoint: ", self.latest)
         self.encoder = InverseFaceNetEncoder()

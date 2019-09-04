@@ -38,6 +38,7 @@ class LossLayer(Helpers):
                                   right_min=0, right_max=self.IMG_SIZE-1)
 
         new_image_aligned = self.align_images(new_image, original_image)
+        # new_image_aligned = new_image
         photo_term = 0
 
         for i in range(0, indices.shape[0]):
@@ -47,7 +48,7 @@ class LossLayer(Helpers):
 
         photo_term = photo_term / indices.shape[0]
 
-        return new_image_aligned, photo_term
+        return new_image, photo_term
 
     @staticmethod
     def sparse_landmark_alignment(original_image, new_image):
@@ -72,9 +73,9 @@ class LossLayer(Helpers):
         else:
             alignment_term = 0
 
-        loss = weight_photo * photo_term + \
-            weight_reg * self.statistical_regularization_term() + \
-            weight_land * alignment_term
+        loss = weight_photo * photo_term + weight_land * alignment_term
+            # weight_reg * self.statistical_regularization_term() + \
+
 
         return loss
 
@@ -126,13 +127,15 @@ def main():
     path = Helpers().bootstrapping_path + 'test_loss/'
     data_root = pathlib.Path(path)
 
+    mug_path = Helpers().bootstrapping_path + 'MUG/'
+    mug_root = pathlib.Path(mug_path)
     all_image_paths = list(data_root.glob('*.png'))
     all_image_paths = [str(path) for path in all_image_paths]
     all_image_paths.sort()
     print(all_image_paths[0:10])
     all_image_paths = all_image_paths[0:10]
 
-    all_vector_paths = list(data_root.glob('*.txt'))
+    all_vector_paths = list(data_root.glob('x*.txt'))
     all_vector_paths = [str(path) for path in all_vector_paths]
     all_vector_paths.sort()
     print(all_vector_paths[0:10])
@@ -148,8 +151,8 @@ def main():
 
         start = time.time()
         loss = ll.get_loss(original_image)
-        print("Time elapsed: %f " % (time.time() - start))
-        print("Loss: %f" % loss)
+        # print("Time elapsed: %f " % (time.time() - start))
+        print("%f" % loss)
 
     # vector_path = (Helpers().bootstrapping_path + "test_loss/{:06}.txt".format(n))
     # image_path = (Helpers().bootstrapping_path + "test_loss/{:06}.png".format(n))

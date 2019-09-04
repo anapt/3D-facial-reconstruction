@@ -205,10 +205,10 @@ class Bootstrapping(Helpers):
 
 def main():
     boot = Bootstrapping()
-    phase_1 = False
+    phase_1 = True
 
     if phase_1:
-        boot.prepare_images()
+        boot.prepare_images(fix_color=False)
         # boot.data_augmentation()
     if not phase_1:
         gpus = tf.config.experimental.list_physical_devices('GPU')

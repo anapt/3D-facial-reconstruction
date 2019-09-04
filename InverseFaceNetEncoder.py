@@ -126,6 +126,7 @@ class InverseFaceNetEncoder(Helpers):
             y = K.square(y_pred - y_true)
 
             # Model Space Parameter Loss
+            # with tf.device('/device:CPU:0'):
             model_loss = model_space_loss(y)
 
             return model_loss

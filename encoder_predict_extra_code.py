@@ -19,7 +19,7 @@ def main():
         # net.evaluate_model()
 
         x = net.model_predict(path)
-        np.savetxt(net.bootstrapping_path + 'test_loss/noboot_{:06}.txt'.format(n), x)
+        np.savetxt(net.bootstrapping_path + 'test_loss/x_120_{:06}.txt'.format(n), x)
         x = net.vector2dict(x)
 
         # x_true = np.loadtxt(net.sem_root + 'training/x_{:06}.txt'.format(n))
@@ -30,7 +30,7 @@ def main():
 
         image = net.calculate_decoder_output(x)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        cv2.imwrite(net.bootstrapping_path + 'test_loss/noboot_image_{:06}.png'.format(n), image)
+        cv2.imwrite(net.bootstrapping_path + 'test_loss/image_120_{:06}.png'.format(n), image)
     # x = np.loadtxt("/home/anapt/data/semantic/x_{:06}.txt".format(8))
     # x = np.loadtxt("./DATASET/semantic/training/x_{:06}.txt".format(1))
     # x = net.vector2dict(x)
