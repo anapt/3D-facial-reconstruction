@@ -103,4 +103,14 @@ class LandmarkDetection(Helpers):
                            shape[6, :], shape[7, :], shape[8, :], shape[9, :], shape[10, :]     # chin
                             ]], dtype=np.int32)
 
+        coords = np.squeeze(coords)
+
+        # for (i, (x, y)) in enumerate(coords):
+        #     # print(x, y)
+        #     cv2.circle(image, (x, y), 1, (255, 0, 0), -1)
+        #
+        # cv2.imshow("Frame", image)
+        # cv2.imwrite("./landmarks_loss.png", cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        # cv2.waitKey(0)
+
         return coords
