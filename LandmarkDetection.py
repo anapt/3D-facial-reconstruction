@@ -70,6 +70,8 @@ class LandmarkDetection(Helpers):
 
             out_face[feature_mask] = image[feature_mask]
 
+            cv2.imwrite("./DATASET/preprocess/{:06}.png".format(5), out_face)
+
             out_face = out_face[center[1] - 112:center[1] + 112, center[0] - 112:center[0] + 112]
 
             if flip_rgb:

@@ -5,7 +5,7 @@ from InverseFaceNetEncoder import InverseFaceNetEncoder
 from LoadDataset import LoadDataset
 from FaceNet3D import FaceNet3D as Helpers
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # TF_FORCE_GPU_ALLOW_GROWTH = False
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
@@ -54,6 +54,7 @@ class EncoderTrain(Helpers):
         """
         # load latest checkpoint and continue training
         latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        # latest = self.trained_models_dir + "cp-0205.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.inverseNet.model
@@ -70,8 +71,8 @@ class EncoderTrain(Helpers):
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
         # with tf.device('/device:CPU:0'):
-        history_1 = model.fit(keras_ds, epochs=120, steps_per_epoch=steps_per_epoch,
-                              callbacks=[self.cp_callback])
+        history_1 = model.fit(keras_ds, epochs=240, steps_per_epoch=steps_per_epoch,
+                              callbacks=[self.cp_callback, self.cp_stop])
 
         self.history_list.append(history_1)
 

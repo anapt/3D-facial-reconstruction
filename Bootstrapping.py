@@ -134,9 +134,9 @@ class Bootstrapping(Helpers):
         """
         vector = self.vector2dict(vector)
 
-        shape = vector['shape'] + np.random.normal(0, 0.1, self.shape_dim)
+        shape = vector['shape'] + np.random.normal(0, 0.3, self.shape_dim)
 
-        expression = vector['expression'] + np.random.normal(0, 0.1, self.expression_dim)
+        expression = vector['expression'] + np.random.normal(0, 0.3, self.expression_dim)
 
         color = vector['color'] + np.random.normal(0, 0.5, self.color_dim)
 
@@ -208,7 +208,7 @@ def main():
     phase_1 = True
 
     if phase_1:
-        boot.prepare_images(fix_color=False)
+        boot.prepare_images(fix_color=True)
         # boot.data_augmentation()
     if not phase_1:
         gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -224,13 +224,13 @@ def main():
                 print(e)
 
         with tf.device('/device:CPU:0'):
-            path = "./DATASET/bootstrapping/MUG/"
+            path = "./DATASET/images/validation/"
             data_root = pathlib.Path(path)
             all_image_paths = list(data_root.glob('*.png'))
             all_image_paths = [str(path) for path in all_image_paths]
             all_image_paths.sort()
             # print(all_image_paths)
-            all_image_paths = all_image_paths[0:5]
+            all_image_paths = all_image_paths[0:15]
 
             for n, path in enumerate(all_image_paths):
                 start = time.time()

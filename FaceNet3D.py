@@ -68,7 +68,12 @@ class FaceNet3D:
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path, monitor='loss',
                                                               verbose=0, save_best_only=True,
-                                                              save_weights_only=True, mode='min', save_freq='epoch')
+                                                              save_weights_only=True, mode='min', period=5)
+
+        self.cp_stop = tf.keras.callbacks.EarlyStopping(monitor='loss',
+                                                        min_delta=0,
+                                                        patience=20,
+                                                        verbose=1, mode='min')
 
         self.trained_models_dir = "./DATASET/trained_models/"
 
