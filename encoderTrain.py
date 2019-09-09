@@ -81,7 +81,7 @@ class EncoderTrain(Helpers):
         Bootstrap training.
         """
 
-        latest = self.trained_models_dir + "cp-0024.ckpt"
+        latest = self.trained_models_dir + "cp-phase1.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.inverseNet.model
@@ -89,17 +89,16 @@ class EncoderTrain(Helpers):
 
         self.inverseNet.compile()
 
-        with tf.device('/device:CPU:0'):
-            keras_ds = LoadDataset().load_dataset_batches()
-            keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
-                self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
+        # with tf.device('/device:CPU:0'):
+        keras_ds = LoadDataset().load_dataset_batches()
+        keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
+            self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
 
-        with tf.device('/device:CPU:0'):
-            history_1 = model.fit(keras_ds, epochs=24, steps_per_epoch=steps_per_epoch,
-                                  callbacks=[self.batch_stats_callback, self.cp_callback])
+        history_1 = model.fit(keras_ds, epochs=24, steps_per_epoch=steps_per_epoch,
+                              callbacks=[self.batch_stats_callback, self.cp_callback])
 
         self.history_list.append(history_1)
 
@@ -172,12 +171,12 @@ def main():
     print("\nPhase 1\nSTART")
 
     # with tf.device('/device:CPU:0'):
-    train.training_phase_12()
+    # train.training_phase_2()
 
     print("Phase 1: COMPLETE")
     # print("\n \n \nPhase 2\n START")
     #
-    # # train.training_phase_2()
+    train.training_phase_2()
     #
     # print("Phase 2: COMPLETE")
     print("Saving plots...")
