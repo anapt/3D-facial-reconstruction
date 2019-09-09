@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from LoadDataset import LoadDataset
 import tensorflow as tf
 import os
+import numpy as np
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 TF_FORCE_GPU_ALLOW_GROWTH = True
 tf.compat.v1.enable_eager_execution()
@@ -49,7 +50,14 @@ class ExpressionRecognition(Helpers):
         self.checkpoint_dir = "./DATASET/training/expression/"
         self.checkpoint_path = "./DATASET/training/expression/cp-{epoch:04d}.ckpt"
 
+        self.cp_callback = tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path, monitor='loss',
+                                                              verbose=0, save_best_only=True,
+                                                              save_weights_only=True, mode='min', save_freq='epoch')
+
         self.history_list = list()
+        self.model = self.build_model()
+
+        self.latest = self.checkpoint_dir + "cp-0024.ckpt"
 
     def build_model(self):
         model = tf.keras.Sequential([
@@ -58,13 +66,21 @@ class ExpressionRecognition(Helpers):
             tf.keras.layers.Dense(len(self.em), activation=tf.nn.softmax)
         ])
 
-        model.compile(optimizer='adam',
-                      loss='sparse_categorical_crossentropy',
-                      metrics=['accuracy'])
         return model
 
+    def compile(self):
+        """
+        Compiles the Keras model. Includes metrics to differentiate between the two main loss terms
+        """
+        self.model.compile(optimizer='adam',
+                           loss='sparse_categorical_crossentropy',
+                           metrics=['accuracy'])
+        print('Model Compiled!')
+
     def training(self):
-        model = self.build_model()
+
+        self.compile()
+        model = self.model
 
         keras_ds = LoadDataset().load_data_for_expression()
         keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
@@ -78,6 +94,31 @@ class ExpressionRecognition(Helpers):
 
         self.history_list.append(history_1)
 
+    def load_model(self):
+        """
+        Load trained model and compile
+
+        :return: Compiled Keras model
+        """
+        self.build_model()
+        self.model.load_weights(self.latest)
+
+        self.compile()
+
+    def model_predict(self, vector_path):
+        """
+        Predict out of image_path
+        :param vector_path: path
+        :return:
+        """
+        vector = np.loadtxt(vector_path)
+        vector = tf.transpose(tf.constant(vector))
+        # vector = np.transpose(vector)
+        vector = tf.reshape(vector, shape=[1, self.expression_dim])
+        x = self.model.predict(vector)
+
+        return x
+
     def plots(self):
         for i in range(0, len(self.history_list)):
 
@@ -90,6 +131,15 @@ class ExpressionRecognition(Helpers):
             plt.title('Mean Absolute Error, phase %d' % i)
             plt.plot(self.history_list[i].history['loss'])
             plt.savefig(self.plot_path + 'mae%d.pdf' % i)
+
+    # def evaluate_model(self):
+    #     """
+    #     Evaluate model on validation data
+    #     """
+    #     test_ds = LoadDataset().load_dataset_single_image(self._case)
+    #     loss, mse, mae = self.model.evaluate(test_ds)
+    #     print("\nRestored model, Loss: {0} \nMean Squared Error: {1}\n"
+    #           "Mean Absolute Error: {2}\n".format(loss, mse, mae))
 
 
 def main():
@@ -107,22 +157,28 @@ def main():
             print(e)
 
     train = ExpressionRecognition()
-    print("\n")
-    print("Batch size: %d" % train.BATCH_SIZE)
-
-    print("\nPhase 1\nSTART")
-
-    # with tf.device('/device:CPU:0'):
-    train.training()
-
-    print("Phase 1: COMPLETE")
-    # print("\n \n \nPhase 2\n START")
+    # print("\n")
+    # print("Batch size: %d" % train.BATCH_SIZE)
     #
-    # # train.training_phase_2()
+    # print("\nPhase 1\nSTART")
     #
-    # print("Phase 2: COMPLETE")
-    print("Saving plots...")
+    # # with tf.device('/device:CPU:0'):
+    # train.compile()
 
-    train.plots()
+    # train.training()
+    #
+    # print("Phase 1: COMPLETE")
+    # # print("\n \n \nPhase 2\n START")
+    # #
+    # # # train.training_phase_2()
+    # #
+    # # print("Phase 2: COMPLETE")
+    # print("Saving plots...")
+    #
+    # train.plots()
+    train.load_model()
+
+    x = train.model_predict("./DATASET/expression/sadness/test_{:06}.txt".format(0))
+    print(x*100)
 
 main()
