@@ -43,7 +43,7 @@ class FaceNet3D:
         # Landmark predictor path
         self.predictor_path = "./DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
-        self._case = 'training'
+        self._case = 'bootstrapping'
         # dataset root folders path
         self.data_root = './DATASET/images/'
         self.sem_root = './DATASET/semantic/'
