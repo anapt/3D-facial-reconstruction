@@ -10,8 +10,12 @@ import time
 import tensorflow as tf
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-TF_FORCE_GPU_ALLOW_GROWTH = True
-tf.compat.v1.enable_eager_execution()
+# TF_FORCE_GPU_ALLOW_GROWTH = False
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)
+tf.keras.backend.set_session(sess)
+
 print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
 print("\n\n\n\n")
 
@@ -134,13 +138,13 @@ class Bootstrapping(Helpers):
         """
         vector = self.vector2dict(vector)
 
-        shape = vector['shape'] + np.random.normal(0, 0.3, self.shape_dim)
+        shape = vector['shape'] + np.random.normal(0, 0.1, self.shape_dim)
 
-        expression = vector['expression'] + np.random.normal(0, 0.3, self.expression_dim)
+        expression = vector['expression'] + np.random.normal(0, 0.1, self.expression_dim)
 
-        color = vector['color'] + np.random.normal(0, 0.5, self.color_dim)
+        color = vector['color'] + np.random.normal(0, 0.1, self.color_dim)
 
-        rotation = vector['rotation'] + np.random.uniform(-0.5, 0.5, 3)
+        rotation = vector['rotation'] + np.random.uniform(-0.15, 0.15, 3)
 
         x = {
             "shape": shape,
@@ -205,39 +209,40 @@ class Bootstrapping(Helpers):
 
 def main():
     boot = Bootstrapping()
-    phase_1 = True
+    phase_1 = False
 
     if phase_1:
         boot.prepare_images(fix_color=True)
         # boot.data_augmentation()
     if not phase_1:
         gpus = tf.config.experimental.list_physical_devices('GPU')
-        print(len(gpus), "Physical GPUs")
         if gpus:
-            # Restrict TensorFlow to only use the first GPU
+            # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
             try:
-                # tf.config.experimental.set_visible_devices(gpus[1], 'GPU')
+                tf.config.experimental.set_virtual_device_configuration(
+                    gpus[0],
+                    [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=7 * 1024)])
                 logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-                print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPU")
+                print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
             except RuntimeError as e:
-                # Visible devices must be set before GPUs have been initialized
+                # Virtual devices must be set before GPUs have been initialized
                 print(e)
 
-        with tf.device('/device:CPU:0'):
-            path = "./DATASET/images/validation/"
-            data_root = pathlib.Path(path)
-            all_image_paths = list(data_root.glob('*.png'))
-            all_image_paths = [str(path) for path in all_image_paths]
-            all_image_paths.sort()
-            # print(all_image_paths)
-            all_image_paths = all_image_paths[0:15]
+        path = "./DATASET/bootstrapping/predict/"
+        data_root = pathlib.Path(path)
+        all_image_paths = list(data_root.glob('*.png'))
+        all_image_paths = [str(path) for path in all_image_paths]
+        all_image_paths.sort()
+        # print(all_image_paths)
+        # all_image_paths = all_image_paths[0:15]
 
-            for n, path in enumerate(all_image_paths):
-                start = time.time()
-                # print(path)
-                vector = boot.get_prediction(path)
-                boot.create_image_and_save(vector, 2 * n)
-                # print("Time passed:", time.time() - start)
-                print(n)
+        for n, path in enumerate(all_image_paths):
+            start = time.time()
+            # print(path)
+            vector = boot.get_prediction(path)
+            boot.create_image_and_save(vector, 2 * n)
+            # print("Time passed:", time.time() - start)
+            print(n)
+
 
 main()
