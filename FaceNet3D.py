@@ -61,10 +61,10 @@ class FaceNet3D:
         self.BATCH_SIZE = 32
         self.BATCH_ITERATIONS = 7500
 
-        self.SHUFFLE_BUFFER_SIZE = 20000
+        self.SHUFFLE_BUFFER_SIZE = 10000
 
         self.checkpoint_dir = "./DATASET/training/"
-        self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
+        self.checkpoint_path = "./DATASET/training/cp-b3-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path, monitor='loss',
                                                               verbose=0, save_best_only=True,

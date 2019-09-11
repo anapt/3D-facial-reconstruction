@@ -81,15 +81,16 @@ class EncoderTrain(Helpers):
         Bootstrap training.
         """
 
-        latest = self.trained_models_dir + "cp-phase1.ckpt"
+        latest = self.trained_models_dir + "cp-b1.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.inverseNet.model
         model.load_weights(latest)
 
+        # Build and compile model:
         self.inverseNet.compile()
+        model = self.inverseNet.model
 
-        # with tf.device('/device:CPU:0'):
         keras_ds = LoadDataset().load_dataset_batches()
         keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
             self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
@@ -97,32 +98,33 @@ class EncoderTrain(Helpers):
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
 
-        history_1 = model.fit(keras_ds, epochs=24, steps_per_epoch=steps_per_epoch,
-                              callbacks=[self.batch_stats_callback, self.cp_callback])
+        history_1 = model.fit(keras_ds, epochs=300, steps_per_epoch=steps_per_epoch,
+                              callbacks=[self.cp_callback, self.cp_stop])
 
         self.history_list.append(history_1)
 
     def training_phase_21(self):
         # load latest checkpoint and continue training
         latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        # latest = self.trained_models_dir + "cp-0205.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.inverseNet.model
         model.load_weights(latest)
 
+        # Build and compile model:
         self.inverseNet.compile()
-
-        with tf.device('/device:CPU:0'):
-            keras_ds = LoadDataset().load_dataset_batches()
-            keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
-                self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
+        model = self.inverseNet.model
+        # with tf.device('/device:CPU:0'):
+        keras_ds = LoadDataset().load_dataset_batches()
+        keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
+            self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
-
-        with tf.device('/device:CPU:0'):
-            history_1 = model.fit(keras_ds, epochs=24, steps_per_epoch=steps_per_epoch,
-                                  callbacks=[self.batch_stats_callback, self.cp_callback])
+        # with tf.device('/device:CPU:0'):
+        history_1 = model.fit(keras_ds, epochs=240, steps_per_epoch=steps_per_epoch,
+                              callbacks=[self.cp_callback, self.cp_stop])
 
         self.history_list.append(history_1)
 

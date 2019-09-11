@@ -138,13 +138,13 @@ class Bootstrapping(Helpers):
         """
         vector = self.vector2dict(vector)
 
-        shape = vector['shape'] + np.random.normal(0, 0.1, self.shape_dim)
+        shape = vector['shape'] + np.random.normal(0, 0.2, self.shape_dim)
 
-        expression = vector['expression'] + np.random.normal(0, 0.1, self.expression_dim)
+        expression = vector['expression'] + np.random.normal(0, 0.2, self.expression_dim)
 
-        color = vector['color'] + np.random.normal(0, 0.1, self.color_dim)
+        color = vector['color'] + np.random.normal(0, 0.2, self.color_dim)
 
-        rotation = vector['rotation'] + np.random.uniform(-0.15, 0.15, 3)
+        rotation = vector['rotation']
 
         x = {
             "shape": shape,
@@ -234,13 +234,13 @@ def main():
         all_image_paths = [str(path) for path in all_image_paths]
         all_image_paths.sort()
         # print(all_image_paths)
-        # all_image_paths = all_image_paths[0:15]
+        all_image_paths = all_image_paths[10000:15000]
 
         for n, path in enumerate(all_image_paths):
             start = time.time()
             # print(path)
             vector = boot.get_prediction(path)
-            boot.create_image_and_save(vector, 2 * n)
+            boot.create_image_and_save(vector, 20000 + 2 * n)
             # print("Time passed:", time.time() - start)
             print(n)
 

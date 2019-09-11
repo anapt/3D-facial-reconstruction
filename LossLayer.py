@@ -128,10 +128,10 @@ def main():
     path = "./DATASET/images/validation/"
     data_root = pathlib.Path(path)
 
-    path = "./DATASET/images/validation/p500plus/"
+    path = "./DATASET/images/validation/pb1/"
     data_root2 = pathlib.Path(path)
 
-    path = "./DATASET/images/validation/p240plus/"
+    path = "./DATASET/images/validation/p500plus/"
     data_root1 = pathlib.Path(path)
 
 
@@ -170,7 +170,7 @@ def main():
         ll = LossLayer(vector2)
         loss2 = ll.get_loss(original_image)
         # print("Time elapsed: %f " % (time.time() - start))
-        print("120 epochs: %f     240 epochs: %f" % (loss1, loss2))
+        print("phase 1 : %f     phase 2 b1: %f" % (loss1, loss2))
 
     # vector_path = (Helpers().bootstrapping_path + "test_loss/{:06}.txt".format(n))
     # image_path = (Helpers().bootstrapping_path + "test_loss/{:06}.png".format(n))
