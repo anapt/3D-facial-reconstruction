@@ -6,6 +6,7 @@ from FaceCropper import FaceCropper
 from LandmarkDetection import LandmarkDetection
 from InverseFaceNetEncoderPredict import InverseFaceNetEncoderPredict
 from ImageFormationLayer import ImageFormationLayer
+from ExpressionRecognitionNetwork import ExpressionRecognitionNetwork
 import time
 import tensorflow as tf
 import os
@@ -154,14 +155,13 @@ class ExpressionRecognition(Helpers):
         """
         vector = self.vector2dict(vector)
 
-        shape = vector['shape'] + np.random.normal(0, 0.1, self.shape_dim)
+        shape = vector['shape']
 
-        expression = vector['expression']
-                     # + np.random.normal(0, 0.1, self.expression_dim)
+        expression = vector['expression'] + np.random.normal(0, 0.5, self.expression_dim)
 
-        color = vector['color'] + np.random.normal(0, 0.5, self.color_dim)
+        color = vector['color']
 
-        rotation = vector['rotation'] + np.random.uniform(-0.5, 0.5, 3)
+        rotation = vector['rotation']
 
         x = {
             "shape": shape,
@@ -286,14 +286,38 @@ def main():
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     # cv2.imshow("", image)
     # cv2.waitKey(0)
-    for key in boot.em:
-        print(key)
-        root = "./DATASET/expression/{}/".format(key)
-        vector = root + "base.txt".format(5)
-        vector = np.loadtxt(vector)
-        x = boot.vector2dict(vector)
-        for i in range(0, 100):
-            boot.create_image(n=i, vector=x, root=root)
+    # for key in boot.em:
+    #     print(key)
+    #     root = "./DATASET/expression/{}/".format(key)
+    #     vector = root + "base.txt".format(5)
+    #     vector = np.loadtxt(vector)
+    #     x = boot.vector2dict(vector)
+    #     for i in range(0, 100):
+    #         boot.create_image(n=i, vector=x, root=root)
+
+    train = ExpressionRecognitionNetwork()
+    train.load_model()
+
+    root = "./DATASET/expression/sadness/"
+    data_root = pathlib.Path(root)
+
+    all_image_paths = list(data_root.glob('*.png'))
+    all_image_paths = [str(path) for path in all_image_paths]
+    all_image_paths.sort()
+    print(all_image_paths)
+    # all_image_paths = all_image_paths[0:5]
+
+    for n, path in enumerate(all_image_paths):
+        start = time.time()
+        # print(path)
+        vector = boot.get_prediction(path)
+        vector = boot.vector2dict(vector)
+        np.savetxt("./DATASET/expression/{:06}.txt".format(n), vector['expression'])
+        x = train.model_predict("./DATASET/expression/{:06}.txt".format(n))
+        print(x * 100)
+        # print("Time passed:", time.time() - start)
+        print(n)
+    # boot.expression_limits('surprise')
 
 
 main()

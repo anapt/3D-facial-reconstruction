@@ -11,7 +11,7 @@ print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
 print("\n\n\n\n")
 
 
-class ExpressionRecognition(Helpers):
+class ExpressionRecognitionNetwork(Helpers):
     AUTOTUNE = tf.data.experimental.AUTOTUNE
 
     def __init__(self):
@@ -65,7 +65,7 @@ class ExpressionRecognition(Helpers):
             tf.keras.layers.Dense(32, activation=tf.nn.relu),
             tf.keras.layers.Dense(len(self.em), activation=tf.nn.softmax)
         ])
-
+        model.summary()
         return model
 
     def compile(self):
@@ -156,7 +156,7 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    train = ExpressionRecognition()
+    train = ExpressionRecognitionNetwork()
     # print("\n")
     # print("Batch size: %d" % train.BATCH_SIZE)
     #
@@ -181,4 +181,4 @@ def main():
     x = train.model_predict("./DATASET/expression/sadness/test_{:06}.txt".format(0))
     print(x*100)
 
-main()
+# main()
