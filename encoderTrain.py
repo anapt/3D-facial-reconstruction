@@ -81,7 +81,7 @@ class EncoderTrain(Helpers):
         Bootstrap training.
         """
 
-        latest = self.trained_models_dir + "cp-b1.ckpt"
+        latest = self.trained_models_dir + "cp-b2.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.inverseNet.model

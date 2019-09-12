@@ -168,7 +168,7 @@ class LoadDataset(Helpers):
 
     def load_data_for_expression(self):
         data_root = pathlib.Path("./DATASET/expression/")
-        all_vector_paths = list(data_root.glob('*/x_*.txt'))
+        all_vector_paths = list(data_root.glob('*/eb3*.txt'))
         all_vector_paths = [str(path) for path in all_vector_paths]
         random.shuffle(all_vector_paths)
 
@@ -187,6 +187,38 @@ class LoadDataset(Helpers):
         label_ds = tf.data.Dataset.from_tensor_slices(tf.cast(all_vectors_labels, tf.int64))
 
         vectors = np.zeros((self.expression_dim, len(all_vector_paths)))
+        for n, path in enumerate(all_vector_paths):
+            v = np.loadtxt(path)
+            vectors[:, n] = v
+
+        vectors_ds = tf.data.Dataset.from_tensor_slices(np.transpose(vectors))
+
+        vectors_labels_ds = tf.data.Dataset.zip((vectors_ds, label_ds))
+
+        return vectors_labels_ds
+
+    def load_data_for_expression_evaluate(self):
+        data_root = pathlib.Path("./DATASET/expression/")
+        all_vector_paths = list(data_root.glob('*/eb1*.txt'))
+        all_vector_paths = [str(path) for path in all_vector_paths]
+        random.shuffle(all_vector_paths)
+
+        vector_count = len(all_vector_paths)
+        print("Dataset containing %d pairs of Vectors and Labels." % vector_count)
+
+        data_root = pathlib.Path("./DATASET/expression/")
+        label_names = sorted(item.name for item in data_root.glob('*/') if item.is_dir())
+
+        label_to_index = dict((name, index) for index, name in enumerate(label_names))
+
+        all_vectors_labels = [label_to_index[pathlib.Path(path).parent.name]
+                            for path in all_vector_paths]
+
+        # print("First 10 labels indices: ", all_vectors_labels[:10])
+        label_ds = tf.data.Dataset.from_tensor_slices(tf.cast(all_vectors_labels, tf.int64))
+
+        vectors = np.zeros((self.expression_dim, len(all_vector_paths)))
+        # vector = tf.reshape(vector, shape=[1, self.expression_dim])
         for n, path in enumerate(all_vector_paths):
             v = np.loadtxt(path)
             vectors[:, n] = v

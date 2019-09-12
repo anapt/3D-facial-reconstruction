@@ -46,19 +46,26 @@ original_expression = vector['expression']
 # less = ImageFormationLayer(zeros).get_reconstructed_image()
 # cv2.imwrite("./DATASET/expression/{}/ground_truth/left_limit.png".format(emotion), cv2.cvtColor(less, cv2.COLOR_BGR2RGB))
 
-emotion = 'surprise'
+emotion = 'neutral'
 center = np.loadtxt('./DATASET/expression/{}/ground_truth/center.txt'.format(emotion))
+center[0] = 0
+np.savetxt('./DATASET/expression/{}/ground_truth/center2.txt'.format(emotion), center)
 # happy = np.loadtxt('./DATASET/expression/{}/ground_truth/happy.txt'.format(emotion))
 # mean = center + happy /2
 right = center * 2
 left = center / 2
 
-print(np.mean(center)-np.mean(right))
+# print(np.mean(center)-np.mean(right))
+# zeros = np.zeros((231,))
+# zeros = Helpers().vector2dict(zeros)
+# for i in range(0, 50):
+#     noise = np.random.uniform(-0.5, 0.5, 64)
+#     zeros['expression'] = center + noise
+#     np.savetxt('./DATASET/expression/{}/e_{:06}.txt'.format(emotion, 100+i), zeros['expression'])
+#     # img = ImageFormationLayer(zeros).get_reconstructed_image()
+#     # cv2.imwrite("./DATASET/expression/{}/im_{:06}.png".format(emotion, i), cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 zeros = np.zeros((231,))
 zeros = Helpers().vector2dict(zeros)
-for i in range(0, 50):
-    noise = np.random.uniform(-0.5, 0.5, 64)
-    zeros['expression'] = center + noise
-    np.savetxt('./DATASET/expression/{}/e_{:06}.txt'.format(emotion, 100+i), zeros['expression'])
-    # img = ImageFormationLayer(zeros).get_reconstructed_image()
-    # cv2.imwrite("./DATASET/expression/{}/im_{:06}.png".format(emotion, i), cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+zeros['expression'] = center
+img = ImageFormationLayer(zeros).get_reconstructed_image()
+cv2.imwrite("./DATASET/expression/{}/ground_truth/im_{:06}.png".format(emotion, 5), cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
