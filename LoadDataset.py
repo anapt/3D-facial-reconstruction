@@ -86,8 +86,8 @@ class LoadDataset(Helpers):
         all_image_paths.sort()
         all_vector_paths.sort()
 
-        all_image_paths = all_image_paths[20000:30000]
-        all_vector_paths = all_vector_paths[20000:30000]
+        all_image_paths = all_image_paths[10000:30000]
+        all_vector_paths = all_vector_paths[10000:30000]
 
         image_count = len(all_image_paths)
         print("Dataset containing %d pairs of Images and Vectors." % image_count)
@@ -168,7 +168,7 @@ class LoadDataset(Helpers):
 
     def load_data_for_expression(self):
         data_root = pathlib.Path("./DATASET/expression/")
-        all_vector_paths = list(data_root.glob('*/eb3*.txt'))
+        all_vector_paths = list(data_root.glob('*/eb4*.txt'))
         all_vector_paths = [str(path) for path in all_vector_paths]
         random.shuffle(all_vector_paths)
 

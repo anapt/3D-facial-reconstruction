@@ -39,14 +39,19 @@ class InverseFaceNetEncoder(Helpers):
 
         :return: Keras.model()
         """
-        base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
+        # base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
+        #                                                      weights='imagenet',
+        #                                                      input_tensor=None,
+        #                                                      # input_shape=self.IMG_SHAPE,
+        #                                                      pooling='avg')
+        base_model = tf.keras.applications.xception.Xception(include_top=False,
                                                              weights='imagenet',
                                                              input_tensor=None,
-                                                             # input_shape=self.IMG_SHAPE,
+                                                             input_shape=self.IMG_SHAPE,
                                                              pooling='avg')
 
         base_model.trainable = True
-        # base_model.summary()
+        base_model.summary()
 
         weights_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None)
 

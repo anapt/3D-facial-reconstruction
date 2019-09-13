@@ -43,7 +43,7 @@ class EncoderTrain(Helpers):
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
         # with tf.device('/device:CPU:0'):
-        history_1 = model.fit(keras_ds, epochs=120, steps_per_epoch=steps_per_epoch,
+        history_1 = model.fit(keras_ds, epochs=2000, steps_per_epoch=steps_per_epoch,
                               callbacks=[self.cp_callback])
 
         self.history_list.append(history_1)
@@ -178,7 +178,7 @@ def main():
     print("Phase 1: COMPLETE")
     # print("\n \n \nPhase 2\n START")
     #
-    train.training_phase_2()
+    train.training_phase_1()
     #
     # print("Phase 2: COMPLETE")
     print("Saving plots...")
