@@ -49,7 +49,7 @@ class ExpressionRecognitionNetwork(Helpers):
         self.SHUFFLE_BUFFER_SIZE = 400
 
         self.checkpoint_dir = "./DATASET/training/expression/"
-        self.checkpoint_path = "./DATASET/training/expression/cp-b1-{epoch:04d}.ckpt"
+        self.checkpoint_path = "./DATASET/training/expression/cp-b2-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path, monitor='loss',
                                                               verbose=0, save_best_only=True,
@@ -58,7 +58,7 @@ class ExpressionRecognitionNetwork(Helpers):
         self.history_list = list()
         self.model = self.build_model()
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        # self.latest = self.checkpoint_dir + "cp-0025.ckpt"
+        self.latest = self.checkpoint_dir + "cp-b1-0125.ckpt"
 
     def build_model(self):
         model = tf.keras.Sequential([
@@ -97,7 +97,8 @@ class ExpressionRecognitionNetwork(Helpers):
         self.history_list.append(history_1)
 
     def training_2(self):
-        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        # latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        latest = self.latest
         # latest = self.trained_models_dir + "cp-0205.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
@@ -125,6 +126,10 @@ class ExpressionRecognitionNetwork(Helpers):
 
         :return: Compiled Keras model
         """
+        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        # latest = self.trained_models_dir + "cp-0205.ckpt"
+        print("\ncheckpoint: ", latest)
+
         self.build_model()
         self.model.load_weights(self.latest)
 
@@ -212,25 +217,25 @@ def main():
     # os.system("cp ./DATASET/expression/sadness/e_{:06}.txt".format(0) +
     #           " ./DATASET/images/training/{}/".format(train.em[int(np.argmax(x))]))
 
-    data_root = './DATASET/semantic/training/'
-    data_root = pathlib.Path(data_root)
-
-    all_vector_paths = list(data_root.glob('*.txt'))
-    all_vector_paths = [str(path) for path in all_vector_paths]
-    # all_vector_paths = all_vector_paths[4:5]
-
-    for path in all_vector_paths:
-        vector = np.loadtxt(path)
-        vector = train.vector2dict(vector)
-        vector = vector['expression']
-        x = train.model_predict_vector(vector)
-        # print(path)
-        # print(path[-10:-4])
-        if np.amax(x)*100 > 75:
-            os.system("cp ./DATASET/images/training/image_" + path[-10:-4] + ".png" +
-                      " ./DATASET/images/training/{}/".format(train.em[int(np.argmax(x))]))
-        else:
-            print("Not sure.")
+    # data_root = './DATASET/semantic/training/'
+    # data_root = pathlib.Path(data_root)
+    #
+    # all_vector_paths = list(data_root.glob('*.txt'))
+    # all_vector_paths = [str(path) for path in all_vector_paths]
+    # # all_vector_paths = all_vector_paths[4:5]
+    #
+    # for path in all_vector_paths:
+    #     vector = np.loadtxt(path)
+    #     vector = train.vector2dict(vector)
+    #     vector = vector['expression']
+    #     x = train.model_predict_vector(vector)
+    #     # print(path)
+    #     # print(path[-10:-4])
+    #     if np.amax(x)*100 > 65:
+    #         os.system("cp ./DATASET/images/training/image_" + path[-10:-4] + ".png" +
+    #                   " ./DATASET/images/training/{}/".format(train.em[int(np.argmax(x))]))
+    #     else:
+    #         print("Not sure.")
 
 
 

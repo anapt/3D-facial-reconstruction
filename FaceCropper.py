@@ -25,13 +25,13 @@ class FaceCropper(object):
         elif len(faces) == 1:
             for (x, y, w, h) in faces:
                 # for MUG dataset
-                r = 300
+                # r = 300
                 # for ColorFERET dataset
                 # w = h = 512
                 # x = 0
                 # y = y - 50
-                # r = max(w, h) / 2
-                # print(r)
+                r = max(w, h) / 2 + 100
+                print(r)
 
                 centerx = x + w / 2
                 centery = y + h / 2

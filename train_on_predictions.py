@@ -28,4 +28,4 @@ for emotion in emotions:
         vector = np.loadtxt("./DATASET/semantic/training/x_" + path[-10:-4] + ".txt")
         vector = Helpers().vector2dict(vector)
         vector = vector['expression']
-        np.savetxt("./DATASET/expression/{}/eb3_{:06}.txt".format(emotion, i), vector)
+        np.savetxt("./DATASET/expression/{}/eb4_{:06}.txt".format(emotion, i), vector)

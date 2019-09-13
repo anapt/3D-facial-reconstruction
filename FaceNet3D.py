@@ -43,7 +43,7 @@ class FaceNet3D:
         # Landmark predictor path
         self.predictor_path = "./DATASET/shape_predictor_68_face_landmarks.dat"
         # specify whether in 'training' 'bootstrapping' or 'validation' phase
-        self._case = 'bootstrapping'
+        self._case = 'training'
         # dataset root folders path
         self.data_root = './DATASET/images/'
         self.sem_root = './DATASET/semantic/'
@@ -61,14 +61,14 @@ class FaceNet3D:
         self.BATCH_SIZE = 32
         self.BATCH_ITERATIONS = 7500
 
-        self.SHUFFLE_BUFFER_SIZE = 10000
+        self.SHUFFLE_BUFFER_SIZE = 20000
 
         self.checkpoint_dir = "./DATASET/training/"
-        self.checkpoint_path = "./DATASET/training/cp-b3-{epoch:04d}.ckpt"
+        self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path, monitor='loss',
                                                               verbose=0, save_best_only=True,
-                                                              save_weights_only=True, mode='min', save_freq='epoch')
+                                                              save_weights_only=True, mode='min', period=10)
 
         self.cp_stop = tf.keras.callbacks.EarlyStopping(monitor='loss',
                                                         min_delta=0,
