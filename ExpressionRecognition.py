@@ -24,20 +24,14 @@ class ExpressionRecognition(Helpers):
         Class initializer
         """
         super().__init__()
-        # self.emotions = {
-        #     "anger": 0,
-        #     "disgust": 1,
-        #     "fear": 2,
-        #     "happiness": 3,
-        #     "neutral": 4,
-        #     "sadness": 5,
-        #     "surprise": 6
-        # }
         self.emotions = {
-            "happiness": 0,
-            "neutral": 1,
-            "sadness": 2,
-            "surprise": 3
+            "anger": 0,
+            "disgust": 1,
+            "fear": 2,
+            "happiness": 3,
+            "neutral": 4,
+            "sadness": 5,
+            "surprise": 6
         }
 
         self.em = list(self.emotions.keys())

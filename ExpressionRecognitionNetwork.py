@@ -29,12 +29,6 @@ class ExpressionRecognitionNetwork(Helpers):
             "sadness": 5,
             "surprise": 6
         }
-        # self.emotions = {
-        #     "happiness": 0,
-        #     "neutral": 1,
-        #     "sadness": 2,
-        #     "surprise": 3
-        # }
 
         self.em = list(self.emotions.keys())
         self.em.sort()
@@ -67,7 +61,7 @@ class ExpressionRecognitionNetwork(Helpers):
             tf.keras.layers.Dense(32, activation=tf.nn.relu),
             tf.keras.layers.Dense(len(self.em), activation=tf.nn.softmax)
         ])
-        model.summary()
+        # model.summary()
         return model
 
     def compile(self):
@@ -239,4 +233,4 @@ def main():
 
 
 
-main()
+# main()
