@@ -42,7 +42,7 @@ class ExpressionIntensity(Helpers):
         for emotion in self.emotions:
             data_root = './DATASET/expression/{}/ground_truth/'.format(emotion)
             expression = np.loadtxt(data_root + 'center.txt')
-            expression = expression * 3
+            expression = expression * 2.5
 
             expression_limits.update({emotion: expression})
         return expression_limits

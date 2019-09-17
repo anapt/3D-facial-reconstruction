@@ -33,7 +33,7 @@ class ExpressionRecognitionNetwork(Helpers):
         self.em = list(self.emotions.keys())
         self.em.sort()
 
-        self.WEIGHT_DECAY = 0.001
+        # self.WEIGHT_DECAY = 0.001
         # self.WEIGHT_DECAY = 0.000001
         self.BASE_LEARNING_RATE = 0.01
 
@@ -71,7 +71,7 @@ class ExpressionRecognitionNetwork(Helpers):
         self.model.compile(optimizer='adam',
                            loss='sparse_categorical_crossentropy',
                            metrics=['accuracy'])
-        print('Model Compiled!')
+        # print('Model Compiled!')
 
     def training(self):
 
@@ -122,7 +122,7 @@ class ExpressionRecognitionNetwork(Helpers):
         """
         latest = tf.train.latest_checkpoint(self.checkpoint_dir)
         # latest = self.trained_models_dir + "cp-0205.ckpt"
-        print("\ncheckpoint: ", latest)
+        # print("\ncheckpoint: ", latest)
 
         self.build_model()
         self.model.load_weights(self.latest)
@@ -149,6 +149,7 @@ class ExpressionRecognitionNetwork(Helpers):
         :param vector: vector
         :return:
         """
+        self.load_model()
         vector = tf.transpose(tf.constant(vector))
         vector = tf.reshape(vector, shape=[1, self.expression_dim])
         x = self.model.predict(vector)
