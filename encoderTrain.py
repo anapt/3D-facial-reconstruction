@@ -178,7 +178,7 @@ def main():
     print("Phase 1: COMPLETE")
     # print("\n \n \nPhase 2\n START")
     #
-    train.training_phase_1()
+    train.training_phase_12()
     #
     # print("Phase 2: COMPLETE")
     print("Saving plots...")
