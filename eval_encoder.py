@@ -19,7 +19,7 @@ print("\n\n\n\n")
 class ModelEvaluate(Helpers):
     def __init__(self):
         super().__init__()
-        self.latest = self.trained_models_dir + "cp-xception.ckpt"
+        self.latest = self.trained_models_dir + "cp-phase1.ckpt"
         self._case = 'validation'
         self.net = InverseFaceNetEncoderPredict()
         self.encoder = InverseFaceNetEncoder()

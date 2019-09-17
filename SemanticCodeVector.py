@@ -124,7 +124,7 @@ class SemanticCodeVector(Helpers):
         # d = np.zeros((self.expression_dim,))
         rotmat = np.random.uniform(-1.5, 1.5, 3)
         rotmat[0] = np.random.uniform(-1.0, 1.0, 1)
-        rotmat = np.array([0, 0, 0])
+        # rotmat = np.array([0, 0, 0])
 
         x = {
             "shape": a,

@@ -7,7 +7,7 @@ def main():
     Script used to create the synthetic dataset
     """
     # Number of images to create
-    N = 400
+    N = 100
     preprocess = image_preprocess.ImagePreprocess()
 
     for n in range(0, N):

@@ -18,7 +18,7 @@ class InverseFaceNetEncoderPredict(Helpers):
         Class initializer
         """
         super().__init__()
-        self.latest = self.trained_models_dir + "cp-b2.ckpt"
+        self.latest = self.trained_models_dir + "cp-xception.ckpt"
         # self.latest = "/home/anapt/data/cp-phase1.ckpt"
         # self.latest = self.checkpoint_dir + "cp-7500.ckpt"
         print("Latest checkpoint: ", self.latest)
@@ -36,7 +36,7 @@ class InverseFaceNetEncoderPredict(Helpers):
         model.load_weights(self.latest)
 
         self.encoder.compile()
-        # model = self.encoder.model
+        model = self.encoder.model
 
         return model
 
