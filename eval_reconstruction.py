@@ -11,6 +11,7 @@ architectures = {
     "resnet50":1,
 }
 
+
 def get_reconstructions(arch):
     path = '/home/anapt/PycharmProjects/thesis/DATASET/images/validation/'
     data_root = pathlib.Path(path)
@@ -18,19 +19,19 @@ def get_reconstructions(arch):
     all_image_paths = list(data_root.glob('*.png'))
     all_image_paths = [str(path) for path in all_image_paths]
     all_image_paths.sort()
-    # all_image_paths = all_image_paths[0:5]
+    all_image_paths = all_image_paths[0:10]
 
     net = InverseFaceNetEncoderPredict()
 
     for n, path in enumerate(all_image_paths):
         x = net.model_predict(path)
         np.savetxt("/home/anapt/PycharmProjects/thesis/DATASET/semantic/validation/{}/x_{:06}.txt".format(arch, n), x)
-        # image = net.calculate_decoder_output(x)
-        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        # cv2.imwrite("./DATASET/images/validation/{}/pimg_{:06}.png".format(arch, n), image)
+        image = net.calculate_decoder_output(x)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        cv2.imwrite("./DATASET/images/validation/{}/pimg_{:06}.png".format(arch, n), image)
 
 
-# get_reconstructions(arch='xception')
+get_reconstructions(arch='xception')
 
 
 def get_loss(arch):
@@ -75,17 +76,18 @@ def read_dfs():
     for arch in architectures:
         print(arch)
     data_resnet = pd.read_csv("./EVALUATION/{}_loss.csv".format('resnet50'))
-    # print(data_resnet.head())
     data_xception = pd.read_csv("./EVALUATION/{}_loss.csv".format('xception'))
-    # print(data_resnet.head())
-    # print(data_resnet['resnet50_loss'][0])
 
-    print(data_resnet.shape)
+    resnet = data_resnet.values
+    data_xception.insert(1, "resnet50_loss", resnet, True)
+    print(data_xception.head())
+
     count = 0
-    for i in range(0, data_resnet.shape[0]):
-        if data_resnet['resnet50_loss'][i] > data_xception['xception_loss'][i]:
-            count = count + 1
+
+    # for i in range(0, data_resnet.shape[0]):
+        # if data_resnet['resnet50_loss'][i] > data_xception['xception_loss'][i]:
+        #     count = count + 1
 
     print(count)
 
-read_dfs()
+# read_dfs()
