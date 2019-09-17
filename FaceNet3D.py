@@ -58,17 +58,17 @@ class FaceNet3D:
         # self.WEIGHT_DECAY = 0.000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 32
+        self.BATCH_SIZE = 16
         self.BATCH_ITERATIONS = 7500
 
-        self.SHUFFLE_BUFFER_SIZE = 20000
+        self.SHUFFLE_BUFFER_SIZE = 15000
 
         self.checkpoint_dir = "./DATASET/training/"
         self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path, monitor='loss',
                                                               verbose=0, save_best_only=True,
-                                                              save_weights_only=True, mode='min', period=10)
+                                                              save_weights_only=True, mode='min', save_freq='epoch')
 
         self.cp_stop = tf.keras.callbacks.EarlyStopping(monitor='loss',
                                                         min_delta=0,

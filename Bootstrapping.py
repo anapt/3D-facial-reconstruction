@@ -9,15 +9,15 @@ from ImageFormationLayer import ImageFormationLayer
 import time
 import tensorflow as tf
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-# TF_FORCE_GPU_ALLOW_GROWTH = False
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
-tf.keras.backend.set_session(sess)
-
-print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
-print("\n\n\n\n")
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# # TF_FORCE_GPU_ALLOW_GROWTH = False
+# config = tf.ConfigProto()
+# config.gpu_options.allow_growth = True
+# sess = tf.Session(config=config)
+# tf.keras.backend.set_session(sess)
+#
+# print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
+# print("\n\n\n\n")
 
 
 class Bootstrapping(Helpers):
@@ -209,7 +209,7 @@ class Bootstrapping(Helpers):
 
 def main():
     boot = Bootstrapping()
-    phase_1 = False
+    phase_1 = True
 
     if phase_1:
         boot.prepare_images(fix_color=True)
@@ -245,4 +245,4 @@ def main():
             print(n)
 
 
-main()
+# main()

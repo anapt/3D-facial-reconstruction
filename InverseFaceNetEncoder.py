@@ -39,11 +39,11 @@ class InverseFaceNetEncoder(Helpers):
 
         :return: Keras.model()
         """
-        # base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
-        #                                                      weights='imagenet',
-        #                                                      input_tensor=None,
-        #                                                      # input_shape=self.IMG_SHAPE,
-        #                                                      pooling='avg')
+        base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
+                                                             weights='imagenet',
+                                                             input_tensor=None,
+                                                             # input_shape=self.IMG_SHAPE,
+                                                             pooling='avg')
         # base_model = tf.keras.applications.xception.Xception(include_top=False,
         #                                                      weights='imagenet',
         #                                                      input_tensor=None,
@@ -60,14 +60,14 @@ class InverseFaceNetEncoder(Helpers):
         #                                                         input_tensor=None,
         #                                                         input_shape=self.IMG_SHAPE,
         #                                                         pooling='avg')
-        base_model = tf.keras.applications.inception_v3.InceptionV3(include_top=False,
-                                                                    weights='imagenet',
-                                                                    input_tensor=None,
-                                                                    input_shape=self.IMG_SHAPE,
-                                                                    pooling='avg')
+        # base_model = tf.keras.applications.inception_v3.InceptionV3(include_top=False,
+        #                                                             weights='imagenet',
+        #                                                             input_tensor=None,
+        #                                                             input_shape=self.IMG_SHAPE,
+        #                                                             pooling='avg')
 
         base_model.trainable = True
-        base_model.summary()
+        # base_model.summary()
 
         weights_init = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.01, seed=None)
 
@@ -80,6 +80,7 @@ class InverseFaceNetEncoder(Helpers):
             base_model,
             prediction_layer
         ])
+        model_o.summary()
         """
         Model: "sequential"
         _________________________________________________________________
