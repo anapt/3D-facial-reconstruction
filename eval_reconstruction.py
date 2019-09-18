@@ -100,9 +100,9 @@ def read_dfs():
 
 # read_dfs()
 
-
 # data = pd.read_csv("./EVALUATION/{}.csv".format('all_losses'))
 # print(data.to_latex(index=False))
+
 
 def bar_plot():
     data = pd.read_csv("./EVALUATION/{}.csv".format('all_losses'))
@@ -133,4 +133,15 @@ def bar_plot():
     # plt.show()
 
 
-bar_plot()
+# bar_plot()
+
+
+def get_best_reconstruction():
+    data = pd.read_csv("./EVALUATION/{}.csv".format('all_losses'))
+
+    less = data.idxmin(axis=1)
+    # print(type(less))
+    print(less.value_counts())
+
+
+get_best_reconstruction()
