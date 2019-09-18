@@ -53,8 +53,8 @@ class EncoderTrain(Helpers):
         Start training with ImageNet weights on the SyntheticDataset
         """
         # load latest checkpoint and continue training
-        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        # latest = self.trained_models_dir + "cp-0205.ckpt"
+        # latest = tf.train.latest_checkpoint(self.checkpoint_dir)
+        latest = self.trained_models_dir + "cp-phase1.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.inverseNet.model

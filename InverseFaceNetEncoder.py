@@ -39,11 +39,11 @@ class InverseFaceNetEncoder(Helpers):
 
         :return: Keras.model()
         """
-        # base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
-        #                                                      weights='imagenet',
-        #                                                      input_tensor=None,
-        #                                                      # input_shape=self.IMG_SHAPE,
-        #                                                      pooling='avg')
+        base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
+                                                             weights='imagenet',
+                                                             input_tensor=None,
+                                                             # input_shape=self.IMG_SHAPE,
+                                                             pooling='avg')
         # base_model = tf.keras.applications.xception.Xception(include_top=False,
         #                                                      weights='imagenet',
         #                                                      input_tensor=None,
@@ -60,11 +60,11 @@ class InverseFaceNetEncoder(Helpers):
         #                                                         input_tensor=None,
         #                                                         input_shape=self.IMG_SHAPE,
         #                                                         pooling='avg')
-        base_model = tf.keras.applications.inception_v3.InceptionV3(include_top=False,
-                                                                    weights='imagenet',
-                                                                    input_tensor=None,
-                                                                    input_shape=self.IMG_SHAPE,
-                                                                    pooling='avg')
+        # base_model = tf.keras.applications.inception_v3.InceptionV3(include_top=False,
+        #                                                             weights='imagenet',
+        #                                                             input_tensor=None,
+        #                                                             input_shape=self.IMG_SHAPE,
+        #                                                             pooling='avg')
 
         base_model.trainable = True
         # base_model.summary()
