@@ -7,6 +7,8 @@ import pandas as pd
 import seaborn
 from LossLayer import LossLayer
 import matplotlib.pyplot as plt
+from prediction_plots import prediction_plots
+from FaceNet3D import FaceNet3D as Helpers
 
 architectures = {
     "xception": 0,
@@ -144,4 +146,35 @@ def get_best_reconstruction():
     print(less.value_counts())
 
 
-get_best_reconstruction()
+# get_best_reconstruction()
+
+
+def get_plots():
+    path = './DATASET/semantic/validation/{}/x_{:06}.txt'.format('inceptionV3', 0)
+    inception = np.loadtxt(path)
+    inception = Helpers().vector2dict(inception)
+
+    path = './DATASET/semantic/validation/{}/x_{:06}.txt'.format('resnet50', 0)
+    resnet = np.loadtxt(path)
+    resnet = Helpers().vector2dict(resnet)
+
+    path = './DATASET/semantic/validation/{}/x_{:06}.txt'.format('xception', 0)
+    xception = np.loadtxt(path)
+    xception = Helpers().vector2dict(xception)
+
+    path = './DATASET/semantic/validation/x_{:06}.txt'.format(0)
+    true = np.loadtxt(path)
+    true = Helpers().vector2dict(true)
+
+    plt.figure()
+    plt.title('Shape')
+    plt.plot(inception['shape'], color='peachpuff', marker='h', linestyle='None', alpha=0.5)
+    plt.plot(resnet['shape'], color='lavender', marker='h', linestyle='None', alpha=0.5)
+    plt.plot(xception['shape'], color='lightcyan', marker='h', linestyle='None', alpha=0.5)
+    plt.plot(true['shape'], color='thistle', marker='H', linestyle='None', alpha=1)
+    # if save_figs:
+    #     plt.savefig(path + 'shape.png')
+    plt.show()
+
+
+get_plots()
