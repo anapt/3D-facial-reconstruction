@@ -103,7 +103,7 @@ def read_dfs():
 # read_dfs()
 
 # data = pd.read_csv("./EVALUATION/{}.csv".format('all_losses'))
-# print(data.to_latex(index=False))
+# print(data.to_latex(index=True))
 
 
 def bar_plot():
@@ -150,31 +150,77 @@ def get_best_reconstruction():
 
 
 def get_plots():
-    path = './DATASET/semantic/validation/{}/x_{:06}.txt'.format('inceptionV3', 0)
+    path = './DATASET/semantic/validation/{}/x_{:06}.txt'.format('inceptionV3', 2)
     inception = np.loadtxt(path)
     inception = Helpers().vector2dict(inception)
 
-    path = './DATASET/semantic/validation/{}/x_{:06}.txt'.format('resnet50', 0)
+    path = './DATASET/semantic/validation/{}/x_{:06}.txt'.format('resnet50', 2)
     resnet = np.loadtxt(path)
     resnet = Helpers().vector2dict(resnet)
 
-    path = './DATASET/semantic/validation/{}/x_{:06}.txt'.format('xception', 0)
+    path = './DATASET/semantic/validation/{}/x_{:06}.txt'.format('xception', 2)
     xception = np.loadtxt(path)
     xception = Helpers().vector2dict(xception)
 
-    path = './DATASET/semantic/validation/x_{:06}.txt'.format(0)
+    path = './DATASET/semantic/validation/x_{:06}.txt'.format(2)
     true = np.loadtxt(path)
     true = Helpers().vector2dict(true)
 
     plt.figure()
     plt.title('Shape')
-    plt.plot(inception['shape'], color='peachpuff', marker='h', linestyle='None', alpha=0.5)
-    plt.plot(resnet['shape'], color='lavender', marker='h', linestyle='None', alpha=0.5)
-    plt.plot(xception['shape'], color='lightcyan', marker='h', linestyle='None', alpha=0.5)
-    plt.plot(true['shape'], color='thistle', marker='H', linestyle='None', alpha=1)
+    plt.plot(inception['shape'], color='mediumaquamarine', marker='h', linestyle='None', alpha=1, label='InceptionV3')
+    plt.plot(resnet['shape'], color='goldenrod', marker='h', linestyle='None', alpha=1, label='ResNet50')
+    plt.plot(xception['shape'], color='forestgreen', marker='h', linestyle='None', alpha=1, label='Xception')
+    plt.plot(true['shape'], color='firebrick', marker='H', linestyle='None', alpha=1, label='Original')
     # if save_figs:
     #     plt.savefig(path + 'shape.png')
-    plt.show()
+    plt.yticks(rotation=0, fontsize=7)
+    plt.xticks(rotation=0, fontsize=7)
+    plt.legend(loc='upper left', shadow=True, fontsize='small')
+    # plt.show()
+    plt.savefig('./EVALUATION/shape.png')
+
+    plt.figure()
+    plt.title('Expression')
+    plt.plot(inception['expression'], color='mediumaquamarine', marker='h', linestyle='None', alpha=1, label='InceptionV3')
+    plt.plot(resnet['expression'], color='goldenrod', marker='h', linestyle='None', alpha=1, label='ResNet50')
+    plt.plot(xception['expression'], color='forestgreen', marker='h', linestyle='None', alpha=1, label='Xception')
+    plt.plot(true['expression'], color='firebrick', marker='H', linestyle='None', alpha=1, label='Original')
+    # if save_figs:
+    #     plt.savefig(path + 'shape.png')
+    plt.yticks(rotation=0, fontsize=7)
+    plt.xticks(rotation=0, fontsize=7)
+    plt.legend(loc='upper left', shadow=True, fontsize='small')
+    # plt.show()
+    plt.savefig('./EVALUATION/expression.png')
+
+    plt.figure()
+    plt.title('Rotation')
+    plt.plot(inception['rotation'], color='mediumaquamarine', marker='h', linestyle='None', alpha=1, label='InceptionV3')
+    plt.plot(resnet['rotation'], color='goldenrod', marker='h', linestyle='None', alpha=1, label='ResNet50')
+    plt.plot(xception['rotation'], color='forestgreen', marker='h', linestyle='None', alpha=1, label='Xception')
+    plt.plot(true['rotation'], color='firebrick', marker='H', linestyle='None', alpha=1, label='Original')
+    # if save_figs:
+    #     plt.savefig(path + 'shape.png')
+    plt.yticks(rotation=0, fontsize=7)
+    plt.xticks(rotation=0, fontsize=7)
+    plt.legend(loc='upper left', shadow=True, fontsize='small')
+    # plt.show()
+    plt.savefig('./EVALUATION/rotation.png')
+
+    plt.figure()
+    plt.title('Color')
+    plt.plot(inception['color'], color='mediumaquamarine', marker='h', linestyle='None', alpha=1, label='InceptionV3')
+    plt.plot(resnet['color'], color='goldenrod', marker='h', linestyle='None', alpha=1, label='ResNet50')
+    plt.plot(xception['color'], color='forestgreen', marker='h', linestyle='None', alpha=1, label='Xception')
+    plt.plot(true['color'], color='firebrick', marker='H', linestyle='None', alpha=1, label='Original')
+    # if save_figs:
+    #     plt.savefig(path + 'shape.png')
+    plt.yticks(rotation=0, fontsize=7)
+    plt.xticks(rotation=0, fontsize=7)
+    plt.legend(loc='upper left', shadow=True, fontsize='small')
+    # plt.show()
+    plt.savefig('./EVALUATION/color.png')
 
 
-get_plots()
+# get_plots()

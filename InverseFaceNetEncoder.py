@@ -161,6 +161,7 @@ class InverseFaceNetEncoder(Helpers):
         """
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
                                                                   rho=0.95, epsilon=None, decay=self.WEIGHT_DECAY),
-                           loss=self.loss_func,
+                           # loss=self.loss_func,
+                           loss=tf.keras.losses.mean_squared_error,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')
