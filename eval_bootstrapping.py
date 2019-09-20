@@ -9,6 +9,17 @@ from LossLayer import LossLayer
 import matplotlib.pyplot as plt
 from prediction_plots import prediction_plots
 from FaceNet3D import FaceNet3D as Helpers
+from ImageFormationLayer import ImageFormationLayer
+
+archs = {
+            "resnet50": 0,
+            "boot1": 1,
+            "boot2": 2,
+            "boot3": 3
+        }
+
+stages = list(archs.keys())
+stages.sort()
 
 
 def get_reconstructions(arch):
@@ -95,14 +106,32 @@ def read_dfs():
 
 # read_dfs()
 
-# data = pd.read_csv("./EVALUATION/{}.csv".format('all_losses'))
-# print(data.to_latex(index=True))
+# data = pd.read_csv("./EVALUATION/{}.csv".format('boot_losses_real'))
+# print(data.to_latex(index=True, float_format="{:0.3f}".format))
+
+
+def compare_original_third():
+    data = pd.read_csv("./EVALUATION/{}_loss.csv".format('resnet50'))
+    data_boot3 = pd.read_csv("./EVALUATION/{}_loss.csv".format('boot3'))
+    data_boot3 = data_boot3.values
+    data.insert(1, "bootstrapping3", data_boot3, True)
+
+    print(data.head())
+    less = data.idxmin(axis=1)
+    # print(data.idxmin())
+    # print(type(less))
+    print(less.value_counts())
+
+
+compare_original_third()
 
 
 def get_best_reconstruction():
     data = pd.read_csv("./EVALUATION/{}.csv".format('boot_losses_real'))
 
+    # less = data.idxmin(axis=1)
     less = data.idxmin(axis=1)
+    print(data.idxmin())
     # print(type(less))
     print(less.value_counts())
 
@@ -118,14 +147,14 @@ def bar_plot():
     boot3 = np.mean(data['bootstrapping3'])
 
     means = (boot3, boot2, boot1, resnet)
-    print(means)
+    # print("{:0.3f}, {:0.3f}".format(means[0], means[3]))
     N = 4
     plt.figure(figsize=(16, 12))
     ind = np.arange(N)  # the x locations for the groups
     width = 0.50  # the width of the bars: can also be len(x) sequence
     std = (np.std(data['bootstrapping3']), np.std(data['bootstrapping2']), np.std(data['bootstrapping1']),
            np.std(data['resnet50_loss']))
-    print(std)
+    # print("{:0.3f}".format(std))
     # p1 = plt.barh(ind, means, width, xerr=std, tick_label=['ResNet50', '1st Bootstrapping',
     #                                                        '2nd Bootstrapping', '3rd Bootstrapping'],
     #               color=['peachpuff', 'lavender', 'lightcyan', 'mediumaquamarine'])
@@ -139,8 +168,21 @@ def bar_plot():
     plt.xlabel('Loss', fontsize=20)
     plt.xticks(rotation=0)
     plt.yticks(rotation=90, ha='center', va='center', fontsize=15)
-    plt.savefig("loss_boot_real.pdf")
+    # plt.savefig("loss_boot_real.pdf")
     # plt.show()
 
 
-bar_plot()
+# bar_plot()
+
+def get_images():
+    n = 21
+    for arch in stages:
+        # vector = np.loadtxt("./DATASET/semantic/validation/{}/x_{:06}.txt".format(arch, n))
+        vector = np.loadtxt("./DATASET/real_images/{}/x_{:06}.txt".format(arch, n))
+        image = ImageFormationLayer(vector).get_reconstructed_image()
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        cv2.imwrite('./DATASET/images/validation/boot_real/{}_{:06}.png'.format(arch, n), image)
+
+
+# get_images()
+
