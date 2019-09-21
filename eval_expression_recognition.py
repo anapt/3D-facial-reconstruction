@@ -27,6 +27,19 @@ em = list(emotions.keys())
 em.sort()
 
 
+def plot_histogram(img):
+    color = ('b', 'g', 'r')
+
+    # print(img)
+    for i, col in enumerate(color):
+        histr = cv2.calcHist([img], [i], None, [256], [10, 256])
+        plt.plot(histr, color=col)
+        plt.xlim([0, 256])
+
+    plt.savefig('./after.pdf')
+    plt.show()
+
+
 def move_images():
     root = "/home/anapt/Documents/MUG/subjects3/"
     data_root = pathlib.Path(root)
@@ -82,7 +95,7 @@ def fix_color(source_color):
     mean_source_color = color / counter
 
     constant = (mean_average_color - mean_source_color)*0.5
-
+    print(constant)
     for i in range(0, source_color.shape[0]):
         for j in range(0, source_color.shape[1]):
             if np.mean(source_color[i, j, :]) > 5:
@@ -131,11 +144,33 @@ def prepare_images():
                 continue
             if img.shape != IMG_SHAPE:
                 continue
-
             img = fix_color(img)
 
             cv2.imwrite(path_mild_images.format(em, i), img)
 
+
+def prepare_images_test():
+    IMG_SIZE = 224
+    COLOR_CHANNELS = 3
+    IMG_SHAPE = (IMG_SIZE, IMG_SIZE, COLOR_CHANNELS)
+
+    path_wild_images = "/home/anapt/Documents/expression_validation/happiness/im_{:06}.jpg".format(372)
+    path_mild_images = "/home/anapt/Documents/img_{:06}.png".format(0)
+
+    img = cv2.imread(path_wild_images, 1)
+
+    img = FaceCropper().generate(img, save_image=False, n=None)
+
+    img = LandmarkDetection().cutout_mask_array(img, flip_rgb=False)
+
+    # plot_histogram(img)
+    img = fix_color(img)
+    # plot_histogram(img)
+
+    cv2.imwrite(path_mild_images, img)
+
+
+# prepare_images_test()
 
 encoder = InverseFaceNetEncoderPredict()
 
@@ -156,8 +191,8 @@ def get_prediction(image_path):
     return x
 
 
-d = {'true_label': [], 'predicted_label': []}
-df = pd.DataFrame(data=d, dtype=np.int64)
+# d = {'true_label': [], 'predicted_label': []}
+# df = pd.DataFrame(data=d, dtype=np.int64)
 for em in emotions:
     path = "/home/anapt/Documents/expression_validation/clean/{}/".format(em)
     data_root = pathlib.Path(path)
@@ -173,7 +208,7 @@ for em in emotions:
 
         df = df.append({'true_label': emotions[em], 'predicted_label': np.argmax(x)}, ignore_index=True)
 
-export_csv = df.to_csv(r'/home/anapt/export_dataframe.csv', index=None, header=True)
+# export_csv = df.to_csv(r'/home/anapt/export_dataframe.csv', index=None, header=True)
 
 
 def get_confusion_matrix():
