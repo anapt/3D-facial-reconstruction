@@ -7,6 +7,7 @@ from LandmarkDetection import LandmarkDetection
 from InverseFaceNetEncoderPredict import InverseFaceNetEncoderPredict
 from ImageFormationLayer import ImageFormationLayer
 from ExpressionRecognitionNetwork import ExpressionRecognitionNetwork
+import pandas as pd
 import time
 import tensorflow as tf
 import os
@@ -14,7 +15,7 @@ import os
 
 class ExpressionIntensity(Helpers):
 
-    def __init__(self, vector):
+    def __init__(self, vector=0):
         """
         Class initializer
         """
@@ -36,15 +37,16 @@ class ExpressionIntensity(Helpers):
         self.network = ExpressionRecognitionNetwork()
         self.network.load_model()
         self.k = 5
+        # self.encoder = InverseFaceNetEncoderPredict()
 
-    def read_limits(self):
-        expression_limits = {}
-        for emotion in self.emotions:
-            data_root = './DATASET/expression/{}/ground_truth/'.format(emotion)
-            expression = np.loadtxt(data_root + 'center.txt')
-            expression = expression * 2.5
-
-            expression_limits.update({emotion: expression})
+    @staticmethod
+    def read_limits():
+        expression_limits = pd.read_csv('./DATASET/expression/expression.csv')
+        # print(expression_limits.head())
+        x = np.loadtxt("/home/anapt/Documents/expression_intensity/x_{:06}.txt".format(5))
+        x = Helpers().vector2dict(x)
+        expression_limits['sadness'] = x['expression']
+        expression_limits = expression_limits*1.2
         return expression_limits
 
     def get_prediction(self):
@@ -55,7 +57,8 @@ class ExpressionIntensity(Helpers):
 
     def get_intensity(self):
         x = self.get_prediction()
-        intensity = self.k * (np.mean(self.vector)/np.mean(self.expression_limits[self.em[int(np.argmax(x))]]))
+        intensity = self.k * abs(np.mean(self.vector)/np.mean(self.expression_limits[self.em[int(np.argmax(x))]]))
+        print(np.mean(self.vector))
         return intensity
 
     def get_all(self):
@@ -63,15 +66,40 @@ class ExpressionIntensity(Helpers):
         intensity = self.get_intensity()
         print("Expression classified as {}, with confidence {:0.2f}% and calculated intesity of {:0.2f}/5".
               format(self.em[int(np.argmax(x))], np.amax(x * 100), intensity))
-        return None
+        return self.em[int(np.argmax(x))], np.amax(x * 100), intensity
+
+    # def get_encoding(self, image_path):
+    #
+    #     vector = self.encoder.model_predict(image_path=image_path)
+    #     vector = Helpers().vector2dict(vector)
+    #     expression = vector['expression']
+    #
+    #     return expression
 
 
 def main():
-    data_root = './DATASET/expression/anger/ground_truth/center.txt'
-    vector = np.loadtxt(data_root)
-    exp = ExpressionIntensity(vector)
-    # print(np.mean(exp.expression_limits['anger']))
-    # print(exp.read_limits())
-    exp.get_all()
+    path = '/home/anapt/Documents/expression_intensity/'
+    data_root = pathlib.Path(path)
+
+    all_vector_paths = list(data_root.glob('x*.txt'))
+    all_vector_paths = [str(path) for path in all_vector_paths]
+    all_vector_paths.sort()
+
+    d = {'prediction': [], 'confidence': [], 'intensity': []}
+    df = pd.DataFrame(data=d, dtype=np.float)
+    for n, path in enumerate(all_vector_paths):
+        x = np.loadtxt(path)
+        x = Helpers().vector2dict(x)
+        expression = x['expression']
+
+        exp = ExpressionIntensity(expression)
+        # print(np.mean(exp.expression_limits['anger']))
+        # print(exp.read_limits())
+        pred, conf, inten = exp.get_all()
+
+        df = df.append({'prediction': pred, 'confidence': conf, 'intensity': inten}, ignore_index=True)
+
+    export_csv = df.to_csv(r'./intensity1.csv', index=None, header=True)
+
 
 main()
