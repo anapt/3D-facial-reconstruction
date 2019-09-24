@@ -5,11 +5,7 @@ import tensorflow as tf
 import os
 import numpy as np
 import pathlib
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-TF_FORCE_GPU_ALLOW_GROWTH = True
-tf.compat.v1.enable_eager_execution()
-print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
-print("\n\n\n\n")
+from InverseFaceNetEncoderPredict import InverseFaceNetEncoderPredict
 
 
 class ExpressionRecognitionNetwork(Helpers):
@@ -37,13 +33,13 @@ class ExpressionRecognitionNetwork(Helpers):
         # self.WEIGHT_DECAY = 0.000001
         self.BASE_LEARNING_RATE = 0.01
 
-        self.BATCH_SIZE = 8
+        self.BATCH_SIZE = 2
         self.BATCH_ITERATIONS = 400
 
-        self.SHUFFLE_BUFFER_SIZE = 400
+        self.SHUFFLE_BUFFER_SIZE = 186
 
         self.checkpoint_dir = "./DATASET/training/expression/"
-        self.checkpoint_path = "./DATASET/training/expression/cp-b2-{epoch:04d}.ckpt"
+        self.checkpoint_path = "./DATASET/training/expression/cp-{epoch:04d}.ckpt"
 
         self.cp_callback = tf.keras.callbacks.ModelCheckpoint(self.checkpoint_path, monitor='loss',
                                                               verbose=0, save_best_only=True,
@@ -52,7 +48,9 @@ class ExpressionRecognitionNetwork(Helpers):
         self.history_list = list()
         self.model = self.build_model()
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        self.latest = self.checkpoint_dir + "cp-b1-0125.ckpt"
+        # print(self.latest)
+        # self.latest = "./DATASET/trained_models/expression/" + "cp-0253.ckpt"
+        print(self.latest)
 
     def build_model(self):
         model = tf.keras.Sequential([
@@ -120,9 +118,6 @@ class ExpressionRecognitionNetwork(Helpers):
 
         :return: Compiled Keras model
         """
-        latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        # latest = self.trained_models_dir + "cp-0205.ckpt"
-        # print("\ncheckpoint: ", latest)
 
         self.build_model()
         self.model.load_weights(self.latest)
@@ -180,58 +175,88 @@ class ExpressionRecognitionNetwork(Helpers):
         print("\nRestored model, Loss: {0} \nAccuracy: {1}\n".format(loss, acc))
 
 
-def main():
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    if gpus:
-        # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
-        try:
-            tf.config.experimental.set_virtual_device_configuration(
-                gpus[0],
-                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=7 * 1024)])
-            logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-            print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-        except RuntimeError as e:
-            # Virtual devices must be set before GPUs have been initialized
-            print(e)
-
+def train_model():
     train = ExpressionRecognitionNetwork()
-    # print("\n")
-    # print("Batch size: %d" % train.BATCH_SIZE)
-    #
-    # print("\nPhase 1\nSTART")
-    #
-    # # with tf.device('/device:CPU:0'):
-    # train.compile()
+    print("\n")
+    print("Batch size: %d" % train.BATCH_SIZE)
 
-    # train.training_2()
-    # train.plots()
+    print("\nPhase 1\nSTART")
+
+    train.compile()
+
+    train.training()
+    train.plots()
+
+
+def bootstrap():
+    train = ExpressionRecognitionNetwork()
     train.load_model()
-    # train.evaluate_model()
-    # x = train.model_predict_path("./DATASET/expression/sadness/e_{:06}.txt".format(0))
-    # print(type(train.em[int(np.argmax(x))]))
-    # os.system("cp ./DATASET/expression/sadness/e_{:06}.txt".format(0) +
-    #           " ./DATASET/images/training/{}/".format(train.em[int(np.argmax(x))]))
+    data_root = './DATASET/semantic/training/'
+    data_root = pathlib.Path(data_root)
 
-    # data_root = './DATASET/semantic/training/'
-    # data_root = pathlib.Path(data_root)
-    #
-    # all_vector_paths = list(data_root.glob('*.txt'))
-    # all_vector_paths = [str(path) for path in all_vector_paths]
-    # # all_vector_paths = all_vector_paths[4:5]
-    #
-    # for path in all_vector_paths:
-    #     vector = np.loadtxt(path)
-    #     vector = train.vector2dict(vector)
-    #     vector = vector['expression']
-    #     x = train.model_predict_vector(vector)
-    #     # print(path)
-    #     # print(path[-10:-4])
-    #     if np.amax(x)*100 > 65:
-    #         os.system("cp ./DATASET/images/training/image_" + path[-10:-4] + ".png" +
-    #                   " ./DATASET/images/training/{}/".format(train.em[int(np.argmax(x))]))
-    #     else:
-    #         print("Not sure.")
+    all_vector_paths = list(data_root.glob('*.txt'))
+    all_vector_paths = [str(path) for path in all_vector_paths]
+    # all_vector_paths = all_vector_paths[4:5]
+
+    for path in all_vector_paths:
+        vector = np.loadtxt(path)
+        vector = train.vector2dict(vector)
+        vector = vector['expression']
+        x = train.model_predict_vector(vector)
+        # print(path)
+        # print(path[-10:-4])
+        if np.amax(x)*100 > 65:
+            os.system("mv ./DATASET/images/training/image_" + path[-10:-4] + ".png" +
+                      " ./DATASET/images/training/{}/".format(train.em[int(np.argmax(x))]))
+        else:
+            print("Not sure.")
 
 
+encoder = InverseFaceNetEncoderPredict()
 
-# main()
+
+def get_prediction(image_path):
+    """
+    Use trained model to predict code vector
+    :param image_path: path to image
+    :return: code vector
+    """
+    vector = encoder.model_predict(image_path=image_path)
+    vector = Helpers().vector2dict(vector)
+    expression = vector['expression']
+    x = ExpressionRecognitionNetwork().model_predict_vector(expression)
+    # print("Expression classified as {}, with confidence {:0.2f}%".format(em[int(np.argmax(x))],
+    #                                                                      np.amax(x*100)))
+
+    return x
+
+
+def main():
+    # train_model()
+    # bootstrap()
+    train = ExpressionRecognitionNetwork()
+    train.load_model()
+    emotions = ['anger', 'happiness', 'fear', 'disgust', 'sadness', 'surprise', 'neutral']
+    for emotion in emotions:
+        print(emotion)
+        data_root = '/home/anapt/Documents/expression_validation/pngs/{}/'.format(emotion)
+        data_root = pathlib.Path(data_root)
+
+        all_vector_paths = list(data_root.glob('*.png'))
+        all_vector_paths = [str(path) for path in all_vector_paths]
+        all_vector_paths.sort()
+        all_vector_paths = all_vector_paths[0:500]
+
+        for path in all_vector_paths:
+            print(path)
+            vector = encoder.model_predict(image_path=path)
+            vector = Helpers().vector2dict(vector)
+            expression = vector['expression']
+            x = ExpressionRecognitionNetwork().model_predict_vector(expression)
+            if train.em[int(np.argmax(x))] == emotion:
+                os.system("cp " + path + " /home/anapt/Documents/expression_validation/"
+                                         "clean/{}/".format(emotion))
+    # print("Expression classified as {}, with confidence {:0.2f}%".format(train.em[int(np.argmax(x))], np.amax(x*100)))
+
+
+main()

@@ -6,6 +6,7 @@ from FaceCropper import FaceCropper
 from LandmarkDetection import LandmarkDetection
 from InverseFaceNetEncoderPredict import InverseFaceNetEncoderPredict
 from FaceNet3D import FaceNet3D as Helpers
+from ImageFormationLayer import ImageFormationLayer
 import tensorflow as tf
 import pandas as pd
 from ExpressionRecognitionNetwork import ExpressionRecognitionNetwork
@@ -191,8 +192,8 @@ def get_prediction(image_path):
     return x
 
 
-# d = {'true_label': [], 'predicted_label': []}
-# df = pd.DataFrame(data=d, dtype=np.int64)
+d = {'true_label': [], 'predicted_label': []}
+df = pd.DataFrame(data=d, dtype=np.int64)
 for em in emotions:
     path = "/home/anapt/Documents/expression_validation/clean/{}/".format(em)
     data_root = pathlib.Path(path)
@@ -208,15 +209,15 @@ for em in emotions:
 
         df = df.append({'true_label': emotions[em], 'predicted_label': np.argmax(x)}, ignore_index=True)
 
-# export_csv = df.to_csv(r'/home/anapt/export_dataframe.csv', index=None, header=True)
+    export_csv = df.to_csv(r'/home/anapt/expression_validation.csv', index=None, header=True)
 
 
 def get_confusion_matrix():
-    data = pd.read_csv("/home/anapt/export_dataframe.csv")
+    data = pd.read_csv("/home/anapt/expression_validation.csv")
 
     confusion_mat = confusion_matrix(data['true_label'], data['predicted_label'])
 
-    labels = ["ANGRY", "DISGUST", "FEAR", "HAPPY", "NEUTRAL", "SAD", "SURPRISE"]
+    labels = ["ANGER", "DISGUST", "FEAR", "HAPPY", "NEUTRAL", "SAD", "SURPRISE"]
 
     plt.figure(figsize=(16, 9))
     seaborn.heatmap(confusion_mat, cmap="Blues", annot=True, fmt=".1f", xticklabels=labels, yticklabels=labels)
@@ -226,4 +227,7 @@ def get_confusion_matrix():
     plt.tick_params(labelsize=7)
     plt.xticks(rotation=0)
     plt.yticks(rotation=90)
-    plt.savefig("/home/anapt/conf_boot1.pdf")
+    plt.savefig("/home/anapt/confusion.pdf")
+
+
+get_confusion_matrix()

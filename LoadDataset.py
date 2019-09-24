@@ -168,7 +168,7 @@ class LoadDataset(Helpers):
 
     def load_data_for_expression(self):
         data_root = pathlib.Path("./DATASET/expression/")
-        all_vector_paths = list(data_root.glob('*/eb4*.txt'))
+        all_vector_paths = list(data_root.glob('*/eb5*.txt'))
         all_vector_paths = [str(path) for path in all_vector_paths]
         random.shuffle(all_vector_paths)
 
@@ -199,7 +199,7 @@ class LoadDataset(Helpers):
 
     def load_data_for_expression_evaluate(self):
         data_root = pathlib.Path("./DATASET/expression/")
-        all_vector_paths = list(data_root.glob('*/eb1*.txt'))
+        all_vector_paths = list(data_root.glob('*/e*.txt'))
         all_vector_paths = [str(path) for path in all_vector_paths]
         random.shuffle(all_vector_paths)
 
