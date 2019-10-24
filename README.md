@@ -18,8 +18,11 @@ pip install -r requirements.txt
 The following files have to be downloaded and placed on the _./DATASET_ directory
 * **[The Basel Face Model](http://gravis.dmi.unibas.ch/PMM/data/overview/)** 
 : a simple viewer of the model is available _[here](https://github.com/unibas-gravis/basel-face-model-viewer)_
-* **[dlib's Landmark predictor](https://github.com/davisking/dlib-models)** : shape_predictor_68_face_landmarks.dat
+* **[dlib's Landmark Predictor](https://github.com/davisking/dlib-models)** : shape_predictor_68_face_landmarks.dat
 * **[OpenCV's Frontal Face Detector](https://github.com/opencv/opencv/blob/master/data/haarcascades/haarcascade_frontalface_default.xml)** : haarcascade_frontalface_default.xml
+
+For validation on real faces:
+* **[The MUG Facial Expression Database](https://mug.ee.auth.gr/fed/)**
 
 ## Bugs & Request
 Please report bugs and request features using the [Issue Tracker](https://github.com/anapt/thesis/issues).
