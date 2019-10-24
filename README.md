@@ -1,4 +1,4 @@
-#Thesis
+# Thesis
 3D facial reconstruction, expression recognition and transfer from monocular RGB images with a deep convolutional auto-encoding neural network
 
 ## Abstract
@@ -13,6 +13,13 @@ The problem tackled by the present work has until now been solved by the use of 
 ```
 pip install -r requirements.txt
 ```
+
+## Data Dependencies
+The following files have to be downloaded and placed on the _./DATASET_ directory
+* **[The Basel Face Model](http://gravis.dmi.unibas.ch/PMM/data/overview/)** 
+: a simple viewer of the model is available _[here](https://github.com/unibas-gravis/basel-face-model-viewer)_
+* **[dlib's Landmark predictor](https://github.com/davisking/dlib-models)** : shape_predictor_68_face_landmarks.dat
+* **[OpenCV's Frontal Face Detector](https://github.com/opencv/opencv/blob/master/data/haarcascades/haarcascade_frontalface_default.xml)** : haarcascade_frontalface_default.xml
 
 ## Bugs & Request
 Please report bugs and request features using the [Issue Tracker](https://github.com/anapt/thesis/issues).
