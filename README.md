@@ -1,4 +1,5 @@
-# Thesis
+#Thesis
+3D facial reconstruction, expression recognition and transfer from monocular RGB images with a deep convolutional auto-encoding neural network
 
 ## Abstract
 The present work implements an automatic system for coding and reconstructing 3D faces from low resolution RGB images by utilizing machine learning algorithms.
