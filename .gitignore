@@ -1,12 +1,10 @@
-/data-raw
 /.idea
 /venv
 __pycache__/
-/thesis
-/DATASET
-/altmany-export_fig-b1a7288/
-/tensorflow tutorials
-/plots
-/loss function weigths
+/DATASET/model2017-1_bfm_nomouth.h5
+/DATASET/shape_predictor_68_face_landmarks.dat
+/DATASET/haarcascade_frontalface_default.xml
+/DATASET/training/
+/DATASET/trained_models/
 *.pdf
 *.ods
