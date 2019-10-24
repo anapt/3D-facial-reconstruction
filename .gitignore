@@ -8,6 +8,5 @@ __pycache__/
 /DATASET/trained_models/
 *.pdf
 *.ods
-/unused/
-/scripts/
 /RESULTS/
+/REMOVE/
