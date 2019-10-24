@@ -16,8 +16,7 @@ import os
 # sess = tf.Session(config=config)
 # tf.keras.backend.set_session(sess)
 #
-# print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
-# print("\n\n\n\n")
+# print("GPU Available:", tf.test.is_gpu_available())
 
 
 class Bootstrapping(Helpers):
@@ -227,19 +226,17 @@ def main():
                 # Virtual devices must be set before GPUs have been initialized
                 print(e)
 
-        path = "./DATASET/bootstrapping/predict/"
+        path = "./DATASET/bootstrapping/MUG/"
         data_root = pathlib.Path(path)
         all_image_paths = list(data_root.glob('*.png'))
         all_image_paths = [str(path) for path in all_image_paths]
         all_image_paths.sort()
-        # print(all_image_paths)
-        all_image_paths = all_image_paths[10000:15000]
 
         for n, path in enumerate(all_image_paths):
             start = time.time()
             # print(path)
             vector = boot.get_prediction(path)
-            boot.create_image_and_save(vector, 20000 + 2 * n)
+            boot.create_image_and_save(vector, 2 * n)
             # print("Time passed:", time.time() - start)
             print(n)
 

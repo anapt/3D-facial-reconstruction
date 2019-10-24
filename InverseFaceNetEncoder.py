@@ -40,25 +40,20 @@ class InverseFaceNetEncoder(Helpers):
 
         :return: Keras.model()
         """
-        # base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
-        #                                                      weights='imagenet',
-        #                                                      input_tensor=None,
-        #                                                      # input_shape=self.IMG_SHAPE,
-        #                                                      pooling='avg')
-        base_model = ResNet101(input_tensor=None,
-                               include_top=False,
-                               weights='imagenet',
-                               backend=tf.keras.backend,
-                               layers=tf.keras.layers,
-                               models=tf.keras.models,
-                               utils=tf.keras.utils,
-                               input_shape=self.IMG_SHAPE,
-                               pooling='avg')
-        # base_model = tf.keras.applications.resnet.ResNet101(include_top=False,
-        #                                                     weights='imagenet',
-        #                                                     input_tensor=None,
-        #                                                     # input_shape=self.IMG_SHAPE,
-        #                                                     pooling='avg')
+        base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
+                                                             weights='imagenet',
+                                                             input_tensor=None,
+                                                             # input_shape=self.IMG_SHAPE,
+                                                             pooling='avg')
+        # base_model = ResNet101(input_tensor=None,
+        #                        include_top=False,
+        #                        weights='imagenet',
+        #                        backend=tf.keras.backend,
+        #                        layers=tf.keras.layers,
+        #                        models=tf.keras.models,
+        #                        utils=tf.keras.utils,
+        #                        input_shape=self.IMG_SHAPE,
+        #                        pooling='avg')
         # base_model = tf.keras.applications.xception.Xception(include_top=False,
         #                                                      weights='imagenet',
         #                                                      input_tensor=None,
@@ -70,11 +65,6 @@ class InverseFaceNetEncoder(Helpers):
         #                                                                          input_shape=self.IMG_SHAPE,
         #                                                                          pooling='avg')
 
-        # base_model = tf.keras.applications.densenet.DenseNet201(include_top=False,
-        #                                                         weights='imagenet',
-        #                                                         input_tensor=None,
-        #                                                         input_shape=self.IMG_SHAPE,
-        #                                                         pooling='avg')
         # base_model = tf.keras.applications.inception_v3.InceptionV3(include_top=False,
         #                                                             weights='imagenet',
         #                                                             input_tensor=None,

@@ -70,8 +70,6 @@ class LandmarkDetection(Helpers):
 
             out_face[feature_mask] = image[feature_mask]
 
-            cv2.imwrite("./DATASET/preprocess/{:06}.png".format(5), out_face)
-
             out_face = out_face[center[1] - 112:center[1] + 112, center[0] - 112:center[0] + 112]
 
             if flip_rgb:
@@ -106,13 +104,5 @@ class LandmarkDetection(Helpers):
                             ]], dtype=np.int32)
 
         coords = np.squeeze(coords)
-
-        # for (i, (x, y)) in enumerate(coords):
-        #     # print(x, y)
-        #     cv2.circle(image, (x, y), 1, (255, 0, 0), -1)
-        #
-        # cv2.imshow("Frame", image)
-        # cv2.imwrite("./landmarks_loss.png", cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-        # cv2.waitKey(0)
 
         return coords

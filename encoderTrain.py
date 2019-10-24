@@ -12,8 +12,7 @@ config.gpu_options.allow_growth = True
 sess = tf.Session(config=config)
 tf.keras.backend.set_session(sess)
 
-print("\n\n\n\nGPU Available:", tf.test.is_gpu_available())
-print("\n\n\n\n")
+print("GPU Available:", tf.test.is_gpu_available())
 
 
 class EncoderTrain(Helpers):
@@ -35,14 +34,14 @@ class EncoderTrain(Helpers):
         # Build and compile model:
         self.inverseNet.compile()
         model = self.inverseNet.model
-        # with tf.device('/device:CPU:0'):
+
         keras_ds = LoadDataset().load_dataset_batches()
         keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
             self.BATCH_SIZE).prefetch(None)
 
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
-        # with tf.device('/device:CPU:0'):
+
         history_1 = model.fit(keras_ds, epochs=2000, steps_per_epoch=steps_per_epoch,
                               callbacks=[self.cp_callback])
 
@@ -50,27 +49,23 @@ class EncoderTrain(Helpers):
 
     def training_phase_12(self):
         """
-        Start training with ImageNet weights on the SyntheticDataset
+        Continue training from latest checkpoint
         """
         # load latest checkpoint and continue training
         latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        # latest = self.trained_models_dir + "cp-resnet101.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.inverseNet.model
         model.load_weights(latest)
 
-        # Build and compile model:
         self.inverseNet.compile()
         model = self.inverseNet.model
-        # with tf.device('/device:CPU:0'):
         keras_ds = LoadDataset().load_dataset_batches()
         keras_ds = keras_ds.shuffle(self.SHUFFLE_BUFFER_SIZE).repeat().batch(
             self.BATCH_SIZE).prefetch(buffer_size=self.AUTOTUNE)
 
         steps_per_epoch = tf.math.ceil(self.SHUFFLE_BUFFER_SIZE / self.BATCH_SIZE).numpy()
         print("Training with %d steps per epoch" % steps_per_epoch)
-        # with tf.device('/device:CPU:0'):
         history_1 = model.fit(keras_ds, epochs=2000, steps_per_epoch=steps_per_epoch,
                               callbacks=[self.cp_callback, self.cp_stop])
 
@@ -153,18 +148,6 @@ class EncoderTrain(Helpers):
 
 
 def main():
-    # gpus = tf.config.experimental.list_physical_devices('GPU')
-    # if gpus:
-    #     # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
-    #     try:
-    #         tf.config.experimental.set_virtual_device_configuration(
-    #             gpus[0],
-    #             [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=7*1024)])
-    #         logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-    #         print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-    #     except RuntimeError as e:
-    #         # Virtual devices must be set before GPUs have been initialized
-    #         print(e)
 
     train = EncoderTrain()
     print("\n")
@@ -172,13 +155,13 @@ def main():
 
     print("\nPhase 1\nSTART")
 
-    # with tf.device('/device:CPU:0'):
-    # train.training_phase_2()
+    train.training_phase_1()
 
     print("Phase 1: COMPLETE")
+
     # print("\n \n \nPhase 2\n START")
     #
-    train.training_phase_12()
+    # train.training_phase_2()
     #
     # print("Phase 2: COMPLETE")
     print("Saving plots...")

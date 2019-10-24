@@ -48,8 +48,6 @@ class ExpressionRecognitionNetwork(Helpers):
         self.history_list = list()
         self.model = self.build_model()
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        # print(self.latest)
-        self.latest = "./DATASET/trained_models/expression/" + "cp-0253.ckpt"
         print(self.latest)
 
     def build_model(self):
@@ -89,9 +87,7 @@ class ExpressionRecognitionNetwork(Helpers):
         self.history_list.append(history_1)
 
     def training_2(self):
-        # latest = tf.train.latest_checkpoint(self.checkpoint_dir)
         latest = self.latest
-        # latest = self.trained_models_dir + "cp-0205.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.model
@@ -203,8 +199,7 @@ def bootstrap():
         vector = train.vector2dict(vector)
         vector = vector['expression']
         x = train.model_predict_vector(vector)
-        # print(path)
-        # print(path[-10:-4])
+
         if np.amax(x)*100 > 65:
             os.system("mv ./DATASET/images/training/image_" + path[-10:-4] + ".png" +
                       " ./DATASET/images/training/{}/".format(train.em[int(np.argmax(x))]))
@@ -230,33 +225,3 @@ def get_prediction(image_path):
 
     return x
 
-
-def main():
-    # train_model()
-    # bootstrap()
-    train = ExpressionRecognitionNetwork()
-    train.load_model()
-    emotions = ['neutral']
-    for emotion in emotions:
-        print(emotion)
-        data_root = '/home/anapt/Documents/expression_validation/pngs/{}/'.format(emotion)
-        data_root = pathlib.Path(data_root)
-
-        all_vector_paths = list(data_root.glob('*.png'))
-        all_vector_paths = [str(path) for path in all_vector_paths]
-        all_vector_paths.sort()
-        all_vector_paths = all_vector_paths[500:1000]
-
-        for path in all_vector_paths:
-            print(path)
-            vector = encoder.model_predict(image_path=path)
-            vector = Helpers().vector2dict(vector)
-            expression = vector['expression']
-            x = ExpressionRecognitionNetwork().model_predict_vector(expression)
-            if train.em[int(np.argmax(x))] == emotion:
-                os.system("cp " + path + " /home/anapt/Documents/expression_validation/"
-                                         "clean/{}/".format(emotion))
-    # print("Expression classified as {}, with confidence {:0.2f}%".format(train.em[int(np.argmax(x))], np.amax(x*100)))
-
-
-# main()

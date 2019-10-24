@@ -1,4 +1,3 @@
-import matplotlib.pylab as plt
 import tensorflow as tf
 
 
