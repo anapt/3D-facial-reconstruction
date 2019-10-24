@@ -28,13 +28,12 @@ class Bootstrapping(Helpers):
         """
         super().__init__()
         # path with wild images
+        # TODO add path to images
         self.path_wild_images = "/home/anapt/Documents/MUG/unpacked/"
-        # self.path_wild_images = "/home/anapt/Documents/dataset2/"
         # path to store images after pre-process (crop and color fix)
         self.path_mild_images = "./DATASET/bootstrapping/MUG/{:06}.png"
-        # self.path_mild_images = "./DATASET/bootstrapping/FERET/{:06}.png"
-        # paths for bootstrapping training set
 
+        # paths for bootstrapping training set
         self.image_path = "./DATASET/bootstrapping/images/image_{:06}.png"
         self.vector_path = "./DATASET/bootstrapping/semantic/x_{:06}.txt"
 

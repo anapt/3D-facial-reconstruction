@@ -18,7 +18,7 @@ class InverseFaceNetEncoderPredict(Helpers):
         Class initializer
         """
         super().__init__()
-        self.latest = self.trained_models_dir + "cp-phase1.ckpt"
+        self.latest = self.trained_models_dir + "cp-0062.ckpt"
         # self.latest = "/home/anapt/data/cp-phase1.ckpt"
         # self.latest = self.checkpoint_dir + "cp-7500.ckpt"
         print("Latest checkpoint: ", self.latest)

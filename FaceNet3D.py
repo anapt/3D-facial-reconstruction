@@ -61,7 +61,7 @@ class FaceNet3D:
         self.BATCH_SIZE = 32
         self.BATCH_ITERATIONS = 7500
 
-        self.SHUFFLE_BUFFER_SIZE = 20000
+        self.SHUFFLE_BUFFER_SIZE = 15000
 
         self.checkpoint_dir = "./DATASET/training/"
         self.checkpoint_path = "./DATASET/training/cp-{epoch:04d}.ckpt"

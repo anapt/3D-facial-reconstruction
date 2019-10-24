@@ -49,7 +49,7 @@ class ExpressionRecognitionNetwork(Helpers):
         self.model = self.build_model()
         self.latest = tf.train.latest_checkpoint(self.checkpoint_dir)
         # print(self.latest)
-        # self.latest = "./DATASET/trained_models/expression/" + "cp-0253.ckpt"
+        self.latest = "./DATASET/trained_models/expression/" + "cp-0253.ckpt"
         print(self.latest)
 
     def build_model(self):
@@ -236,7 +236,7 @@ def main():
     # bootstrap()
     train = ExpressionRecognitionNetwork()
     train.load_model()
-    emotions = ['anger', 'happiness', 'fear', 'disgust', 'sadness', 'surprise', 'neutral']
+    emotions = ['neutral']
     for emotion in emotions:
         print(emotion)
         data_root = '/home/anapt/Documents/expression_validation/pngs/{}/'.format(emotion)
@@ -245,7 +245,7 @@ def main():
         all_vector_paths = list(data_root.glob('*.png'))
         all_vector_paths = [str(path) for path in all_vector_paths]
         all_vector_paths.sort()
-        all_vector_paths = all_vector_paths[0:500]
+        all_vector_paths = all_vector_paths[500:1000]
 
         for path in all_vector_paths:
             print(path)
@@ -259,4 +259,4 @@ def main():
     # print("Expression classified as {}, with confidence {:0.2f}%".format(train.em[int(np.argmax(x))], np.amax(x*100)))
 
 
-main()
+# main()

@@ -43,7 +43,7 @@ class ExpressionIntensity(Helpers):
     def read_limits():
         expression_limits = pd.read_csv('./DATASET/expression/expression.csv')
         # print(expression_limits.head())
-        x = np.loadtxt("/home/anapt/Documents/expression_intensity/x_{:06}.txt".format(1))
+        x = np.loadtxt("/home/anapt/Documents/expression_intensity/x_{:06}.txt".format(5))
         x = Helpers().vector2dict(x)
         expression_limits['sadness'] = x['expression']
         expression_limits = expression_limits*1.2

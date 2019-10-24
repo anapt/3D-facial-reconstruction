@@ -54,7 +54,7 @@ class EncoderTrain(Helpers):
         """
         # load latest checkpoint and continue training
         latest = tf.train.latest_checkpoint(self.checkpoint_dir)
-        # latest = self.trained_models_dir + "cp-phase1.ckpt"
+        # latest = self.trained_models_dir + "cp-resnet101.ckpt"
         print("\ncheckpoint: ", latest)
         # Build and compile model:
         model = self.inverseNet.model

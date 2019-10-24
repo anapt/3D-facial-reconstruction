@@ -4,6 +4,7 @@ from keras import backend as K
 import numpy as np
 from FaceNet3D import FaceNet3D as Helpers
 from SemanticCodeVector import SemanticCodeVector
+from keras_applications.resnet import ResNet101
 
 tf.compat.v1.enable_eager_execution()
 
@@ -39,11 +40,25 @@ class InverseFaceNetEncoder(Helpers):
 
         :return: Keras.model()
         """
-        base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
-                                                             weights='imagenet',
-                                                             input_tensor=None,
-                                                             # input_shape=self.IMG_SHAPE,
-                                                             pooling='avg')
+        # base_model = tf.keras.applications.resnet50.ResNet50(include_top=False,
+        #                                                      weights='imagenet',
+        #                                                      input_tensor=None,
+        #                                                      # input_shape=self.IMG_SHAPE,
+        #                                                      pooling='avg')
+        base_model = ResNet101(input_tensor=None,
+                               include_top=False,
+                               weights='imagenet',
+                               backend=tf.keras.backend,
+                               layers=tf.keras.layers,
+                               models=tf.keras.models,
+                               utils=tf.keras.utils,
+                               input_shape=self.IMG_SHAPE,
+                               pooling='avg')
+        # base_model = tf.keras.applications.resnet.ResNet101(include_top=False,
+        #                                                     weights='imagenet',
+        #                                                     input_tensor=None,
+        #                                                     # input_shape=self.IMG_SHAPE,
+        #                                                     pooling='avg')
         # base_model = tf.keras.applications.xception.Xception(include_top=False,
         #                                                      weights='imagenet',
         #                                                      input_tensor=None,
@@ -161,7 +176,6 @@ class InverseFaceNetEncoder(Helpers):
         """
         self.model.compile(optimizer=tf.keras.optimizers.Adadelta(lr=self.BASE_LEARNING_RATE,
                                                                   rho=0.95, epsilon=None, decay=self.WEIGHT_DECAY),
-                           # loss=self.loss_func,
-                           loss=tf.keras.losses.mean_squared_error,
+                           loss=self.loss_func,
                            metrics=[tf.keras.losses.mean_squared_error, tf.keras.losses.mean_absolute_error])
         print('Model Compiled!')
