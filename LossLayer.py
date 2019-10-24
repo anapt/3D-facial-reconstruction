@@ -65,7 +65,6 @@ class LossLayer(Helpers):
 
     def get_loss(self, original_image):
         weight_photo = 1
-        weight_reg = 2.9e-5
         weight_land = 1
         new_image, photo_term = self.dense_photometric_alignment(original_image)
         if weight_land == 1:
@@ -74,8 +73,6 @@ class LossLayer(Helpers):
             alignment_term = 0
 
         loss = weight_photo * photo_term + weight_land * alignment_term
-            # weight_reg * self.statistical_regularization_term() + \
-
 
         return loss
 
@@ -120,85 +117,3 @@ class LossLayer(Helpers):
         im1Reg = cv2.warpPerspective(new_image, h, (width, height))
 
         return im1Reg
-
-
-def main():
-    n = 1
-    path = Helpers().bootstrapping_path + 'test_loss/'
-    path = "./DATASET/images/validation/"
-    data_root = pathlib.Path(path)
-
-    path = "./DATASET/images/validation/pb1/"
-    data_root2 = pathlib.Path(path)
-
-    path = "./DATASET/images/validation/p500plus/"
-    data_root1 = pathlib.Path(path)
-
-
-    mug_path = Helpers().bootstrapping_path + 'MUG/'
-    mug_root = pathlib.Path(mug_path)
-    all_image_paths = list(data_root.glob('*.png'))
-    all_image_paths = [str(path) for path in all_image_paths]
-    all_image_paths.sort()
-    print(all_image_paths[0:5])
-    all_image_paths = all_image_paths[0:5]
-
-    all_vector_paths1 = list(data_root1.glob('x*.txt'))
-    all_vector_paths1 = [str(path) for path in all_vector_paths1]
-    all_vector_paths1.sort()
-    print(all_vector_paths1[0:5])
-
-    all_vector_paths2 = list(data_root2.glob('x*.txt'))
-    all_vector_paths2 = [str(path) for path in all_vector_paths2]
-    all_vector_paths2.sort()
-    print(all_vector_paths2[0:5])
-    # all_vector_paths = all_vector_paths[0:10]
-    #
-    for n, path in enumerate(all_image_paths):
-        vector1 = np.loadtxt(all_vector_paths1[n])
-        vector2 = np.loadtxt(all_vector_paths2[n])
-
-
-        original_image = cv2.imread(path, 1)
-        # RGB TO BGR
-        original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-
-        start = time.time()
-        ll = LossLayer(vector1)
-        loss1 = ll.get_loss(original_image)
-
-        ll = LossLayer(vector2)
-        loss2 = ll.get_loss(original_image)
-        # print("Time elapsed: %f " % (time.time() - start))
-        print("phase 1 : %f     phase 2 b1: %f" % (loss1, loss2))
-
-    # vector_path = (Helpers().bootstrapping_path + "test_loss/{:06}.txt".format(n))
-    # image_path = (Helpers().bootstrapping_path + "test_loss/{:06}.png".format(n))
-    #
-    # vector = np.loadtxt(vector_path)
-    #
-    # ll = LossLayer(vector)
-    #
-    # original_image = cv2.imread(image_path, 1)
-    # # RGB TO BGR
-    # original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-    #
-    # start = time.time()
-    # loss = ll.get_loss(original_image)
-    # print("Time elapsed: %f " % (time.time() - start))
-    # print("Loss: %f" % loss)
-
-    # path = "./DATASET/images/validation/predictions/pimage_{:06}.png".format(1)
-    # original_image = cv2.imread(path, 1)
-    # # RGB TO BGR
-    # original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
-    # vector = np.loadtxt("./DATASET/images/validation/predictions/x_{:06}.txt".format(0))
-    # ll = LossLayer(vector)
-    # start = time.time()
-    # loss = ll.get_loss(original_image)
-    # # print("Time elapsed: %f " % (time.time() - start))
-    # print("%f" % loss)
-
-
-
-# main()

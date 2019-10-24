@@ -2,8 +2,7 @@ from InverseFaceNetEncoderPredict import InverseFaceNetEncoderPredict
 import pathlib
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
-from prediction_plots import prediction_plots
+from unused.prediction_plots import prediction_plots
 
 
 def main():

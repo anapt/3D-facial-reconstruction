@@ -31,7 +31,6 @@ class InverseFaceNet(Helpers):
             self.bases_dict_2_vectors()
 
     def bases_dict_2_vectors(self):
-
         avg_shape = self.bases['average_shape']
         shape_pca = self.bases['shape_pca']
         color_pca = self.bases['color_pca']
@@ -84,15 +83,17 @@ class InverseFaceNet(Helpers):
         :return: regularization loss
         """
         shape = tf.slice(y_pred, begin=[0, 0], size=[self.BATCH_SIZE, self.shape_dim], name='shape')
-        expression = tf.slice(y_pred, begin=[0, self.shape_dim], size=[self.BATCH_SIZE, self.expression_dim], name='expression')
-        color = tf.slice(y_pred, begin=[0, self.shape_dim + self.expression_dim], size=[self.BATCH_SIZE, self.color_dim], name='color')
+        expression = tf.slice(y_pred, begin=[0, self.shape_dim], size=[self.BATCH_SIZE, self.expression_dim],
+                              name='expression')
+        color = tf.slice(y_pred, begin=[0, self.shape_dim + self.expression_dim],
+                         size=[self.BATCH_SIZE, self.color_dim], name='color')
 
         shape2 = tf.math.multiply(tf.math.square(shape, name='shape_squared'), 0.9)
         reflectance2 = tf.math.multiply(tf.math.square(color), 32)
         expression2 = tf.math.multiply(tf.math.square(expression), 1.6 * 10e-3)
 
         regularization_term = tf.math.reduce_sum(shape2, axis=1) + tf.math.reduce_sum(reflectance2, axis=1) + \
-            tf.math.reduce_sum(expression2, axis=1)
+                              tf.math.reduce_sum(expression2, axis=1)
 
         regularization_term = tf.math.reduce_mean(regularization_term)  # shape = ()
 
@@ -156,10 +157,10 @@ class InverseFaceNet(Helpers):
         # Model space parameter loss
         regularization = self.regularization_term
         photometric = self.photometric_term
+
         # print(self.model.input)
 
         def custom_loss(y_true, y_pred):
-
             weight_reg = 0.06
             weight_photo = 1
 

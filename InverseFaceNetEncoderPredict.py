@@ -4,11 +4,8 @@ from InverseFaceNetEncoder import InverseFaceNetEncoder
 from LoadDataset import LoadDataset
 from ImageFormationLayer import ImageFormationLayer
 import numpy as np
-import matplotlib.pyplot as plt
 from FaceNet3D import FaceNet3D as Helpers
-from prediction_plots import prediction_plots
-import cv2
-import pathlib
+
 tf.compat.v1.enable_eager_execution()
 
 

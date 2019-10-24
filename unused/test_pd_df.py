@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-data_resnet = pd.read_csv("./EVALUATION/{}_loss.csv".format('resnet50'))
+data_resnet = pd.read_csv("./RESULTS/{}_loss.csv".format('resnet50'))
 # print(data_resnet.head())
-data_xception = pd.read_csv("./EVALUATION/{}_loss.csv".format('xception'))
+data_xception = pd.read_csv("./RESULTS/{}_loss.csv".format('xception'))
 # print(data_xception.head())
 
 xception = data_xception.values
