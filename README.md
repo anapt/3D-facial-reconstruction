@@ -12,7 +12,7 @@ The problem tackled by the present work has until now been solved by the use of 
 ## Results
 #### Autoencoding network for 3D reconstruction
 Below are the results of the 3D reconstruction auto-encoding network:
-- A comparison between the results of Xception, ResNet50 and InceptionV3 architectures. Image (i.) shows the original face and images (ii.) - (iv.) depict the reconstructions with Xception, ResNet50 and InseptionV3, respectively.
+- A comparison between the results of Xception, ResNet50 and InceptionV3 architectures. Image (i.) shows the original face and images (ii.) - (iv.) depict the reconstructions with Xception, ResNet50 and InceptionV3, respectively.
 
 ![Encoder Architectures Comparison](./DATASET/images/results/compare_reconstructions-01.png) 
 
