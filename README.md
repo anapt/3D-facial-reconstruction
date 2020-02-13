@@ -9,6 +9,29 @@ As part of this work, an algorithm for the creation of two-dimensional synthetic
 The outcome of this work is not only proof of the potential of 3D facial reconstruction from RGB images, but also the ability to exploit the 3D face by changing its expression, color or lighting. In the context of said exploitation, a neural network was implemented to identify the facial expression from the information encoded in the code vector.
 The problem tackled by the present work has until now been solved by the use of iterative algorithms based on the linear combination of existing prototype samples, which require a large amount of data from three-dimensional scans. Here, an attempt is made to solve this problem purely with machine learning and synthetic data.
 
+## Results
+#### Autoencoding network for 3D reconstruction
+Below are the results of the 3D reconstruction auto-encoding network:
+- A comparison between the results of Xception, ResNet50 and InceptionV3 architectures. Image (i.) shows the original face and images (ii.) - (iv.) depict the reconstructions with Xception, ResNet50 and InseptionV3, respectively.
+
+![Encoder Architectures Comparison](./DATASET/images/results/compare_reconstructions-01.png) 
+
+- A comparison between the reconstructions of ResNet50 at 4 different stages of the training. Image (i.) shows the original face, image (ii.) shows the initial reconstruction by a ResNet50 encoder and images (iii.) - (iv.) show the reconstructions after each bootstrapping iteration.
+
+![Reconstructions after each bootstrapping iteration](./DATASET/images/results/compare_boot.png) 
+
+#### Facial expression recognition network
+Below are the results of the 2-hidden-layer expression classification network.
+
+- The network can classify between 7 different expressions, namely anger, disgust, fear, happiness, neutral, sadness and surprise.
+The images below depict the base expressions that were used as a reference when creating the synthetic dataset.
+![Expression Vector Bases](./DATASET/images/results/expression_bases.png)
+
+- The matrix (CM) shows the accuracy of the network on 700 real faces from [The MUG Facial Expression Database](https://mug.ee.auth.gr/fed/).
+The network was trained on synthetic data.
+![Confusion Matrix](./DATASET/images/results/confusion_custom_loss_boot-1.png) 
+
+
 ## Dependencies
 ```
 pip install -r requirements.txt
