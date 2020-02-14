@@ -47,5 +47,9 @@ The following files have to be downloaded and placed on the _./DATASET_ director
 For validation on real faces:
 * **[The MUG Facial Expression Database](https://mug.ee.auth.gr/fed/)**
 
+#### How images are pre-processed for reconstructions
+
+![Image Preprocess](./DATASET/images/results/preprocess_flow.png)
+
 ## Bugs & Request
 Please report bugs and request features using the [Issue Tracker](https://github.com/anapt/thesis/issues).
