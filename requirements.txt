@@ -25,7 +25,7 @@ opencv-python==4.1.0.25
 opt-einsum==3.0.1
 pathlib==1.0.1
 Pillow==7.1.0
-protobuf==3.9.0
+protobuf==3.15.0
 pyparsing==2.4.2
 python-dateutil==2.8.0
 PyWavelets==1.0.3
